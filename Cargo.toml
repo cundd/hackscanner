@@ -1,0 +1,17 @@
+[package]
+name = "hackscanner"
+version = "0.1.0"
+authors = ["Daniel Corn <info@cundd.net>"]
+
+[lib]
+name = "hackscanner_lib"
+path = "src/lib.rs"
+
+[[bin]]
+name = "hackscanner"
+path = "src/bin.rs"
+
+[dependencies]
+walkdir = "2"
+regex = "0.2.6"
+error-chain = "0.11.0"
