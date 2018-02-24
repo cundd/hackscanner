@@ -1,44 +1,7 @@
 use regex::Regex;
 use errors::*;
-
-/// Generic trait for Rule functions
-pub trait RuleTrait<T> {
-    fn path(&self) -> Option<T>;
-    fn content(&self) -> Option<T>;
-    fn score(&self) -> i8;
-}
-
-/// "raw" Rule
-#[derive(Debug, Clone)]
-pub struct Rule {
-    path: Option<String>,
-    content: Option<String>,
-    score: i8,
-}
-
-impl Rule {
-    pub fn new(path: Option<String>, content: Option<String>, score: i8) -> Rule
-    {
-        Rule {
-            path,
-            content,
-            score,
-        }
-    }
-}
-
-impl RuleTrait<String> for Rule {
-    fn path(&self) -> Option<String> {
-        self.path.clone()
-    }
-
-    fn content(&self) -> Option<String> {
-        self.content.clone()
-    }
-    fn score(&self) -> i8 {
-        self.score
-    }
-}
+use super::RuleTrait;
+use super::rule::Rule;
 
 /// Rule with compiled regular expression members
 #[derive(Debug)]
