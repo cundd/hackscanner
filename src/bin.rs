@@ -27,10 +27,16 @@ fn main() {
 // for which the error type is always our own `Error`.
 fn run() -> Result<(), Error> {
     configure_logging(simplelog::LogLevelFilter::Trace);
-    let rules = get_builtin_rules();
-    let matches = file_finder::find_files(env::current_dir().unwrap(), &rules);
-    for entry in matches {
-        println!("{}", entry.path().display());
+    let rules = &get_builtin_rules();
+    let files = file_finder::find_files(env::current_dir().unwrap(), rules);
+    let pattern_rules = PatternRule::from_rules_filtered(rules);
+    let mut ratings = classifier::classify_entries(&files, &pattern_rules);
+
+    ratings.sort_unstable_by(|rating_a, rating_b| rating_b.rating().cmp(&rating_a.rating()));
+    for rating in ratings {
+        if rating.rating() > Severity::NOTICE as isize {
+            println!("{}", rating);
+        }
     }
 
     Ok(())
