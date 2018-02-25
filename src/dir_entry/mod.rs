@@ -2,8 +2,9 @@ use std::fs;
 use std::path::Path;
 use std::ffi::OsStr;
 use std::io;
+use std::fmt::Debug;
 
-pub trait DirEntryTrait {
+pub trait DirEntryTrait: Debug {
     /// The full path that this entry represents.
     ///
     /// See [`walkdir::DirEntry::path`] for more details

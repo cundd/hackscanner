@@ -6,6 +6,7 @@ use std::fs;
 use std::fs::FileType;
 use super::DirEntryTrait;
 
+#[derive(Debug)]
 pub struct DirEntry {
     raw: PathBuf,
     #[allow(unused)]

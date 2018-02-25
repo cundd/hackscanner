@@ -15,7 +15,7 @@ fn contains_path(paths: &Vec<WalkdirDirEntry>, test_path: String) -> bool {
 
 #[test]
 fn find_files_test() {
-    let rules = vec![Rule::new(Some("tx_mocfilemanager".to_owned()), None, 8)];
+    let rules = vec![Rule::new(Severity::NOTICE, Some("tx_mocfilemanager".to_owned()), None)];
     let matches = file_finder::find_files(env!("CARGO_MANIFEST_DIR"), &rules);
 
     assert_eq!(3, matches.len());
@@ -48,7 +48,7 @@ fn find_files_test() {
 
 #[test]
 fn find_files_one_test() {
-    let rules = vec![Rule::new(Some("\\.tx_mocfilemanager".to_owned()), None, 8)];
+    let rules = vec![Rule::new(Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)];
     let matches = file_finder::find_files(env!("CARGO_MANIFEST_DIR"), &rules);
 
     assert_eq!(1, matches.len());

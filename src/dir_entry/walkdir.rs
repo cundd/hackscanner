@@ -5,6 +5,7 @@ use std::ffi::OsStr;
 use walkdir;
 use super::DirEntryTrait;
 
+#[derive(Debug)]
 pub struct DirEntry {
     raw: walkdir::DirEntry,
 }

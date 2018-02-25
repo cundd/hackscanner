@@ -1,11 +1,13 @@
 use std::path::Path;
+use std::fmt::Debug;
 use walkdir::WalkDir;
+
 use rule::*;
-use dir_entry::walkdir;
+use dir_entry::*;
 use matcher::Matcher;
 
 /// Return all [`DirEntry`s] that match at least one of the [`Rule`s] starting at `root`
-pub fn find_files<P: AsRef<Path>>(root: P, rules: &Vec<Rule>) -> Vec<walkdir::DirEntry> {
+pub fn find_files<P: AsRef<Path> + Debug + Clone>(root: P, rules: &Vec<Rule>) -> Vec<walkdir::DirEntry> {
     let pattern_rules = PatternRule::from_rules_filtered(rules);
 
     iterate_files(root, |entry: &walkdir::DirEntry| {
@@ -15,12 +17,17 @@ pub fn find_files<P: AsRef<Path>>(root: P, rules: &Vec<Rule>) -> Vec<walkdir::Di
     })
 }
 
-fn iterate_files<P: AsRef<Path>, F>(root: P, callback: F) -> Vec<walkdir::DirEntry>
+fn iterate_files<P: AsRef<Path> + Debug + Clone, F>(root: P, callback: F) -> Vec<walkdir::DirEntry>
     where F: Fn(&walkdir::DirEntry) -> bool {
-    WalkDir::new(root)
+    trace!("Will search files in root {:?}", root);
+
+    let result = WalkDir::new(root.clone())
         .into_iter()
         .filter_map(|e| e.ok())
         .map(|e| walkdir::DirEntry::from_dir_entry(e))
         .filter(callback)
-        .collect()
+        .collect();
+    trace!("Did search files in root {:?}", root);
+
+    result
 }

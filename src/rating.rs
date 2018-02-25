@@ -1,12 +1,13 @@
 use dir_entry::DirEntryTrait;
 
+#[derive(Debug)]
 pub struct Rating<'a> {
     entry: &'a DirEntryTrait,
-    rating: i32,
+    rating: isize,
 }
 
 impl<'a> Rating<'a> {
-    pub fn new(entry: &'a DirEntryTrait, rating: i32) -> Self {
+    pub fn new(entry: &'a DirEntryTrait, rating: isize) -> Self {
         Rating {
             entry,
             rating,
@@ -17,7 +18,7 @@ impl<'a> Rating<'a> {
         self.entry
     }
 
-    pub fn rating(&self) -> i32 {
+    pub fn rating(&self) -> isize {
         self.rating
     }
 }

@@ -1,21 +1,34 @@
+use severity::Severity;
 use super::RuleTrait;
-
 /// "raw" Rule
 #[derive(Debug, Clone)]
 pub struct Rule {
     path: Option<String>,
     content: Option<String>,
-    score: i8,
+    severity: Severity,
 }
 
 impl Rule {
-    pub fn new(path: Option<String>, content: Option<String>, score: i8) -> Rule
+    /// Build a new rule
+    pub fn new(score: Severity, path: Option<String>, content: Option<String>) -> Rule
     {
         Rule {
             path,
             content,
-            score,
+            severity: score,
         }
+    }
+
+    pub fn with_path<S: Into<String>>(severity: Severity, path: S) -> Rule {
+        Self::new(severity, Some(path.into()), None)
+    }
+
+    pub fn with_content<S: Into<String>>(severity: Severity, content: S) -> Rule {
+        Self::new(severity, None, Some(content.into()))
+    }
+
+    pub fn with_path_and_content<S1: Into<String>, S2: Into<String>>(severity: Severity, path: S1, content: S2) -> Rule {
+        Self::new(severity, Some(path.into()), Some(content.into()))
     }
 }
 
@@ -27,7 +40,7 @@ impl RuleTrait<String> for Rule {
     fn content(&self) -> Option<String> {
         self.content.clone()
     }
-    fn score(&self) -> i8 {
-        self.score
+    fn severity(&self) -> Severity {
+        self.severity
     }
 }

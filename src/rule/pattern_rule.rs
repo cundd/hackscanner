@@ -1,5 +1,6 @@
 use regex::Regex;
 use errors::*;
+use severity::Severity;
 use super::RuleTrait;
 use super::rule::Rule;
 
@@ -15,11 +16,11 @@ impl PatternRule {
     pub fn from_rule(rule: &Rule) -> Result<PatternRule, Error> {
         let path = match rule.path() {
             None => None,
-            Some(p) => Some(Regex::new(&p)?)
+            Some(pattern) => Some(Self::build_regex(&pattern)?)
         };
         let content = match rule.content() {
             None => None,
-            Some(c) => Some(Regex::new(&c)?)
+            Some(pattern) => Some(Self::build_regex(&pattern)?)
         };
 
         Ok(PatternRule {
@@ -34,9 +35,19 @@ impl PatternRule {
     }
 
     pub fn from_rules_filtered(rules: &Vec<Rule>) -> Vec<PatternRule> {
-        Self::from_rules(rules).into_iter()
+        trace!("Will transform rules to PatternRules");
+        let result = Self::from_rules(rules).into_iter()
             .filter_map(|result| result.ok())
-            .collect()
+            .collect();
+        trace!("Did transform rules to PatternRules");
+
+        result
+    }
+
+    fn build_regex(pattern: &str) -> Result<Regex, Error> {
+        let regex = Regex::new(&format!("(?i){}", pattern))?;
+
+        Ok(regex)
     }
 }
 
@@ -49,8 +60,8 @@ impl RuleTrait<Regex> for PatternRule {
         self.content.clone()
     }
 
-    fn score(&self) -> i8 {
-        self.rule.score()
+    fn severity(&self) -> Severity {
+        self.rule.severity()
     }
 }
 
@@ -60,21 +71,21 @@ mod test {
 
     #[test]
     fn from_rule_test() {
-        let pattern_rule = PatternRule::from_rule(&Rule::new(None, None, 8)).unwrap();
+        let pattern_rule = PatternRule::from_rule(&Rule::new(Severity::NOTICE, None, None)).unwrap();
         assert!(pattern_rule.path().is_none());
         assert!(pattern_rule.content().is_none());
-        assert_eq!(pattern_rule.score(), 8);
+        assert_eq!(pattern_rule.severity(), Severity::NOTICE);
 
-        let pattern_rule = PatternRule::from_rule(&Rule::new(None, None, -8)).unwrap();
+        let pattern_rule = PatternRule::from_rule(&Rule::new(Severity::EASE, None, None)).unwrap();
         assert!(pattern_rule.path().is_none());
         assert!(pattern_rule.content().is_none());
-        assert_eq!(pattern_rule.score(), -8);
+        assert_eq!(pattern_rule.severity(), Severity::EASE);
 
         let pattern_rule = PatternRule::from_rule(
             &Rule::new(
+                Severity::EASE,
                 Some("^\\d{4}-\\d{2}-\\d{2}$".to_owned()),
                 None,
-                -8,
             )
         ).unwrap();
         assert!(pattern_rule.path().is_some());
@@ -82,9 +93,9 @@ mod test {
 
         let pattern_rule = PatternRule::from_rule(
             &Rule::new(
+                Severity::EASE,
                 None,
                 Some("^\\d{4}-\\d{2}-\\d{2}$".to_owned()),
-                -8,
             )
         ).unwrap();
         assert!(pattern_rule.content().is_some());
