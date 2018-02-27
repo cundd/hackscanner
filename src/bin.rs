@@ -26,7 +26,7 @@ fn main() {
 // `errors` module. It is a typedef of the standard `Result` type
 // for which the error type is always our own `Error`.
 fn run() -> Result<(), Error> {
-    configure_logging(simplelog::LogLevelFilter::Trace);
+    configure_logging(simplelog::LevelFilter::Trace);
     let rules = &get_builtin_rules();
     let files = file_finder::find_files(env::current_dir().unwrap(), rules);
     let pattern_rules = PatternRule::from_rules_filtered(rules);
@@ -43,13 +43,15 @@ fn run() -> Result<(), Error> {
 }
 
 
-fn configure_logging(log_level_filter: simplelog::LogLevelFilter) {
+fn configure_logging(log_level_filter: simplelog::LevelFilter) {
     let mut loggers: Vec<Box<simplelog::SharedLogger>> = vec![];
+    let mut config = simplelog::Config::default();
+    config.time_format = Some("%H:%M:%S.%f");
 
-    if let Some(core_logger) = simplelog::TermLogger::new(log_level_filter, simplelog::Config::default()) {
+    if let Some(core_logger) = simplelog::TermLogger::new(log_level_filter, config) {
         loggers.push(core_logger);
     } else {
-        loggers.push(simplelog::SimpleLogger::new(log_level_filter, simplelog::Config::default()));
+        loggers.push(simplelog::SimpleLogger::new(log_level_filter, config));
     }
 
     match simplelog::CombinedLogger::init(loggers) {

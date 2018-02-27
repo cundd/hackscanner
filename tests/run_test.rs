@@ -13,7 +13,7 @@ fn has_entry_with_score(ratings: &Vec<Rating>, min_severity: isize, path: &str) 
     false
 }
 
-fn configure_logging(log_level_filter: simplelog::LogLevelFilter) {
+fn configure_logging(log_level_filter: simplelog::LevelFilter) {
     let mut loggers: Vec<Box<simplelog::SharedLogger>> = vec![];
 
     if let Some(core_logger) = simplelog::TermLogger::new(log_level_filter, simplelog::Config::default()) {
@@ -30,7 +30,7 @@ fn configure_logging(log_level_filter: simplelog::LogLevelFilter) {
 
 #[test]
 fn run_builtin_rules_test() {
-    configure_logging(simplelog::LogLevelFilter::Debug);
+    configure_logging(simplelog::LevelFilter::Debug);
     let rules = &get_builtin_rules();
 
     let files = file_finder::find_files(env!("CARGO_MANIFEST_DIR"), rules);
