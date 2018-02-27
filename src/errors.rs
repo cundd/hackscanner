@@ -24,16 +24,16 @@ error_chain! {
     // Define additional `ErrorKind` variants.  Define custom responses with the
     // `description` and `display` calls.
     errors {
-        InvalidToolchainName(t: String) {
-            description("invalid toolchain name")
-            display("invalid toolchain name: '{}'", t)
-        }
-
-        // You can also add commas after description/display.
-        // This may work better with some editor auto-indentation modes:
-        UnknownToolchainVersion(v: String) {
-            description("unknown toolchain version"), // note the ,
-            display("unknown toolchain version: '{}'", v), // trailing comma is allowed
-        }
+//        InvalidToolchainName(t: String) {
+//            description("invalid toolchain name")
+//            display("invalid toolchain name: '{}'", t)
+//        }
+//
+//        // You can also add commas after description/display.
+//        // This may work better with some editor auto-indentation modes:
+//        UnknownToolchainVersion(v: String) {
+//            description("unknown toolchain version"), // note the ,
+//            display("unknown toolchain version: '{}'", v), // trailing comma is allowed
+//        }
     }
 }
