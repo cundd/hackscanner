@@ -10,14 +10,18 @@ use matcher::Matcher;
 pub fn find_files<P: AsRef<Path> + Debug + Clone>(root: P, rules: &Vec<Rule>) -> Vec<walkdir::DirEntry> {
     let pattern_rules = PatternRule::from_rules_filtered(rules);
 
-    iterate_files(root, |entry: &walkdir::DirEntry| {
+    iterate_dir_entries(root, |entry: &walkdir::DirEntry| {
+        if entry.file_type().is_dir() {
+            return false;
+        }
+
         pattern_rules.iter()
             .find(|rule| Matcher::match_entry_path(rule, entry))
             .is_some()
     })
 }
 
-fn iterate_files<P: AsRef<Path> + Debug + Clone, F>(root: P, callback: F) -> Vec<walkdir::DirEntry>
+fn iterate_dir_entries<P: AsRef<Path> + Debug + Clone, F>(root: P, callback: F) -> Vec<walkdir::DirEntry>
     where F: Fn(&walkdir::DirEntry) -> bool {
     trace!("Will search files in root {:?}", root);
 
