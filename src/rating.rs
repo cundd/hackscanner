@@ -1,18 +1,21 @@
 use std::fmt;
 use dir_entry::DirEntryTrait;
+use rule::*;
 use severity::Severity;
 
 #[derive(Debug)]
 pub struct Rating<'a> {
     entry: &'a DirEntryTrait,
     rating: isize,
+    rules: Vec<&'a PatternRule>,
 }
 
 impl<'a> Rating<'a> {
-    pub fn new(entry: &'a DirEntryTrait, rating: isize) -> Self {
+    pub fn new(entry: &'a DirEntryTrait, rating: isize, rules: Vec<&'a PatternRule>) -> Self {
         Rating {
             entry,
             rating,
+            rules,
         }
     }
 
@@ -41,7 +44,8 @@ impl<'a> Rating<'a> {
     pub fn description(&self) -> String {
         let path_as_string: String = self.entry.path().to_string_lossy().into_owned();
 
-        format!("[{}] {}", self.rating_description(), path_as_string)
+
+        format!("[{}] {} (Rules: {})", self.rating_description(), path_as_string, join(&self.rules))
     }
 }
 
@@ -49,4 +53,19 @@ impl<'a> fmt::Display for Rating<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.description())
     }
+}
+
+fn join<D: RuleTrait<T>, T>(rules: &Vec<&D>) -> String {
+    rules.iter().fold(
+        String::new(),
+        |acc, &rule| {
+            let separator = if !acc.is_empty() {
+                ", "
+            } else {
+                ""
+            };
+
+            acc + separator + &format!("{}", rule.id())
+        },
+    )
 }

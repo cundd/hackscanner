@@ -5,7 +5,7 @@ use super::RuleTrait;
 use super::rule::Rule;
 
 /// Rule with compiled regular expression members
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PatternRule {
     rule: Rule,
     path: Option<Regex>,
@@ -63,6 +63,10 @@ impl RuleTrait<Regex> for PatternRule {
     fn severity(&self) -> Severity {
         self.rule.severity()
     }
+
+    fn id(&self) -> isize {
+        self.rule.id()
+    }
 }
 
 #[cfg(test)]
@@ -71,18 +75,19 @@ mod test {
 
     #[test]
     fn from_rule_test() {
-        let pattern_rule = PatternRule::from_rule(&Rule::new(Severity::NOTICE, None, None)).unwrap();
+        let pattern_rule = PatternRule::from_rule(&Rule::new(1, Severity::NOTICE, None, None)).unwrap();
         assert!(pattern_rule.path().is_none());
         assert!(pattern_rule.content().is_none());
         assert_eq!(pattern_rule.severity(), Severity::NOTICE);
 
-        let pattern_rule = PatternRule::from_rule(&Rule::new(Severity::EASE, None, None)).unwrap();
+        let pattern_rule = PatternRule::from_rule(&Rule::new(2, Severity::EASE, None, None)).unwrap();
         assert!(pattern_rule.path().is_none());
         assert!(pattern_rule.content().is_none());
         assert_eq!(pattern_rule.severity(), Severity::EASE);
 
         let pattern_rule = PatternRule::from_rule(
             &Rule::new(
+                3,
                 Severity::EASE,
                 Some("^\\d{4}-\\d{2}-\\d{2}$".to_owned()),
                 None,
@@ -93,6 +98,7 @@ mod test {
 
         let pattern_rule = PatternRule::from_rule(
             &Rule::new(
+                4,
                 Severity::EASE,
                 None,
                 Some("^\\d{4}-\\d{2}-\\d{2}$".to_owned()),
