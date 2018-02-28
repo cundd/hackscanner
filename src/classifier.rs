@@ -26,7 +26,10 @@ fn classify_entry<'a, D: DirEntryTrait>(entry: &'a D, rules: &Vec<PatternRule>) 
     let mut rating: isize = 0;
     let content = match read_entry_content(entry) {
         Ok(s) => s,
-        Err(_) => return Rating::new(entry, rating),
+        Err(e) => {
+            error!("{}", e);
+            return Rating::new(entry, rating);
+        }
     };
 
     for rule in rules {
