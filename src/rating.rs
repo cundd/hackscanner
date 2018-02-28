@@ -65,7 +65,7 @@ fn join<D: RuleTrait<T>, T>(rules: &Vec<&D>) -> String {
                 ""
             };
 
-            acc + separator + &format!("{}", rule.id())
+            acc + separator + &format!("{}", rule.name())
         },
     )
 }

@@ -102,7 +102,7 @@ mod test {
         fn classify_entry_test() {
             let entry = get_test_dir_entry("something.tx_mocfilemanager.php");
             let rules = vec![
-                Rule::new(1, Severity::NOTICE, Some("tx_mocfilemanager".to_owned()), None)
+                Rule::new("1".to_string(), Severity::NOTICE, Some("tx_mocfilemanager".to_owned()), None)
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -115,8 +115,8 @@ mod test {
         fn classify_entry_multiple_matches_test() {
             let entry = get_test_dir_entry("something.tx_mocfilemanager.php");
             let rules = vec![
-                Rule::new(2, Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
-                Rule::new(3, Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)
+                Rule::new("2".to_string(), Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
+                Rule::new("3".to_string(), Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -129,8 +129,8 @@ mod test {
         fn classify_entry_multiple_matches_subtract_test() {
             let entry = get_test_dir_entry("something.tx_mocfilemanager.php");
             let rules = vec![
-                Rule::new(4, Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
-                Rule::new(5, Severity::EASE, Some("tests/resources/files".to_owned()), None)
+                Rule::new("4".to_string(), Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
+                Rule::new("5".to_string(), Severity::EASE, Some("tests/resources/files".to_owned()), None)
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -144,7 +144,7 @@ mod test {
         fn classify_entry_with_content_test() {
             let entry = get_test_dir_entry("dezmond.php");
             let rules = vec![
-                Rule::new(6, Severity::NOTICE, Some("\\.php".to_owned()), Some("dezmond".to_string())),
+                Rule::new("6".to_string(), Severity::NOTICE, Some("\\.php".to_owned()), Some("dezmond".to_string())),
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -164,7 +164,7 @@ mod test {
                 get_test_dir_entry("tx_mocfilemanager.php"),
             ];
             let rules = vec![
-                Rule::new(7, Severity::NOTICE, Some("tx_mocfilemanager".to_owned()), None)
+                Rule::new("7".to_string(), Severity::NOTICE, Some("tx_mocfilemanager".to_owned()), None)
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -181,8 +181,8 @@ mod test {
                 get_test_dir_entry("tx_mocfilemanager.php"),
             ];
             let rules = vec![
-                Rule::new(8, Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
-                Rule::new(9, Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)
+                Rule::new("8".to_string(), Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
+                Rule::new("9".to_string(), Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -199,8 +199,8 @@ mod test {
                 get_test_dir_entry("tx_mocfilemanager.php"),
             ];
             let rules = vec![
-                Rule::new(10, Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
-                Rule::new(11, Severity::EASE, Some("\\.tx_mocfilemanager".to_owned()), None)
+                Rule::new("10".to_string(), Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
+                Rule::new("11".to_string(), Severity::EASE, Some("\\.tx_mocfilemanager".to_owned()), None)
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -219,7 +219,7 @@ mod test {
                 get_test_dir_entry("dezmond.php"),
             ];
             let rules = vec![
-                Rule::new(12, Severity::MINOR, Some("\\.php".to_owned()), Some("dezmond".to_string())),
+                Rule::new("12".to_string(), Severity::MINOR, Some("\\.php".to_owned()), Some("dezmond".to_string())),
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);

@@ -64,8 +64,8 @@ impl RuleTrait<Regex> for PatternRule {
         self.rule.severity()
     }
 
-    fn id(&self) -> isize {
-        self.rule.id()
+    fn name(&self) -> &String {
+        self.rule.name()
     }
 }
 
@@ -75,19 +75,19 @@ mod test {
 
     #[test]
     fn from_rule_test() {
-        let pattern_rule = PatternRule::from_rule(&Rule::new(1, Severity::NOTICE, None, None)).unwrap();
+        let pattern_rule = PatternRule::from_rule(&Rule::new(1.to_string(), Severity::NOTICE, None, None)).unwrap();
         assert!(pattern_rule.path().is_none());
         assert!(pattern_rule.content().is_none());
         assert_eq!(pattern_rule.severity(), Severity::NOTICE);
 
-        let pattern_rule = PatternRule::from_rule(&Rule::new(2, Severity::EASE, None, None)).unwrap();
+        let pattern_rule = PatternRule::from_rule(&Rule::new(2.to_string(), Severity::EASE, None, None)).unwrap();
         assert!(pattern_rule.path().is_none());
         assert!(pattern_rule.content().is_none());
         assert_eq!(pattern_rule.severity(), Severity::EASE);
 
         let pattern_rule = PatternRule::from_rule(
             &Rule::new(
-                3,
+                3.to_string(),
                 Severity::EASE,
                 Some("^\\d{4}-\\d{2}-\\d{2}$".to_owned()),
                 None,
@@ -98,7 +98,7 @@ mod test {
 
         let pattern_rule = PatternRule::from_rule(
             &Rule::new(
-                4,
+                4.to_string(),
                 Severity::EASE,
                 None,
                 Some("^\\d{4}-\\d{2}-\\d{2}$".to_owned()),

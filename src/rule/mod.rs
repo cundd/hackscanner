@@ -9,7 +9,7 @@ pub use self::builtin::get_builtin_rules;
 
 /// Generic trait for Rule functions
 pub trait RuleTrait<T> {
-    fn id(&self) -> isize;
+    fn name(&self) -> &String;
     fn path(&self) -> Option<T>;
     fn content(&self) -> Option<T>;
     fn severity(&self) -> Severity;
