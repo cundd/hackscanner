@@ -3,6 +3,7 @@ use std::io::prelude::*;
 
 use rule::*;
 use dir_entry::*;
+use errors::*;
 use rating::Rating;
 use matcher::Matcher;
 
@@ -23,7 +24,11 @@ pub fn classify_entries<'a, D: DirEntryTrait>(entries: &'a Vec<D>, rules: &Vec<P
 fn classify_entry<'a, D: DirEntryTrait>(entry: &'a D, rules: &Vec<PatternRule>) -> Rating<'a> {
     trace!("Will classify entry {:?}", entry);
     let mut rating: isize = 0;
-    let content = read_entry_content(entry);
+    let content = match read_entry_content(entry) {
+        Ok(s) => s,
+        Err(_) => return Rating::new(entry, rating),
+    };
+
     for rule in rules {
         if !Matcher::match_entry_path(rule, entry) {
             continue;
@@ -41,10 +46,10 @@ fn classify_entry<'a, D: DirEntryTrait>(entry: &'a D, rules: &Vec<PatternRule>) 
 }
 
 
-fn read_entry_content<'a, D: DirEntryTrait>(entry: &'a D) -> String {
+fn read_entry_content<'a, D: DirEntryTrait>(entry: &'a D) -> Result<String, Error> {
     let mut file = match File::open(entry.path()) {
         Ok(f) => f,
-        Err(e) => panic!("Could not open file for reading: {}", e)
+        Err(e) => bail!("Could not open file for reading: {}", e)
     };
 
 //    trace!("Will read file {:?}", entry.path());
@@ -59,11 +64,13 @@ fn read_entry_content<'a, D: DirEntryTrait>(entry: &'a D) -> String {
     let mut buffer = [0; BUFFER_SIZE];
     match file.read(&mut buffer[..]) {
         Ok(bytes_count) => bytes_count,
-        Err(e) => panic!("Could not read file: {}", e)
+        Err(e) => {
+            bail!("Could not read file: {}", e)
+        }
     };
     trace!("Did read file {:?}", entry.path());
 
-    String::from_utf8_lossy(&buffer).to_string()
+    Ok(String::from_utf8_lossy(&buffer).to_string())
 }
 
 #[cfg(test)]
