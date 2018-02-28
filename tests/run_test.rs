@@ -15,11 +15,13 @@ fn has_entry_with_score(ratings: &Vec<Rating>, min_severity: isize, path: &str) 
 
 fn configure_logging(log_level_filter: simplelog::LevelFilter) {
     let mut loggers: Vec<Box<simplelog::SharedLogger>> = vec![];
+    let mut config = simplelog::Config::default();
+    config.time_format = Some("%H:%M:%S%.3f");
 
-    if let Some(core_logger) = simplelog::TermLogger::new(log_level_filter, simplelog::Config::default()) {
+    if let Some(core_logger) = simplelog::TermLogger::new(log_level_filter, config) {
         loggers.push(core_logger);
     } else {
-        loggers.push(simplelog::SimpleLogger::new(log_level_filter, simplelog::Config::default()));
+        loggers.push(simplelog::SimpleLogger::new(log_level_filter, config));
     }
 
     match simplelog::CombinedLogger::init(loggers) {

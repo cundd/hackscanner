@@ -82,11 +82,13 @@ fn configure_logging(matches: &ArgMatches) -> Result<(), Error> {
     };
 
     let mut loggers: Vec<Box<simplelog::SharedLogger>> = vec![];
+    let mut config = simplelog::Config::default();
+    config.time_format = Some("%H:%M:%S%.3f");
 
-    if let Some(core_logger) = simplelog::TermLogger::new(log_level_filter, simplelog::Config::default()) {
+    if let Some(core_logger) = simplelog::TermLogger::new(log_level_filter, config) {
         loggers.push(core_logger);
     } else {
-        loggers.push(simplelog::SimpleLogger::new(log_level_filter, simplelog::Config::default()));
+        loggers.push(simplelog::SimpleLogger::new(log_level_filter, config));
     }
 
     match simplelog::CombinedLogger::init(loggers) {
