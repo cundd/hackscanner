@@ -15,11 +15,11 @@ fn get_builtin_rules_php() -> Vec<Rule> {
         Rule::with_path_and_content("php::content::error_reporting", Severity::NOTICE, "\\.php", "error_reporting\\("),
         Rule::with_path_and_content("php::content::preg_", Severity::NOTICE, "\\.php", "='preg_"),
         Rule::with_path_and_content("php::content::preg_", Severity::NOTICE, "\\.php", "=\"preg_"),
-        Rule::with_path_and_content("php::content::beval", Severity::NOTICE, "\\.php", "\\beval\\("),
-        Rule::with_path_and_content("php::content::bgzinflate", Severity::NOTICE, "\\.php", "\\bgzinflate\\("),
-        Rule::with_path_and_content("php::content::bsystem", Severity::NOTICE, "\\.php", "\\bsystem\\("),
-        Rule::with_path_and_content("php::content::bexec", Severity::NOTICE, "\\.php", "\\bexec\\("),
-        Rule::with_path_and_content("php::content::bcreate_function", Severity::NOTICE, "\\.php", "\\bcreate_function\\("),
+        Rule::with_path_and_content("php::content::eval", Severity::NOTICE, "\\.php", "\\beval\\("),
+        Rule::with_path_and_content("php::content::gzinflate", Severity::NOTICE, "\\.php", "\\bgzinflate\\("),
+        Rule::with_path_and_content("php::content::system", Severity::NOTICE, "\\.php", "\\bsystem\\("),
+        Rule::with_path_and_content("php::content::exec", Severity::NOTICE, "\\.php", "\\bexec\\("),
+        Rule::with_path_and_content("php::content::create_function", Severity::NOTICE, "\\.php", "\\bcreate_function\\("),
         Rule::with_path_and_content("php::content::return", Severity::MAJOR, "\\.php", "\",\"\\.\");return;?>"),
         Rule::with_path_and_content("php::content::base64_decode", Severity::MAJOR, "\\.php", "eval\\(base64_decode\\("),
         Rule::with_path_and_content("php::content::6fbcb8b698317491a5fd7926f2c3b7de", Severity::CRITICAL, "\\.php", "6fbcb8b698317491a5fd7926f2c3b7de"),
@@ -37,7 +37,7 @@ fn get_builtin_rules_php() -> Vec<Rule> {
 
 fn get_builtin_rules_typo3() -> Vec<Rule> {
     vec![
-        Rule::with_path("typo3::file::php in fileadmin", Severity::MINOR, "fileadmin/.*\\.php"),
-        Rule::with_path("typo3::file::php in l10n", Severity::MINOR, "typo3conf/l10n/.*\\.php"),
+        Rule::with_path("typo3::file::php-in-fileadmin", Severity::MINOR, "fileadmin/.*\\.php"),
+        Rule::with_path("typo3::file::php-in-l10n", Severity::MINOR, "typo3conf/l10n/.*\\.php"),
     ]
 }
