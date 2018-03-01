@@ -1,11 +1,10 @@
-use std::fs::File;
-use std::io::prelude::*;
-
-use rule::*;
 use dir_entry::*;
 use errors::*;
-use rating::Rating;
 use matcher::Matcher;
+use rating::Rating;
+use rule::*;
+use std::fs::File;
+use std::io::prelude::*;
 
 /// Number of bytes to read from files
 const BUFFER_SIZE: usize = 1024 * 4;
@@ -45,7 +44,7 @@ fn classify_entry<'a, 'b, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<Pattern
 
         return true;
     }).collect();
-    trace!("Did classify entry {:?}", entry);
+    trace!("Did classify entry {:?} (rating: {})", entry, rating);
 
     Rating::new(entry, rating, matching_rules)
 }

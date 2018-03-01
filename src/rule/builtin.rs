@@ -1,10 +1,11 @@
-use super::Rule;
 use severity::Severity;
+use super::Rule;
 
 pub fn get_builtin_rules() -> Vec<Rule> {
     let mut collection = vec![];
 
     collection.append(&mut get_builtin_rules_php());
+    collection.append(&mut get_builtin_rules_typo3());
 
     collection
 }
@@ -31,5 +32,12 @@ fn get_builtin_rules_php() -> Vec<Rule> {
         Rule::with_path("php::file::cache", Severity::CRITICAL, "//\\.cache\\.php"),
         Rule::with_path("php::file::ext_fpdf", Severity::CRITICAL, "ext_fpdf.php"),
         Rule::with_path("php::file::ixwstat", Severity::CRITICAL, "ixwstat.php"),
+    ]
+}
+
+fn get_builtin_rules_typo3() -> Vec<Rule> {
+    vec![
+        Rule::with_path("typo3::file::php in fileadmin", Severity::MINOR, "fileadmin/.*\\.php"),
+        Rule::with_path("typo3::file::php in l10n", Severity::MINOR, "typo3conf/l10n/.*\\.php"),
     ]
 }

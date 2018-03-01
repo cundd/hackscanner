@@ -4,12 +4,26 @@ extern crate simplelog;
 use hackscanner_lib::*;
 
 fn has_entry_with_score(ratings: &Vec<Rating>, min_severity: isize, path: &str) -> bool {
+    let mut matching_rating: Option<&Rating> = None;
     for rating in ratings {
         let path_as_string = rating.entry().path().to_string_lossy().into_owned();
-        if rating.rating() >= min_severity && path_as_string.contains(path) {
-            return true;
+        if path_as_string.contains(path) {
+            matching_rating = Some(rating);
+            if rating.rating() >= min_severity {
+                return true;
+            }
         }
     }
+
+    if let Some(rating) = matching_rating {
+        panic!(
+            "Found file {:?} did not fulfill min_severity {} (rating is {})",
+            rating.entry().path(),
+            min_severity,
+            rating.rating()
+        )
+    }
+
     false
 }
 
@@ -32,10 +46,10 @@ fn configure_logging(log_level_filter: simplelog::LevelFilter) {
 
 #[test]
 fn run_builtin_rules_test() {
-    configure_logging(simplelog::LevelFilter::Debug);
+    configure_logging(simplelog::LevelFilter::Trace);
     let rules = &get_builtin_rules();
 
-    let files = file_finder::find_files(env!("CARGO_MANIFEST_DIR"), rules);
+    let files = file_finder::find_files(format!("{}/tests", env!("CARGO_MANIFEST_DIR")), rules);
     let pattern_rules = PatternRule::from_rules_filtered(rules);
     let ratings = classifier::classify_entries(&files, &pattern_rules);
 
@@ -44,6 +58,9 @@ fn run_builtin_rules_test() {
     assert!(has_entry_with_score(&ratings, Severity::MAJOR as isize, "/tests/resources/files/something.tx_mocfilemanager.php"));
     assert!(has_entry_with_score(&ratings, Severity::NOTICE as isize, "/tests/resources/files/eval-in-file.php"));
     assert!(has_entry_with_score(&ratings, Severity::MAJOR as isize, "tests/resources/files/multiple_violations.php"));
+
+    assert!(has_entry_with_score(&ratings, Severity::MINOR as isize, "tests/resources/files/typo3/fileadmin/user_upload/some_file.php"));
+    assert!(has_entry_with_score(&ratings, Severity::MINOR as isize, "tests/resources/files/typo3/typo3conf/l10n/someext/some_file.php"));
 }
 
 
