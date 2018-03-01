@@ -23,21 +23,30 @@ pub fn classify_entries<'a, 'b, D: DirEntryTrait>(entries: &'a Vec<D>, rules: &'
 fn classify_entry<'a, 'b, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<PatternRule>) -> Rating<'a> {
     trace!("Will classify entry {:?}", entry);
     let mut rating: isize = 0;
-    let content = match read_entry_content(entry) {
-        Ok(s) => s,
-        Err(e) => {
-            error!("{}", e);
-            "".to_string()
-        }
-    };
+    let mut content: Option<String> = None;
 
     let matching_rules = rules.iter().filter(|rule| {
         if !Matcher::match_entry_path(rule, entry) {
             return false;
         }
 
-        if rule.content().is_some() && !Matcher::match_entry_content(rule, &content) {
-            return false;
+        if rule.content().is_some() {
+            // Read the entry's content if it is not already loaded
+            if content.is_none() {
+                content = match read_entry_content(entry) {
+                    Ok(s) => Some(s),
+                    Err(e) => {
+                        error!("{}", e);
+                        Some("".to_string())
+                    }
+                };
+            }
+
+            if let Some(ref c) = content {
+                if !Matcher::match_entry_content(rule, c) {
+                    return false;
+                }
+            }
         }
 
         rating += rule.severity() as isize;
