@@ -52,9 +52,10 @@ fn classify_entry<'a, 'b, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<Pattern
 
 
 fn read_entry_content<'a, D: DirEntryTrait>(entry: &'a D) -> Result<String, Error> {
-    let mut file = match File::open(entry.path()) {
+    let path = entry.path();
+    let mut file = match File::open(path) {
         Ok(f) => f,
-        Err(e) => bail!("Could not open file for reading: {}", e)
+        Err(e) => bail!("Could not open file {:?} for reading: {}", entry.path(), e)
     };
 
 //    trace!("Will read file {:?}", entry.path());
@@ -65,15 +66,15 @@ fn read_entry_content<'a, D: DirEntryTrait>(entry: &'a D) -> Result<String, Erro
 //
 //    return contents;
 
-    trace!("Will read file {:?}", entry.path());
+    trace!("Will read file {:?}", path);
     let mut buffer = [0; BUFFER_SIZE];
     match file.read(&mut buffer[..]) {
         Ok(bytes_count) => bytes_count,
         Err(e) => {
-            bail!("Could not read file: {}", e)
+            bail!("Could not read file {:?}: {}", entry.path(), e)
         }
     };
-    trace!("Did read file {:?}", entry.path());
+    trace!("Did read file {:?}", path);
 
     Ok(String::from_utf8_lossy(&buffer).to_string())
 }
