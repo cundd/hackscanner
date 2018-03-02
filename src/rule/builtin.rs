@@ -39,7 +39,7 @@ fn get_builtin_rules_typo3() -> Vec<Rule> {
     vec![
         Rule::with_path("typo3::file::php-in-fileadmin", Severity::MINOR, "fileadmin/.*\\.php"),
         Rule::with_path("typo3::file::php-in-l10n", Severity::MAJOR, "typo3conf/l10n/.*\\.php"),
-        Rule::with_path("typo3::file::php-in-typo3temp", Severity::MAJOR, "typo3temp/.*\\.php"),
+        Rule::with_path("typo3::file::php-in-typo3temp", Severity::MAJOR, "typo3temp/.*\\.php$"),
         Rule::with_path("typo3::file::php-in-typo3temp-Cache", Severity::WHITELIST, "typo3temp/(var/)?Cache/.*\\.php"),
     ]
 }
