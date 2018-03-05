@@ -42,6 +42,8 @@ fn get_builtin_rules_typo3() -> Vec<Rule> {
         Rule::with_path("typo3::file::php-in-typo3temp", Severity::MINOR, "typo3temp/.*\\.php$"),
         Rule::with_path("typo3::file::php-in-typo3temp-Cache", Severity::WHITELIST, "typo3temp/(var/)?Cache/.*\\.php"),
         Rule::with_path("typo3::file::php-in-typo3temp-autoload", Severity::WHITELIST, "typo3temp/autoload/autoload_[^/]*\\.php"),
+        Rule::with_path("typo3::file::php-in-typo3temp-autoload-test", Severity::WHITELIST, "typo3temp/autoload-tests/autoload_[^/]*\\.php"),
         Rule::with_path("typo3::file::php-in-typo3temp-extupdate", Severity::WHITELIST, "typo3temp/ExtensionManager/UpdateScripts/ext_update[a-z0-9]*\\.php"),
+        Rule::with_path("typo3::file::php-in-typo3temp-extupdate", Severity::WHITELIST, "typo3temp/var/transient/ext_update[a-z0-9]*\\.php"),
     ]
 }
