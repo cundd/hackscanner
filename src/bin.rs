@@ -7,9 +7,11 @@ extern crate simplelog;
 extern crate walkdir;
 extern crate regex;
 extern crate clap;
+extern crate ansi_term;
 extern crate hackscanner_lib;
 
 use std::env;
+use ansi_term::Colour;
 use clap::Arg;
 use clap::App;
 use clap::ArgMatches;
@@ -43,12 +45,17 @@ fn run() -> Result<(), Error> {
             .short("v")
             .multiple(true)
             .help("Sets the level of verbosity (-v = Info, -vv = Debug, -vvv = Trace)"))
+        .arg(Arg::with_name("min-severity")
+            .short("m")
+            .takes_value(true)
+            .help("Sets the minimum severity to display (-v = Info, -vv = Debug, -vvv = Trace)"))
         .get_matches();
 
     configure_logging(&matches).unwrap();
 
     let rules = &get_builtin_rules();
 
+    let min_severity = get_minimum_severity(&matches);
     let root = get_root(&matches);
 
     let files = file_finder::find_files(root, rules);
@@ -57,18 +64,71 @@ fn run() -> Result<(), Error> {
 
     ratings.sort_unstable_by(|rating_a, rating_b| rating_b.rating().cmp(&rating_a.rating()));
     for rating in ratings {
-        if rating.rating() > Severity::NOTICE as isize {
-            println!("{}", rating);
+        if rating.rating() > min_severity {
+            print_rating(&rating);
         }
     }
 
     Ok(())
 }
 
+fn print_rating(rating: &Rating) {
+    let path_as_string: String = rating.entry().path().to_string_lossy().into_owned();
+
+    let rating_description = if rating.rating() >= Severity::CRITICAL as isize {
+        Colour::RGB(225, 17, 0).paint("[CRITICAL]")
+    } else if rating.rating() >= Severity::MAJOR as isize {
+        Colour::RGB(237, 131, 0).paint("[MAJOR]   ")
+    } else if rating.rating() >= Severity::MINOR as isize {
+        Colour::RGB(245, 207, 0).paint("[MINOR]   ")
+    } else if rating.rating() >= Severity::NOTICE as isize {
+        Colour::RGB(255, 255, 0).paint("[NOTICE]  ")
+    } else {
+        Colour::Blue.paint("[CLEAN]   ")
+    };
+
+    println!(
+        "{} {} \t(Rules: {})",
+        rating_description,
+        Colour::Black.bold().paint(path_as_string),
+        join(rating.rules())
+    );
+}
+
+fn join<D: RuleTrait<T>, T>(rules: &Vec<&D>) -> String {
+    rules.iter().fold(
+        String::new(),
+        |acc, &rule| {
+            let separator = if !acc.is_empty() {
+                ", "
+            } else {
+                ""
+            };
+
+            acc + separator + &format!("{}", rule.name())
+        },
+    )
+}
+
 fn get_root(matches: &ArgMatches) -> String {
     match matches.value_of("directory") {
         Some(d) => d.to_owned(),
         None => String::from(env::current_dir().unwrap().to_string_lossy()),
+    }
+}
+
+fn get_minimum_severity(matches: &ArgMatches) -> isize {
+    let min_severity = matches.value_of("min-severity");
+    if min_severity.is_none() {
+        return Severity::NOTICE as isize;
+    }
+
+    match min_severity.unwrap().to_uppercase().as_ref() {
+        "CRITICAL" => Severity::CRITICAL as isize,
+        "MAJOR" => Severity::MAJOR as isize,
+        "MINOR" => Severity::MINOR as isize,
+        "NOTICE" => Severity::NOTICE as isize,
+        _ => Severity::WHITELIST as isize
     }
 }
 

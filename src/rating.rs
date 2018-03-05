@@ -23,6 +23,10 @@ impl<'a> Rating<'a> {
         self.entry
     }
 
+    pub fn rules(&self) -> &Vec<&PatternRule> {
+        &self.rules
+    }
+
     pub fn rating(&self) -> isize {
         self.rating
     }
@@ -43,7 +47,6 @@ impl<'a> Rating<'a> {
 
     pub fn description(&self) -> String {
         let path_as_string: String = self.entry.path().to_string_lossy().into_owned();
-
 
         format!("[{}] {} (Rules: {})", self.rating_description(), path_as_string, join(&self.rules))
     }
