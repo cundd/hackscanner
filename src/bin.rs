@@ -8,10 +8,12 @@ extern crate walkdir;
 extern crate regex;
 extern crate clap;
 extern crate ansi_term;
+extern crate term;
 extern crate hackscanner_lib;
 
+mod ui;
+
 use std::env;
-use ansi_term::Colour;
 use clap::Arg;
 use clap::App;
 use clap::ArgMatches;
@@ -65,49 +67,11 @@ fn run() -> Result<(), Error> {
     ratings.sort_unstable_by(|rating_a, rating_b| rating_b.rating().cmp(&rating_a.rating()));
     for rating in ratings {
         if rating.rating() > min_severity {
-            print_rating(&rating);
+            ui::print_rating(&rating);
         }
     }
 
     Ok(())
-}
-
-fn print_rating(rating: &Rating) {
-    let path_as_string: String = rating.entry().path().to_string_lossy().into_owned();
-
-    let rating_description = if rating.rating() >= Severity::CRITICAL as isize {
-        Colour::RGB(225, 17, 0).paint("[CRITICAL]")
-    } else if rating.rating() >= Severity::MAJOR as isize {
-        Colour::RGB(237, 131, 0).paint("[MAJOR]   ")
-    } else if rating.rating() >= Severity::MINOR as isize {
-        Colour::RGB(245, 207, 0).paint("[MINOR]   ")
-    } else if rating.rating() >= Severity::NOTICE as isize {
-        Colour::RGB(255, 255, 0).paint("[NOTICE]  ")
-    } else {
-        Colour::Blue.paint("[CLEAN]   ")
-    };
-
-    println!(
-        "{} {} \t(Rules: {})",
-        rating_description,
-        Colour::Black.bold().paint(path_as_string),
-        join(rating.rules())
-    );
-}
-
-fn join<D: RuleTrait<T>, T>(rules: &Vec<&D>) -> String {
-    rules.iter().fold(
-        String::new(),
-        |acc, &rule| {
-            let separator = if !acc.is_empty() {
-                ", "
-            } else {
-                ""
-            };
-
-            acc + separator + &format!("{}", rule.name())
-        },
-    )
 }
 
 fn get_root(matches: &ArgMatches) -> String {
