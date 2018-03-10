@@ -1,14 +1,16 @@
+//extern crate walkdir;
 extern crate hackscanner_lib;
 
 mod test_helpers;
 
 use hackscanner_lib::*;
 use test_helpers::contains_path;
+use file_finder::*;
 
 #[test]
-fn find_files_test() {
+fn walkdir_find_files_test() {
     let rules = vec![Rule::new("1".to_string(), Severity::NOTICE, Some("tx_mocfilemanager".to_owned()), None)];
-    let matches = file_finder::find_files(env!("CARGO_MANIFEST_DIR"), &rules);
+    let matches = walkdir::FileFinder::find(env!("CARGO_MANIFEST_DIR"), &rules);
 
     assert_eq!(3, matches.len());
 
@@ -39,9 +41,9 @@ fn find_files_test() {
 }
 
 #[test]
-fn find_files_one_test() {
+fn walkdir_find_files_one_test() {
     let rules = vec![Rule::new("2".to_string(), Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)];
-    let matches = file_finder::find_files(env!("CARGO_MANIFEST_DIR"), &rules);
+    let matches = file_finder::walkdir::FileFinder::find(env!("CARGO_MANIFEST_DIR"), &rules);
 
     assert_eq!(1, matches.len());
 
