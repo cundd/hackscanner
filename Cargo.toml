@@ -11,10 +11,14 @@ path = "src/lib.rs"
 name = "hackscanner"
 path = "src/bin.rs"
 
+[features]
+backtrace = ["error-chain/backtrace"]
+default = ["backtrace"]
+
 [dependencies]
 walkdir = "2"
 regex = "0.2.6"
-error-chain = "0.11.0"
+error-chain = { version = "0.11.0", default-features = false }
 log = "^0.4.1"
 simplelog = "^0.5.0"
 clap = "2"
