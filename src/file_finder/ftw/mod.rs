@@ -26,25 +26,22 @@ type FtwFn = extern fn(fpath: *const c_char, sb: *const stat, typeflag: c_int) -
 type NftwFn = extern fn(fpath: *const c_char, sb: *const stat, typeflag: c_int, ftwbuf: *const FTW) -> c_int;
 
 
-/// Wrapper for [`nftw`](https://linux.die.net/man/3/nftw)
-/// int nftw(
-///          const char *dirpath,
-///          int (*fn) (const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf),
-///          int nopenfd,
-///          int flags
-/// );
 extern {
+    /// Wrapper for [`nftw`](https://linux.die.net/man/3/nftw)
+    /// int nftw(
+    ///          const char *dirpath,
+    ///          int (*fn) (const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf),
+    ///          int nopenfd,
+    ///          int flags
+    /// );
     fn nftw(dirpath: *const c_char, f: NftwFn, nopenfd: c_int, flags: c_int) -> c_int;
-}
 
-
-/// Wrapper for [`ftw`](https://linux.die.net/man/3/ftw)
-/// int ftw(
-///         const char *dirpath,
-///         int (*fn) (const char *fpath, const struct stat *sb, int typeflag),
-///         int nopenfd
-/// );
-extern {
+    /// Wrapper for [`ftw`](https://linux.die.net/man/3/ftw)
+    /// int ftw(
+    ///         const char *dirpath,
+    ///         int (*fn) (const char *fpath, const struct stat *sb, int typeflag),
+    ///         int nopenfd
+    /// );
     fn ftw(dirpath: *const c_char, f: FtwFn, nopenfd: c_int) -> c_int;
 }
 
