@@ -3,6 +3,7 @@ use std::path::Path;
 use std::ffi::OsStr;
 use std::io;
 use std::fmt::Debug;
+use fs::FileTypeTrait;
 
 pub trait DirEntryTrait: Debug {
     /// The full path that this entry represents.
@@ -24,7 +25,7 @@ pub trait DirEntryTrait: Debug {
     /// Return the file type for the file that this entry points to.
     ///
     /// See [`walkdir::DirEntry::file_type`] for more details
-    fn file_type(&self) -> fs::FileType;
+    fn file_type(&self) -> Box<FileTypeTrait>;
 
     /// Return the file name of this entry.
     ///

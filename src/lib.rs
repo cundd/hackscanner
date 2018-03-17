@@ -10,10 +10,10 @@ extern crate simplelog;
 extern crate walkdir;
 extern crate regex;
 
-#[macro_use]
-extern crate lazy_static;
+extern crate libc;
 
 pub mod errors;
+mod fs;
 mod dir_entry;
 mod rule;
 mod rating;
