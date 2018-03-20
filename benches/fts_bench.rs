@@ -5,7 +5,7 @@ extern crate hackscanner_lib;
 use test::Bencher;
 use hackscanner_lib::*;
 use file_finder::*;
-use file_finder::ftw::FileFinder;
+use file_finder::fts::FileFinder;
 
 mod ftw {
     use super::*;

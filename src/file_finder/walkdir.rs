@@ -6,8 +6,14 @@ use dir_entry::WalkdirDirEntry;
 
 pub struct FileFinder {}
 
+impl FileFinder {
+    pub fn new() -> Self {
+        FileFinder {}
+    }
+}
+
 impl FileFinderTrait for FileFinder {
-    fn walk_dir<P: AsRef<Path> + Debug + Clone, F>(root: P, filter: F) -> Vec<Self::DirEntry>
+    fn walk_dir<P: AsRef<Path> + Debug + Clone, F>(&self, root: P, filter: F) -> Vec<Self::DirEntry>
         where F: Fn(&Self::DirEntry) -> bool {
         info!("Search files in directory {:?}", root);
         debug!("Start searching files in root {:?}", root);

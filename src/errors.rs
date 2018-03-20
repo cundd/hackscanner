@@ -24,6 +24,10 @@ error_chain! {
     // Define additional `ErrorKind` variants.  Define custom responses with the
     // `description` and `display` calls.
     errors {
+        BindingError(t: String) {
+            description("Error when calling external API")
+            display("Error when calling external API: '{}'", t)
+        }
 //        InvalidToolchainName(t: String) {
 //            description("invalid toolchain name")
 //            display("invalid toolchain name: '{}'", t)

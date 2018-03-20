@@ -103,9 +103,15 @@ extern fn nftw_collector(
 
 pub struct FileFinder {}
 
+impl FileFinder {
+    pub fn new() -> Self {
+        FileFinder {}
+    }
+}
+
 impl FileFinderTrait for FileFinder {
     type DirEntry = StandaloneDirEntry;
-    fn walk_dir<P: AsRef<Path> + Debug + Clone, F>(root: P, filter: F) -> Vec<Self::DirEntry>
+    fn walk_dir<P: AsRef<Path> + Debug + Clone, F>(&self, root: P, filter: F) -> Vec<Self::DirEntry>
         where F: FnMut(&Self::DirEntry) -> bool {
         let entries = collect_dir_entries_nftw(&root.as_ref().to_string_lossy().into_owned());
 
@@ -161,13 +167,13 @@ mod test {
 
     #[test]
     fn walk_dir_test() {
-        let r = FileFinder::walk_dir(env!("CARGO_MANIFEST_DIR"), |_| true);
+        let r = FileFinder::walk_dir(&FileFinder::new(), env!("CARGO_MANIFEST_DIR"), |_| true);
         assert!(1000 < r.len(), "Expected result length to be bigger than 1000, got {}", r.len());
     }
 
     #[test]
     fn find_test() {
-        let r = FileFinder::walk_dir(env!("CARGO_MANIFEST_DIR"), |_| true);
+        let r = FileFinder::walk_dir(&FileFinder::new(), env!("CARGO_MANIFEST_DIR"), |_| true);
         assert!(1000 < r.len(), "Expected result length to be bigger than 1000, got {}", r.len());
     }
 }
