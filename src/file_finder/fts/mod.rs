@@ -1,13 +1,7 @@
 extern crate core;
 
-use std::ptr;
 use std::ffi::CStr;
 use std::ffi::CString;
-use libc::c_char;
-use libc::c_int;
-use libc::stat;
-use std::io;
-use std::io::Write;
 
 use errors::*;
 use super::FileFinderTrait;
@@ -15,8 +9,6 @@ use fs::StandaloneFileType;
 use dir_entry::StandaloneDirEntry;
 use std::path::Path;
 use std::fmt::Debug;
-
-use std::sync::{Arc, Mutex};
 
 /// Bindings generation
 ///
@@ -34,16 +26,21 @@ use std::sync::{Arc, Mutex};
 ///     --whitelist-function fts_close
 /// ```
 ///
-#[cfg(target_os = "macos")]
-mod bindings_macos;
+///
+mod bindings;
 
-#[cfg(target_os = "macos")]
-use self::bindings_macos::*;
+use self::bindings::*;
+
+//#[cfg(target_os = "macos")]
+//mod bindings_macos;
+
+//#[cfg(target_os = "macos")]
+//use self::bindings_macos::*;
 use std::path::PathBuf;
 
-extern "C" fn compare(arg1: *mut *const FTSENT, arg2: *mut *const FTSENT)
+#[allow(unused)]
+extern "C" fn compare(arg1: *const *const FTSENT, arg2: *const *const FTSENT)
                       -> ::std::os::raw::c_int {
-    println!("xy");
     1
 }
 
@@ -51,22 +48,18 @@ fn collect_dir_entries(root: &str) -> Result<Vec<StandaloneDirEntry>, Error> {
     let mut entries: Vec<StandaloneDirEntry> = vec![];
 
     unsafe {
-        let root_s = String::from(root);
-        let root_c = match CString::new(root_s) {
+        let root_c = match CString::new(root) {
             Ok(root_c) => root_c,
             Err(e) => bail!(ErrorKind::BindingError(format!("{}",e)))
         };
-        let root_c_ptr = root_c.as_ptr();
 
-        let file_system = fts_open(&root_c_ptr, (FTS_COMFOLLOW | FTS_NOCHDIR) as i32, None);
-        /// Prevent root_c_ptr from going out of scope
-        println!("{:?}", root_c_ptr);
+        let file_system = fts_open(&(root_c.as_bytes_with_nul().as_ptr() as *const i8), (FTS_COMFOLLOW | FTS_NOCHDIR) as i32, None);
         if file_system.is_null() {
-            return bail!(ErrorKind::BindingError("Result of fts_open() is NULL".to_owned()));
+            bail!(ErrorKind::BindingError("Result of fts_open() is NULL".to_owned()));
         }
 
-        let mut child = ptr::null();
-        let mut parent = ptr::null();
+        let mut child;
+        let mut parent;
 
         if file_system.is_null() {
             return Ok(vec![]);
@@ -76,17 +69,15 @@ fn collect_dir_entries(root: &str) -> Result<Vec<StandaloneDirEntry>, Error> {
             while !parent.is_null() {
                 child = fts_children(file_system, 0);
                 if !child.is_null() {
-                    unsafe {
-                        loop {
-                            if (*child).fts_info as u32 == FTS_F {
-                                entries.push(dir_entry_from_fts_entry(child.as_ref().unwrap()));
-                            }
-                            if child.is_null() || (*child).fts_link.is_null() {
-                                break;
-                            }
-                            child = (*child).fts_link;
-                        };
-                    }
+                    loop {
+                        if (*child).fts_info as u32 == FTS_F {
+                            entries.push(dir_entry_from_fts_entry(child.as_ref().unwrap()));
+                        }
+                        if child.is_null() || (*child).fts_link.is_null() {
+                            break;
+                        }
+                        child = (*child).fts_link;
+                    };
                 }
                 parent = fts_read(file_system);
             }
@@ -112,7 +103,7 @@ fn dir_entry_from_fts_entry(entry: &FTSENT) -> StandaloneDirEntry {
     }
 }
 
-
+#[derive(Clone)]
 pub struct FileFinder {}
 
 impl FileFinder {

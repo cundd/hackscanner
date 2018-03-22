@@ -454,7 +454,7 @@ extern "C" {
         arg1: *const *const ::std::os::raw::c_char,
         arg2: ::std::os::raw::c_int,
         arg3: ::std::option::Option<
-            unsafe extern "C" fn(arg1: *mut *const FTSENT, arg2: *mut *const FTSENT)
+            unsafe extern "C" fn(arg1: *const *const FTSENT, arg2: *const *const FTSENT)
                 -> ::std::os::raw::c_int,
         >,
     ) -> *mut FTS;
