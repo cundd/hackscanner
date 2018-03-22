@@ -1,6 +1,9 @@
+#![allow(unused)]
 extern crate hackscanner_lib;
 
+use std::thread;
 use hackscanner_lib::*;
+use hackscanner_lib::file_finder::FileFinderTrait;
 
 pub fn get_rules_multiple_results() -> Vec<Rule> {
     vec![
@@ -15,8 +18,6 @@ pub fn get_rules_single_result() -> Vec<Rule> {
 }
 
 pub fn assert_multiple_paths<D: DirEntryTrait>(matches: Vec<D>) {
-//    assert_eq!(3, matches.len());
-
     assert!(contains_path(
         &matches,
         format!(
@@ -70,6 +71,26 @@ pub fn assert_single_path<D: DirEntryTrait>(matches: Vec<D>) {
             "/tests/resources/files/tx_mocfilemanager-test.sh"
         ),
     ));
+}
+
+pub fn test_multi_threading<D, F>(file_finder: F)
+    where D: DirEntryTrait, F: FileFinderTrait<DirEntry=D> + 'static + ::std::marker::Send + Clone
+{
+    let mut threads = vec![];
+    for _ in 0..4 {
+        let file_finder = file_finder.clone();
+        let handle = thread::spawn(move || {
+            let rules = get_rules_single_result();
+            let matches = file_finder.find(env!("CARGO_MANIFEST_DIR"), &rules);
+            assert_single_path(matches);
+        });
+
+        threads.push(handle);
+    }
+
+    for thread in threads {
+        let _ = thread.join();
+    }
 }
 
 pub fn contains_path<E: DirEntryTrait>(paths: &Vec<E>, test_path: String) -> bool {

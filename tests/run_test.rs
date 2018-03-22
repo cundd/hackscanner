@@ -63,7 +63,7 @@ fn configure_logging(log_level_filter: simplelog::LevelFilter) {
 
 #[test]
 fn run_builtin_rules_test() {
-    configure_logging(simplelog::LevelFilter::Trace);
+    configure_logging(simplelog::LevelFilter::Error);
     let rules = &get_builtin_rules();
 
     let files = file_finder::find_files(format!("{}/tests", env!("CARGO_MANIFEST_DIR")), rules);

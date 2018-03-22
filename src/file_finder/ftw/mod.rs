@@ -22,7 +22,10 @@ struct FTW {
     level: c_int,
 }
 
+#[allow(unused)]
 type FtwFn = extern fn(fpath: *const c_char, sb: *const stat, typeflag: c_int) -> c_int;
+
+#[allow(unused)]
 type NftwFn = extern fn(fpath: *const c_char, sb: *const stat, typeflag: c_int, ftwbuf: *const FTW) -> c_int;
 
 
@@ -42,6 +45,7 @@ extern {
     ///         int (*fn) (const char *fpath, const struct stat *sb, int typeflag),
     ///         int nopenfd
     /// );
+    #[allow(unused)]
     fn ftw(dirpath: *const c_char, f: FtwFn, nopenfd: c_int) -> c_int;
 }
 
@@ -51,6 +55,7 @@ thread_local! {
 }
 
 /// Callback for [`ftw`](https://linux.die.net/man/3/ftw)
+#[allow(unused)]
 extern fn ftw_collector(
     fpath: *const c_char,
     _sb: *const stat,
@@ -101,6 +106,7 @@ extern fn nftw_collector(
     0
 }
 
+#[derive(Clone)]
 pub struct FileFinder {}
 
 impl FileFinder {
@@ -126,6 +132,7 @@ fn clear_entries() {
     });
 }
 
+#[allow(unused)]
 fn collect_dir_entries_ftw(root: &str) -> Vec<StandaloneDirEntry> {
     clear_entries();
     unsafe {

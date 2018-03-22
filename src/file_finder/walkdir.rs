@@ -4,6 +4,7 @@ use std::fmt::Debug;
 use walkdir::WalkDir;
 use dir_entry::WalkdirDirEntry;
 
+#[derive(Clone)]
 pub struct FileFinder {}
 
 impl FileFinder {
