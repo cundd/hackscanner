@@ -59,35 +59,30 @@ fn collect_dir_entries(root: &str) -> Result<Vec<StandaloneDirEntry>, Error> {
         }
 
         let mut child;
-        let mut parent;
+        let mut parent = fts_read(file_system);
 
-        if file_system.is_null() {
-            return Ok(vec![]);
-        } else {
-            parent = fts_read(file_system);
-
-            while !parent.is_null() {
-                child = fts_children(file_system, 0);
-                if !child.is_null() {
-                    loop {
-                        if (*child).fts_info as u32 == FTS_F {
-                            entries.push(dir_entry_from_fts_entry(child.as_ref().unwrap()));
-                        }
-                        if child.is_null() || (*child).fts_link.is_null() {
-                            break;
-                        }
-                        child = (*child).fts_link;
-                    };
-                }
-                parent = fts_read(file_system);
+        while !parent.is_null() {
+            child = fts_children(file_system, 0);
+            if !child.is_null() {
+                loop {
+                    if (*child).fts_info as u32 == FTS_F {
+                        entries.push(dir_entry_from_fts_entry(child.as_ref().unwrap()));
+                    }
+                    if child.is_null() || (*child).fts_link.is_null() {
+                        break;
+                    }
+                    child = (*child).fts_link;
+                };
             }
-            fts_close(file_system);
+            parent = fts_read(file_system);
         }
+        fts_close(file_system);
     }
 
     Ok(entries)
 }
 
+#[inline]
 fn dir_entry_from_fts_entry(entry: &FTSENT) -> StandaloneDirEntry {
     let path = unsafe { CStr::from_ptr(entry.fts_path).to_str().unwrap() };
     let name = unsafe { CStr::from_ptr(entry.fts_name.as_ptr()).to_str().unwrap() };
