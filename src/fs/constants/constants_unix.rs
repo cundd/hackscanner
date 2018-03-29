@@ -1,4 +1,4 @@
-use super::c_int;
+use libc::c_int;
 
 /// Valid flags for the 3rd argument to the function that is passed as the
 /// second argument to ftw(3) and nftw(3).  Say it three times fast!

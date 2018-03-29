@@ -1,4 +1,4 @@
-use super::c_int;
+use libc::c_int;
 
 /// Values for the FLAG argument to the user function passed to `ftw' and 'nftw'.
 /// Regular file.
