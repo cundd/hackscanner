@@ -1,0 +1,9 @@
+- name: some rule
+  path: some/path
+  content: some bad content
+  severity: CRITICAL
+
+- name: some whitelist rule
+  path: "\\.php"
+  content: love
+  severity: WHITELIST

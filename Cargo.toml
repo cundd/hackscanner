@@ -17,7 +17,9 @@ path = "src/debug.rs"
 
 [features]
 backtrace = ["error-chain/backtrace"]
-default = ["backtrace"]
+json = ["serde_json"]
+yaml = ["serde_yaml"]
+default = ["backtrace", "json", "yaml"]
 
 [dependencies]
 walkdir = "2"
@@ -30,3 +32,8 @@ ansi_term = "^0.11.0"
 term = "0.4.6"
 libc = "0.2.0"
 lazy_static = "1.0"
+serde = "1.0"
+serde_derive = "1.0"
+
+serde_yaml = { version = "0.7", optional = true }
+serde_json = { version = "1.0", optional = true }

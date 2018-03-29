@@ -21,7 +21,7 @@ fn main() {
     for _ in 0..4 {
         let rules = rules.clone();
         let handle: JoinHandle<_> = thread::spawn(move || {
-            FileFinder::new().find(env!("CARGO_MANIFEST_DIR"), &rules);
+            FileFinder::new().find(format!("{}/tests", env!("CARGO_MANIFEST_DIR")), &rules);
         });
 
         handles.push(handle);

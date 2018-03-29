@@ -10,7 +10,7 @@ mod file_finder_test_suite_fts {
     #[test]
     fn find_files_test() {
         let rules = get_rules_multiple_results();
-        let matches = FileFinder::find(&FileFinder::new(), env!("CARGO_MANIFEST_DIR"), &rules);
+        let matches = FileFinder::new().find(get_test_dir(), &rules);
         assert_multiple_paths(matches);
     }
 
@@ -19,8 +19,8 @@ mod file_finder_test_suite_fts {
         let rules = get_rules_single_result();
 
         // Call `find` multiple times to make sure the results are cleared between calls
-        FileFinder::find(&FileFinder::new(), env!("CARGO_MANIFEST_DIR"), &rules);
-        let matches = FileFinder::find(&FileFinder::new(), env!("CARGO_MANIFEST_DIR"), &rules);
+        FileFinder::new().find(get_test_dir(), &rules);
+        let matches = FileFinder::new().find(get_test_dir(), &rules);
 
         assert_single_path(matches);
     }

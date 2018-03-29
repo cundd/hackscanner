@@ -28,6 +28,10 @@ error_chain! {
             description("Error when calling external API")
             display("Error when calling external API: '{}'", t)
         }
+        ReaderError(t: String) {
+            description("Invalid configuration file")
+            display("Configuration file can not be loaded: '{}'", t)
+        }
 //        InvalidToolchainName(t: String) {
 //            description("invalid toolchain name")
 //            display("invalid toolchain name: '{}'", t)

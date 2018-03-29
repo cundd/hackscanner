@@ -3,6 +3,8 @@
 
 #[macro_use]
 extern crate error_chain;
+#[macro_use]
+extern crate log;
 extern crate simplelog;
 extern crate walkdir;
 extern crate regex;
@@ -18,6 +20,7 @@ use clap::Arg;
 use clap::App;
 use clap::ArgMatches;
 use hackscanner_lib::*;
+use std::path::Path;
 
 fn main() {
     if let Err(ref e) = run() {
@@ -35,7 +38,7 @@ fn main() {
 // `errors` module. It is a typedef of the standard `Result` type
 // for which the error type is always our own `Error`.
 fn run() -> Result<(), Error> {
-    let matches = App::new("hackscanner")
+    let app = App::new("hackscanner")
         .version("0.1.0")
         .author("Daniel Corn <info@cundd.net>")
         .about("Scan the filesystem for hacked files")
@@ -51,11 +54,30 @@ fn run() -> Result<(), Error> {
             .short("m")
             .takes_value(true)
             .help("Sets the minimum severity to display (-v = Info, -vv = Debug, -vvv = Trace)"))
-        .get_matches();
+    ;
+
+    #[cfg(any(feature = "json", feature = "yaml"))]
+    let app = app.arg(Arg::with_name("configuration")
+        .help("File with additional rules")
+        .short("c")
+        .long("configuration")
+        .takes_value(true)
+    );
+
+    let matches = app.get_matches();
 
     configure_logging(&matches).unwrap();
 
-    let rules = &get_builtin_rules();
+    #[cfg(not(any(feature = "json", feature = "yaml")))]
+    let rules = &get_merged_rules(None)?;
+    #[cfg(any(feature = "json", feature = "yaml"))]
+    let rules = &get_merged_rules(match matches.value_of("configuration") {
+        Some(c) => {
+            info!("Load custom rules from '{}'", c);
+            Some(Path::new(c))
+        }
+        None => None,
+    })?;
 
     let min_severity = get_minimum_severity(&matches);
     let root = get_root(&matches);

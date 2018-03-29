@@ -2,6 +2,7 @@ extern crate hackscanner_lib;
 extern crate simplelog;
 
 use hackscanner_lib::*;
+use std::path::Path;
 
 /// Assert that the `ratings` contain a Rating with the path matching `path` and a rating equal to or bigger than `score`
 fn assert_contains_entry_with_score(ratings: &Vec<Rating>, score: isize, path: &str) {
@@ -55,16 +56,30 @@ fn configure_logging(log_level_filter: simplelog::LevelFilter) {
         loggers.push(simplelog::SimpleLogger::new(log_level_filter, config));
     }
 
-    match simplelog::CombinedLogger::init(loggers) {
-        Ok(_) => (),
-        Err(e) => panic!(e),
-    }
+    let _ = simplelog::CombinedLogger::init(loggers);
+}
+
+#[test]
+fn run_rules_with_configuration_test() {
+    configure_logging(simplelog::LevelFilter::Error);
+    let configuration_file = format!(
+        "{}{}",
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/resources/rules/rules.yaml"
+    );
+    let rules = &get_merged_rules(Some(&Path::new(&configuration_file))).unwrap();
+
+    let files = file_finder::find_files(format!("{}/tests", env!("CARGO_MANIFEST_DIR")), rules);
+    let pattern_rules = PatternRule::from_rules_filtered(rules);
+    let ratings = classifier::classify_entries(&files, &pattern_rules);
+
+    assert_contains_entry_with_score(&ratings, Severity::WHITELIST as isize, "/tests/resources/files/whitelist_me.php");
 }
 
 #[test]
 fn run_builtin_rules_test() {
     configure_logging(simplelog::LevelFilter::Error);
-    let rules = &get_builtin_rules();
+    let rules = &get_merged_rules(None).unwrap();
 
     let files = file_finder::find_files(format!("{}/tests", env!("CARGO_MANIFEST_DIR")), rules);
     let pattern_rules = PatternRule::from_rules_filtered(rules);

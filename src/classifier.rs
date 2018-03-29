@@ -49,6 +49,7 @@ fn classify_entry<'a, 'b, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<Pattern
             }
         }
 
+        trace!("  Update rating {} {} {}", rating, rule.severity() as isize, rule.name());
         rating += rule.severity() as isize;
 
         return true;

@@ -1,7 +1,7 @@
 use std::fmt;
 use std::fmt::Display;
 
-#[derive(Debug, Copy, Clone, PartialEq, PartialOrd)]
+#[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Deserialize)]
 pub enum Severity {
     CRITICAL = 90,
     MAJOR = 60,
