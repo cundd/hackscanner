@@ -5,3 +5,6 @@
 
 #[cfg(target_os = "macos")]
 include!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/file_finder/fts/bindings_macos.rs"));
+
+#[cfg(target_os = "linux")]
+include!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/file_finder/fts/bindings_unknown_linux.rs"));

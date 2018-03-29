@@ -8,14 +8,11 @@ pub const FTS_PHYSICAL: u32 = 16;
 pub const FTS_SEEDOT: u32 = 32;
 pub const FTS_XDEV: u32 = 64;
 pub const FTS_WHITEOUT: u32 = 128;
-pub const FTS_COMFOLLOWDIR: u32 = 1024;
-pub const FTS_OPTIONMASK: u32 = 1279;
+pub const FTS_OPTIONMASK: u32 = 255;
 pub const FTS_NAMEONLY: u32 = 256;
 pub const FTS_STOP: u32 = 512;
-pub const FTS_BLOCK_COMPAR: u32 = 2147483648;
 pub const FTS_ROOTPARENTLEVEL: i32 = -1;
 pub const FTS_ROOTLEVEL: u32 = 0;
-pub const FTS_MAXLEVEL: u32 = 2147483647;
 pub const FTS_D: u32 = 1;
 pub const FTS_DC: u32 = 2;
 pub const FTS_DEFAULT: u32 = 3;
@@ -32,7 +29,6 @@ pub const FTS_SLNONE: u32 = 13;
 pub const FTS_W: u32 = 14;
 pub const FTS_DONTCHDIR: u32 = 1;
 pub const FTS_SYMFOLLOW: u32 = 2;
-pub const FTS_ISW: u32 = 4;
 pub const FTS_AGAIN: u32 = 1;
 pub const FTS_FOLLOW: u32 = 2;
 pub const FTS_NOINSTR: u32 = 3;
@@ -42,11 +38,12 @@ pub type __int32_t = ::std::os::raw::c_int;
 pub type __uint32_t = ::std::os::raw::c_uint;
 pub type __darwin_dev_t = __int32_t;
 pub type __darwin_ino_t = __uint32_t;
+pub type u_short = ::std::os::raw::c_ushort;
 pub type dev_t = __darwin_dev_t;
 pub type ino_t = __darwin_ino_t;
 pub type nlink_t = __uint16_t;
 #[repr(C)]
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct FTS {
     pub fts_cur: *mut _ftsent,
     pub fts_child: *mut _ftsent,
@@ -56,48 +53,13 @@ pub struct FTS {
     pub fts_rfd: ::std::os::raw::c_int,
     pub fts_pathlen: ::std::os::raw::c_int,
     pub fts_nitems: ::std::os::raw::c_int,
-    pub __bindgen_anon_1: FTS__bindgen_ty_1,
+    pub fts_compar: ::std::option::Option<
+        unsafe extern "C" fn(
+            arg1: *const ::std::os::raw::c_void,
+            arg2: *const ::std::os::raw::c_void,
+        ) -> ::std::os::raw::c_int,
+    >,
     pub fts_options: ::std::os::raw::c_int,
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union FTS__bindgen_ty_1 {
-    pub fts_compar: ::std::option::Option<unsafe extern "C" fn() -> ::std::os::raw::c_int>,
-    pub fts_compar_b: *mut ::std::os::raw::c_void,
-    _bindgen_union_align: u64,
-}
-#[test]
-fn bindgen_test_layout_FTS__bindgen_ty_1() {
-    assert_eq!(
-        ::std::mem::size_of::<FTS__bindgen_ty_1>(),
-        8usize,
-        concat!("Size of: ", stringify!(FTS__bindgen_ty_1))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<FTS__bindgen_ty_1>(),
-        8usize,
-        concat!("Alignment of ", stringify!(FTS__bindgen_ty_1))
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<FTS__bindgen_ty_1>())).fts_compar as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(FTS__bindgen_ty_1),
-            "::",
-            stringify!(fts_compar)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<FTS__bindgen_ty_1>())).fts_compar_b as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(FTS__bindgen_ty_1),
-            "::",
-            stringify!(fts_compar_b)
-        )
-    );
 }
 #[test]
 fn bindgen_test_layout_FTS() {
@@ -192,6 +154,16 @@ fn bindgen_test_layout_FTS() {
         )
     );
     assert_eq!(
+        unsafe { &(*(::std::ptr::null::<FTS>())).fts_compar as *const _ as usize },
+        56usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(FTS),
+            "::",
+            stringify!(fts_compar)
+        )
+    );
+    assert_eq!(
         unsafe { &(*(::std::ptr::null::<FTS>())).fts_options as *const _ as usize },
         64usize,
         concat!(
@@ -214,15 +186,15 @@ pub struct _ftsent {
     pub fts_path: *mut ::std::os::raw::c_char,
     pub fts_errno: ::std::os::raw::c_int,
     pub fts_symfd: ::std::os::raw::c_int,
-    pub fts_pathlen: ::std::os::raw::c_ushort,
-    pub fts_namelen: ::std::os::raw::c_ushort,
+    pub fts_pathlen: u_short,
+    pub fts_namelen: u_short,
     pub fts_ino: ino_t,
     pub fts_dev: dev_t,
     pub fts_nlink: nlink_t,
     pub fts_level: ::std::os::raw::c_short,
-    pub fts_info: ::std::os::raw::c_ushort,
-    pub fts_flags: ::std::os::raw::c_ushort,
-    pub fts_instr: ::std::os::raw::c_ushort,
+    pub fts_info: u_short,
+    pub fts_flags: u_short,
+    pub fts_instr: u_short,
     pub fts_statp: *mut stat,
     pub fts_name: [::std::os::raw::c_char; 1usize],
 }
@@ -441,15 +413,15 @@ fn bindgen_test_layout__ftsent() {
 }
 pub type FTSENT = _ftsent;
 extern "C" {
-    #[link_name = "\u{1}_fts_children"]
+//    #[link_name = "\u{1}_fts_children"]
     pub fn fts_children(arg1: *mut FTS, arg2: ::std::os::raw::c_int) -> *mut FTSENT;
 }
 extern "C" {
-    #[link_name = "\u{1}_fts_close"]
+//    #[link_name = "\u{1}_fts_close"]
     pub fn fts_close(arg1: *mut FTS) -> ::std::os::raw::c_int;
 }
 extern "C" {
-    #[link_name = "\u{1}_fts_open"]
+//    #[link_name = "\u{1}_fts_open"]
     pub fn fts_open(
         arg1: *const *const ::std::os::raw::c_char,
         arg2: ::std::os::raw::c_int,
@@ -460,7 +432,7 @@ extern "C" {
     ) -> *mut FTS;
 }
 extern "C" {
-    #[link_name = "\u{1}_fts_read"]
+//    #[link_name = "\u{1}_fts_read"]
     pub fn fts_read(arg1: *mut FTS) -> *mut FTSENT;
 }
 #[repr(C)]
