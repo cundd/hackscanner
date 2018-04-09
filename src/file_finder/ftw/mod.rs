@@ -163,24 +163,24 @@ mod test {
     #[test]
     fn collect_dir_entries_ftw_test() {
         let r = collect_dir_entries_ftw(&format!("{}/tests", env!("CARGO_MANIFEST_DIR")));
-        assert!(30 < r.len(), "Expected result length to be bigger than 30, got {}", r.len());
+        assert!(25 < r.len(), "Expected result length to be bigger than 25, got {}", r.len());
     }
 
     #[test]
     fn collect_dir_entries_nftw_test() {
         let r = collect_dir_entries_nftw(&format!("{}/tests", env!("CARGO_MANIFEST_DIR")));
-        assert!(30 < r.len(), "Expected result length to be bigger than 30, got {}", r.len());
+        assert!(25 < r.len(), "Expected result length to be bigger than 25, got {}", r.len());
     }
 
     #[test]
     fn walk_dir_test() {
         let r = FileFinder::walk_dir(&FileFinder::new(), &format!("{}/tests", env!("CARGO_MANIFEST_DIR")), |_| true);
-        assert!(30 < r.len(), "Expected result length to be bigger than 30, got {}", r.len());
+        assert!(25 < r.len(), "Expected result length to be bigger than 25, got {}", r.len());
     }
 
     #[test]
     fn find_test() {
         let r = FileFinder::walk_dir(&FileFinder::new(), &format!("{}/tests", env!("CARGO_MANIFEST_DIR")), |_| true);
-        assert!(30 < r.len(), "Expected result length to be bigger than 30, got {}", r.len());
+        assert!(25 < r.len(), "Expected result length to be bigger than 25, got {}", r.len());
     }
 }

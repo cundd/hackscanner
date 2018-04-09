@@ -1,8 +1,8 @@
-use super::FileFinderTrait;
-use std::path::Path;
-use std::fmt::Debug;
-use walkdir::WalkDir;
 use dir_entry::WalkdirDirEntry;
+use std::fmt::Debug;
+use std::path::Path;
+use super::FileFinderTrait;
+use walkdir::WalkDir;
 
 #[derive(Clone)]
 pub struct FileFinder {}
@@ -14,6 +14,8 @@ impl FileFinder {
 }
 
 impl FileFinderTrait for FileFinder {
+    type DirEntry = WalkdirDirEntry;
+
     fn walk_dir<P: AsRef<Path> + Debug + Clone, F>(&self, root: P, filter: F) -> Vec<Self::DirEntry>
         where F: Fn(&Self::DirEntry) -> bool {
         info!("Search files in directory {:?}", root);
@@ -33,5 +35,4 @@ impl FileFinderTrait for FileFinder {
 
         result
     }
-    type DirEntry = WalkdirDirEntry;
 }

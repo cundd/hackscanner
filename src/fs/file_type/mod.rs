@@ -6,37 +6,9 @@ pub use self::standalone_file_type::FileType as StandaloneFileType;
 
 pub trait FileTypeTrait {
     /// Test whether this file type represents a directory.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # fn foo() -> std::io::Result<()> {
-    /// use std::fs;
-    ///
-    /// let metadata = fs::metadata("foo.txt")?;
-    /// let file_type = metadata.file_type();
-    ///
-    /// assert_eq!(file_type.is_dir(), false);
-    /// # Ok(())
-    /// # }
-    /// ```
     fn is_dir(&self) -> bool;
 
     /// Test whether this file type represents a regular file.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # fn foo() -> std::io::Result<()> {
-    /// use std::fs;
-    ///
-    /// let metadata = fs::metadata("foo.txt")?;
-    /// let file_type = metadata.file_type();
-    ///
-    /// assert_eq!(file_type.is_file(), true);
-    /// # Ok(())
-    /// # }
-    /// ```
     fn is_file(&self) -> bool;
 
     /// Test whether this file type represents a symbolic link.
@@ -51,20 +23,6 @@ pub trait FileTypeTrait {
     /// [`fs::metadata`]: fn.metadata.html
     /// [`fs::symlink_metadata`]: fn.symlink_metadata.html
     /// [`is_symlink`]: struct.FileType.html#method.is_symlink
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # fn foo() -> std::io::Result<()> {
-    /// use std::fs;
-    ///
-    /// let metadata = fs::symlink_metadata("foo.txt")?;
-    /// let file_type = metadata.file_type();
-    ///
-    /// assert_eq!(file_type.is_symlink(), false);
-    /// # Ok(())
-    /// # }
-    /// ```
     fn is_symlink(&self) -> bool;
 }
 

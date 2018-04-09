@@ -1,26 +1,26 @@
 // `error_chain!` can recurse deeply
 #![recursion_limit = "1024"]
 
+extern crate ansi_term;
+extern crate clap;
 #[macro_use]
 extern crate error_chain;
+extern crate hackscanner_lib;
 #[macro_use]
 extern crate log;
-extern crate simplelog;
-extern crate walkdir;
 extern crate regex;
-extern crate clap;
-extern crate ansi_term;
+extern crate simplelog;
 extern crate term;
-extern crate hackscanner_lib;
+extern crate walkdir;
 
-mod ui;
-
-use std::env;
-use clap::Arg;
 use clap::App;
+use clap::Arg;
 use clap::ArgMatches;
 use hackscanner_lib::*;
+use std::env;
 use std::path::Path;
+
+mod ui;
 
 fn main() {
     if let Err(ref e) = run() {
@@ -53,7 +53,7 @@ fn run() -> Result<(), Error> {
         .arg(Arg::with_name("min-severity")
             .short("m")
             .takes_value(true)
-            .help("Sets the minimum severity to display (-v = Info, -vv = Debug, -vvv = Trace)"))
+            .help("Sets the minimum severity to display (CRITICAL, MAJOR, MINOR, NOTICE, ALL)"))
     ;
 
     #[cfg(any(feature = "json", feature = "yaml"))]

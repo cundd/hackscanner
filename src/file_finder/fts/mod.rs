@@ -134,18 +134,18 @@ mod test {
         assert!(r.is_ok());
 
         let v = r.unwrap();
-        assert!(30 < v.len(), "Expected result length to be bigger than 30, got {}", v.len());
+        assert!(25 < v.len(), "Expected result length to be bigger than 25, got {}", v.len());
     }
 
     #[test]
     fn walk_dir_test() {
         let r = FileFinder::walk_dir(&FileFinder::new(), &format!("{}/tests", env!("CARGO_MANIFEST_DIR")), |_| true);
-        assert!(30 < r.len(), "Expected result length to be bigger than 30, got {}", r.len());
+        assert!(25 < r.len(), "Expected result length to be bigger than 25, got {}", r.len());
     }
 
     #[test]
     fn find_test() {
         let r = FileFinder::walk_dir(&FileFinder::new(), &format!("{}/tests", env!("CARGO_MANIFEST_DIR")), |_| true);
-        assert!(30 < r.len(), "Expected result length to be bigger than 30, got {}", r.len());
+        assert!(25 < r.len(), "Expected result length to be bigger than 25, got {}", r.len());
     }
 }
