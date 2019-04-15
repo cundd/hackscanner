@@ -32,11 +32,14 @@ fn get_builtin_rules_php() -> Vec<Rule> {
         Rule::with_path("php::file::cache", Severity::CRITICAL, "//\\.cache\\.php"),
         Rule::with_path("php::file::ext_fpdf", Severity::CRITICAL, "ext_fpdf.php"),
         Rule::with_path("php::file::ixwstat", Severity::CRITICAL, "ixwstat.php"),
+        Rule::with_path_and_content("php::content::cialis", Severity::NOTICE, "\\.php", "='preg_"),
     ]
 }
 
 fn get_builtin_rules_typo3() -> Vec<Rule> {
     vec![
+        Rule::with_path_and_content("typo3::file::php-in-typo3conf-wordpress", Severity::MAJOR, "typo3conf/.*\\.php", "wordpress"),
+        Rule::with_path("typo3::file::php-in-typo3conf-static_info_tables", Severity::MAJOR, "typo3conf/ext/static_info_tables/Classes/static_info_tables.php"),
         Rule::with_path("typo3::file::php-in-fileadmin", Severity::MINOR, "fileadmin/.*\\.php"),
         Rule::with_path("typo3::file::php-in-l10n", Severity::MAJOR, "typo3conf/l10n/.*\\.php"),
         Rule::with_path("typo3::file::php-in-typo3temp", Severity::MINOR, "typo3temp/.*\\.php$"),

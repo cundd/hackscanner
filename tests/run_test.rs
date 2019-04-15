@@ -96,6 +96,7 @@ fn run_builtin_rules_test() {
     assert_contains_entry_with_score(&ratings, Severity::MINOR as isize, "tests/resources/files/typo3/typo3temp/bad_file.php");
     assert_contains_entry_with_score(&ratings, Severity::MINOR as isize, "tests/resources/files/typo3/typo3temp/various_subdir/bad_file.php");
     assert_contains_entry_with_score(&ratings, Severity::MINOR as isize, "tests/resources/files/typo3/typo3temp/autoload-tests/bad_file.php");
+    assert_contains_entry_with_score(&ratings, Severity::MAJOR as isize, "tests/resources/files/typo3/typo3conf/bad.php");
     assert_not_contains_entry(&ratings, "tests/resources/files/typo3/typo3temp/Cache/allowed_file.php");
     assert_not_contains_entry(&ratings, "tests/resources/files/typo3/typo3temp/var/Cache/allowed_file.php");
     assert_not_contains_entry(&ratings, "tests/resources/files/typo3/typo3temp/autoload/autoload_allowed_file.php");
