@@ -38,7 +38,7 @@ fn get_builtin_rules_php() -> Vec<Rule> {
 
 fn get_builtin_rules_typo3() -> Vec<Rule> {
     vec![
-        Rule::with_path_and_content("typo3::file::php-in-typo3conf-wordpress", Severity::MAJOR, "typo3conf/.*\\.php", "wordpress"),
+        Rule::with_path_and_content("typo3::file::php-in-typo3conf-wordpress", Severity::NOTICE, "typo3conf/.*\\.php", "wordpress"),
         Rule::with_path("typo3::file::php-in-typo3conf-static_info_tables", Severity::MAJOR, "typo3conf/ext/static_info_tables/Classes/static_info_tables.php"),
         Rule::with_path("typo3::file::php-in-fileadmin", Severity::MINOR, "fileadmin/.*\\.php"),
         Rule::with_path("typo3::file::php-in-l10n", Severity::MAJOR, "typo3conf/l10n/.*\\.php"),
