@@ -88,7 +88,7 @@ fn run() -> Result<(), Error> {
 
     ratings.sort_unstable_by(|rating_a, rating_b| rating_b.rating().cmp(&rating_a.rating()));
     for rating in ratings {
-        if rating.rating() > min_severity {
+        if rating.rating() >= min_severity {
             ui::print_rating(&rating);
         }
     }
