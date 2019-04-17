@@ -8,6 +8,15 @@
 hackscanner /root/directory/to/scan/
 ```
 
+### What does this do?
+
+The scanner will go through each file in the given root directory (or the current working directory if none is given). 
+Each file will be checked against all the defined rules. The severity values of all matching rules will be summed up to 
+build a rating for the checked file.
+
+Finally the results will be sorted by rating and be printed to the screen. 
+
+
 ## Rules
 
 The scanner has a set of [builtin rules](src/rule/builtin.rs), but can easily be extended with custom rules. 
@@ -18,7 +27,6 @@ hackscanner /root/directory/to/scan/ -c /configuration.yaml
 # or
 hackscanner /root/directory/to/scan/ -c /configuration.json
 ```
-
 
 The configuration file can be a JSON or YAML file.
 
