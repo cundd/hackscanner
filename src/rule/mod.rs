@@ -16,6 +16,9 @@ pub trait RuleTrait<T> {
     fn path(&self) -> Option<T>;
     fn content(&self) -> Option<T>;
     fn severity(&self) -> Severity;
+    fn has_content(&self) -> bool {
+        self.content().is_some()
+    }
 }
 
 pub fn get_merged_rules(path: Option<&Path>) -> Result<Vec<Rule>, Error> {

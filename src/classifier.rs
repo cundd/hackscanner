@@ -30,7 +30,7 @@ fn classify_entry<'a, 'b, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<Pattern
             return false;
         }
 
-        if rule.content().is_some() {
+        if rule.has_content() {
             // Read the entry's content if it is not already loaded
             if content.is_none() {
                 content = match read_entry_content(entry) {
