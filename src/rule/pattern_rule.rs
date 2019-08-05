@@ -2,18 +2,30 @@ use regex::Regex;
 use errors::*;
 use severity::Severity;
 use super::RuleTrait;
-use super::rule::Rule;
+use super::raw_rule::RawRule;
+use Rule;
 
 /// Rule with compiled regular expression members
 #[derive(Debug, Clone)]
 pub struct PatternRule {
-    rule: Rule,
+    rule: RawRule,
     path: Option<Regex>,
     content: Option<Regex>,
 }
 
 impl PatternRule {
+//    pub fn with_io_error<S2: Into<String>>(path: S2, error: Error) -> Self {
+//        Self::new(StdError::description(&error).to_owned(), Severity::NOTICE, Some(path.into()), None)
+//    }
+
     pub fn from_rule(rule: &Rule) -> Result<PatternRule, Error> {
+        match rule {
+            Rule::RawRule(rule) => Self::from_raw_rule(rule),
+            Rule::PatternRule(rule) => Ok(rule.clone())
+        }
+    }
+
+    pub fn from_raw_rule(rule: &RawRule) -> Result<PatternRule, Error> {
         let path = match rule.path() {
             None => None,
             Some(pattern) => Some(Self::build_regex(&pattern)?)
@@ -69,24 +81,42 @@ impl RuleTrait<Regex> for PatternRule {
     }
 }
 
+//// and we'll implement FromIterator
+//impl<'a> FromIterator<&PatternRule> for Vec<&'a RuleTrait<Regex>> {
+//    fn from_iter<T: IntoIterator<Item=&PatternRule>>(iter: T) -> Self {
+//        unimplemented!()
+//    }
+//
+////    fn from_iter<I: IntoIterator<Item=>>(iter: I) -> Self {
+////        let mut c = Vec::new();
+////
+//////        for i in iter {
+//////            c.add(i);
+//////        }
+////
+////        c
+////    }
+//}
+
+
 #[cfg(test)]
 mod test {
     use super::*;
 
     #[test]
     fn from_rule_test() {
-        let pattern_rule = PatternRule::from_rule(&Rule::new(1.to_string(), Severity::NOTICE, None, None)).unwrap();
+        let pattern_rule = PatternRule::from_rule(&Rule::new_raw(1.to_string(), Severity::NOTICE, None, None)).unwrap();
         assert!(pattern_rule.path().is_none());
         assert!(pattern_rule.content().is_none());
         assert_eq!(pattern_rule.severity(), Severity::NOTICE);
 
-        let pattern_rule = PatternRule::from_rule(&Rule::new(2.to_string(), Severity::EASE, None, None)).unwrap();
+        let pattern_rule = PatternRule::from_rule(&Rule::new_raw(2.to_string(), Severity::EASE, None, None)).unwrap();
         assert!(pattern_rule.path().is_none());
         assert!(pattern_rule.content().is_none());
         assert_eq!(pattern_rule.severity(), Severity::EASE);
 
         let pattern_rule = PatternRule::from_rule(
-            &Rule::new(
+            &Rule::new_raw(
                 3.to_string(),
                 Severity::EASE,
                 Some("^\\d{4}-\\d{2}-\\d{2}$".to_owned()),
@@ -97,7 +127,7 @@ mod test {
         assert!(pattern_rule.path().unwrap().is_match("2014-01-01"));
 
         let pattern_rule = PatternRule::from_rule(
-            &Rule::new(
+            &Rule::new_raw(
                 4.to_string(),
                 Severity::EASE,
                 None,

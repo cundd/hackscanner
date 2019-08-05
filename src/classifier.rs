@@ -25,9 +25,9 @@ fn classify_entry<'a, 'b, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<Pattern
     let mut rating: isize = 0;
     let mut content: Option<String> = None;
 
-    let matching_rules = rules.iter().filter(|rule| {
+    let matching_rules: Vec<Rule> = rules.iter().filter_map(|rule| {
         if !Matcher::match_entry_path(rule, entry) {
-            return false;
+            return None;
         }
 
         if rule.has_content() {
@@ -38,13 +38,15 @@ fn classify_entry<'a, 'b, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<Pattern
                     Err(e) => {
                         error!("{}", e);
                         Some("".to_string())
+
+//                        return Some(&Rule::with_io_error(e, entry))
                     }
                 };
             }
 
             if let Some(ref c) = content {
                 if !Matcher::match_entry_content(rule, c) {
-                    return false;
+                    return None;
                 }
             }
         }
@@ -52,7 +54,7 @@ fn classify_entry<'a, 'b, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<Pattern
         trace!("  Update rating {} {} {}", rating, rule.severity() as isize, rule.name());
         rating += rule.severity() as isize;
 
-        return true;
+        return Some(Rule::from_pattern_rule(rule));
     }).collect();
     trace!("Did classify entry {:?} (rating: {})", entry, rating);
 
@@ -60,20 +62,12 @@ fn classify_entry<'a, 'b, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<Pattern
 }
 
 
-fn read_entry_content<'a, D: DirEntryTrait>(entry: &'a D) -> Result<String, Error> {
+fn read_entry_content<D: DirEntryTrait>(entry: &D) -> Result<String, Error> {
     let path = entry.path();
     let mut file = match File::open(path) {
         Ok(f) => f,
         Err(e) => bail!("Could not open file {:?} for reading: {}", entry.path(), e)
     };
-
-//    trace!("Will read file {:?}", entry.path());
-//    let mut contents = String::new();
-//    file.read_to_string(&mut contents)
-//        .expect("something went wrong reading the file");
-//    trace!("Did read file {:?}", entry.path());
-//
-//    return contents;
 
     trace!("Will read file {:?}", path);
     let mut buffer = [0; BUFFER_SIZE];
@@ -112,7 +106,7 @@ mod test {
         fn classify_entry_test() {
             let entry = get_test_dir_entry("something.tx_mocfilemanager.php");
             let rules = vec![
-                Rule::new("1".to_string(), Severity::NOTICE, Some("tx_mocfilemanager".to_owned()), None)
+                Rule::new_raw("1".to_string(), Severity::NOTICE, Some("tx_mocfilemanager".to_owned()), None)
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -125,8 +119,8 @@ mod test {
         fn classify_entry_multiple_matches_test() {
             let entry = get_test_dir_entry("something.tx_mocfilemanager.php");
             let rules = vec![
-                Rule::new("2".to_string(), Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
-                Rule::new("3".to_string(), Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)
+                Rule::new_raw("2".to_string(), Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
+                Rule::new_raw("3".to_string(), Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -139,8 +133,8 @@ mod test {
         fn classify_entry_multiple_matches_subtract_test() {
             let entry = get_test_dir_entry("something.tx_mocfilemanager.php");
             let rules = vec![
-                Rule::new("4".to_string(), Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
-                Rule::new("5".to_string(), Severity::EASE, Some("tests/resources/files".to_owned()), None)
+                Rule::new_raw("4".to_string(), Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
+                Rule::new_raw("5".to_string(), Severity::EASE, Some("tests/resources/files".to_owned()), None)
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -154,7 +148,7 @@ mod test {
         fn classify_entry_with_content_test() {
             let entry = get_test_dir_entry("dezmond.php");
             let rules = vec![
-                Rule::new("6".to_string(), Severity::NOTICE, Some("\\.php".to_owned()), Some("dezmond".to_string())),
+                Rule::new_raw("6".to_string(), Severity::NOTICE, Some("\\.php".to_owned()), Some("dezmond".to_string())),
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -174,7 +168,7 @@ mod test {
                 get_test_dir_entry("tx_mocfilemanager.php"),
             ];
             let rules = vec![
-                Rule::new("7".to_string(), Severity::NOTICE, Some("tx_mocfilemanager".to_owned()), None)
+                Rule::new_raw("7".to_string(), Severity::NOTICE, Some("tx_mocfilemanager".to_owned()), None)
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -191,8 +185,8 @@ mod test {
                 get_test_dir_entry("tx_mocfilemanager.php"),
             ];
             let rules = vec![
-                Rule::new("8".to_string(), Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
-                Rule::new("9".to_string(), Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)
+                Rule::new_raw("8".to_string(), Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
+                Rule::new_raw("9".to_string(), Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -209,8 +203,8 @@ mod test {
                 get_test_dir_entry("tx_mocfilemanager.php"),
             ];
             let rules = vec![
-                Rule::new("10".to_string(), Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
-                Rule::new("11".to_string(), Severity::EASE, Some("\\.tx_mocfilemanager".to_owned()), None)
+                Rule::new_raw("10".to_string(), Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
+                Rule::new_raw("11".to_string(), Severity::EASE, Some("\\.tx_mocfilemanager".to_owned()), None)
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -229,7 +223,7 @@ mod test {
                 get_test_dir_entry("dezmond.php"),
             ];
             let rules = vec![
-                Rule::new("12".to_string(), Severity::MINOR, Some("\\.php".to_owned()), Some("dezmond".to_string())),
+                Rule::new_raw("12".to_string(), Severity::MINOR, Some("\\.php".to_owned()), Some("dezmond".to_string())),
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);

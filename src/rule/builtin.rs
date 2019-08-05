@@ -1,5 +1,6 @@
 use severity::Severity;
-use super::Rule;
+use super::RawRule;
+use Rule;
 
 pub fn get_builtin_rules() -> Vec<Rule> {
     let mut collection = vec![];
@@ -34,6 +35,28 @@ fn get_builtin_rules_php() -> Vec<Rule> {
         Rule::with_path("php::file::ixwstat", Severity::CRITICAL, "ixwstat.php"),
         Rule::with_path_and_content("php::content::cialis", Severity::NOTICE, "\\.php", "='preg_"),
     ]
+    (vec![
+        RawRule::with_path_and_content("php::content::error_reporting", Severity::NOTICE, "\\.php", "error_reporting\\("),
+        RawRule::with_path_and_content("php::content::preg_", Severity::NOTICE, "\\.php", "='preg_"),
+        RawRule::with_path_and_content("php::content::preg_", Severity::NOTICE, "\\.php", "=\"preg_"),
+        RawRule::with_path_and_content("php::content::eval", Severity::NOTICE, "\\.php", "\\beval\\("),
+        RawRule::with_path_and_content("php::content::gzinflate", Severity::NOTICE, "\\.php", "\\bgzinflate\\("),
+        RawRule::with_path_and_content("php::content::system", Severity::NOTICE, "\\.php", "\\bsystem\\("),
+        RawRule::with_path_and_content("php::content::exec", Severity::NOTICE, "\\.php", "\\bexec\\("),
+        RawRule::with_path_and_content("php::content::create_function", Severity::NOTICE, "\\.php", "\\bcreate_function\\("),
+        RawRule::with_path_and_content("php::content::return", Severity::MAJOR, "\\.php", "\",\"\\.\");return;?>"),
+        RawRule::with_path_and_content("php::content::base64_decode", Severity::MAJOR, "\\.php", "eval\\(base64_decode\\("),
+        RawRule::with_path_and_content("php::content::6fbcb8b698317491a5fd7926f2c3b7de", Severity::CRITICAL, "\\.php", "6fbcb8b698317491a5fd7926f2c3b7de"),
+        RawRule::with_path_and_content("php::content::4ngel", Severity::CRITICAL, "\\.php", "Codz by angel\\(4ngel\\)"),
+        RawRule::with_path_and_content("php::content::dezmond", Severity::CRITICAL, "\\.php", "dezmond"),
+        RawRule::with_path_and_content("php::content::FilesMan", Severity::CRITICAL, "\\.php", "FilesMan"),
+        RawRule::with_path_and_content("php::content::raprap1", Severity::CRITICAL, "\\.php", "raprap1"),
+        RawRule::with_path("php::file::tx_mocfilemanager", Severity::CRITICAL, "tx_mocfilemanager.php"),
+        RawRule::with_path("php::file::cache", Severity::CRITICAL, "//cache\\.dat"),
+        RawRule::with_path("php::file::cache", Severity::CRITICAL, "//\\.cache\\.php"),
+        RawRule::with_path("php::file::ext_fpdf", Severity::CRITICAL, "ext_fpdf.php"),
+        RawRule::with_path("php::file::ixwstat", Severity::CRITICAL, "ixwstat.php"),
+    ]).into_iter().map(|r| Rule::RawRule(r)).collect()
 }
 
 fn get_builtin_rules_typo3() -> Vec<Rule> {
@@ -49,4 +72,13 @@ fn get_builtin_rules_typo3() -> Vec<Rule> {
         Rule::with_path("typo3::file::php-in-typo3temp-extupdate", Severity::WHITELIST, "typo3temp/ExtensionManager/UpdateScripts/ext_update[a-z0-9]*\\.php"),
         Rule::with_path("typo3::file::php-in-typo3temp-extupdate", Severity::WHITELIST, "typo3temp/var/transient/ext_update[a-z0-9]*\\.php"),
     ]
+        RawRule::with_path("typo3::file::php-in-fileadmin", Severity::MINOR, "fileadmin/.*\\.php"),
+        RawRule::with_path("typo3::file::php-in-l10n", Severity::MAJOR, "typo3conf/l10n/.*\\.php"),
+        RawRule::with_path("typo3::file::php-in-typo3temp", Severity::MINOR, "typo3temp/.*\\.php$"),
+        RawRule::with_path("typo3::file::php-in-typo3temp-Cache", Severity::WHITELIST, "typo3temp/(var/)?Cache/.*\\.php"),
+        RawRule::with_path("typo3::file::php-in-typo3temp-autoload", Severity::WHITELIST, "typo3temp/autoload/autoload_[^/]*\\.php"),
+        RawRule::with_path("typo3::file::php-in-typo3temp-autoload-test", Severity::WHITELIST, "typo3temp/autoload-tests/autoload_[^/]*\\.php"),
+        RawRule::with_path("typo3::file::php-in-typo3temp-extupdate", Severity::WHITELIST, "typo3temp/ExtensionManager/UpdateScripts/ext_update[a-z0-9]*\\.php"),
+        RawRule::with_path("typo3::file::php-in-typo3temp-extupdate", Severity::WHITELIST, "typo3temp/var/transient/ext_update[a-z0-9]*\\.php"),
+    ].into_iter().map(|r| Rule::RawRule(r)).collect()
 }

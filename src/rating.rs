@@ -7,11 +7,11 @@ use severity::Severity;
 pub struct Rating<'a> {
     entry: &'a DirEntryTrait,
     rating: isize,
-    rules: Vec<&'a PatternRule>,
+    rules: Vec<Rule>,
 }
 
 impl<'a> Rating<'a> {
-    pub fn new(entry: &'a DirEntryTrait, rating: isize, rules: Vec<&'a PatternRule>) -> Self {
+    pub fn new(entry: &'a DirEntryTrait, rating: isize, rules: Vec<Rule>) -> Self {
         Rating {
             entry,
             rating,
@@ -23,7 +23,7 @@ impl<'a> Rating<'a> {
         self.entry
     }
 
-    pub fn rules(&self) -> &Vec<&PatternRule> {
+    pub fn rules(&self) -> &Vec<Rule> {
         &self.rules
     }
 
@@ -58,17 +58,17 @@ impl<'a> fmt::Display for Rating<'a> {
     }
 }
 
-fn join<D: RuleTrait<T>, T>(rules: &Vec<&D>) -> String {
+fn join(rules: &Vec<Rule>) -> String {
     rules.iter().fold(
         String::new(),
-        |acc, &rule| {
+        |acc, rule| {
             let separator = if !acc.is_empty() {
                 ", "
             } else {
                 ""
             };
 
-            acc + separator + &format!("{}", rule.name())
+            acc + separator + &format!("{}", &rule.name())
         },
     )
 }

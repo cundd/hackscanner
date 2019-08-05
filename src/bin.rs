@@ -40,7 +40,7 @@ fn main() {
 // for which the error type is always our own `Error`.
 fn run() -> Result<(), Error> {
     let app = App::new("hackscanner")
-        .version("0.1.0")
+        .version("0.2.0")
         .author("Daniel Corn <info@cundd.net>")
         .about("Scan the filesystem for hacked files")
         .arg(Arg::with_name("directory")

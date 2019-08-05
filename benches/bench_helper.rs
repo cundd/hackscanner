@@ -13,7 +13,7 @@ fn get_test_dir() -> String {
 
 pub fn bench_find_files<D, F>(ff: &F, b: &mut Bencher)
     where D: DirEntryTrait, F: FileFinderTrait<DirEntry=D> {
-    let rules = vec![Rule::new("2".to_string(), Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)];
+    let rules = vec![Rule::new_raw("2".to_string(), Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)];
     b.iter(|| ff.find(get_test_dir(), &rules));
 }
 

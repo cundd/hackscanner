@@ -15,7 +15,7 @@ use self::file_finder::fts::FileFinder;
 
 
 fn main() {
-    let rules = vec![Rule::new("2".to_string(), Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)];
+    let rules = vec![Rule::new_raw("2".to_string(), Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)];
     let mut handles: Vec<JoinHandle<_>> = vec![];
 
     for _ in 0..4 {

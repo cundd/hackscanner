@@ -1,8 +1,9 @@
-use rule::rule::Rule;
+use rule::raw_rule::RawRule;
 use std::path::Path;
 use errors::*;
 use std::fs::File;
 use std::io::BufReader;
+use Rule;
 
 pub struct Reader {}
 
@@ -31,10 +32,12 @@ impl Reader {
         extern crate serde_json;
 
         let file: BufReader<File> = get_file_reader(path)?;
-        match serde_json::from_reader::<BufReader<File>, Vec<Rule>>(file) {
-            Ok(r) => Ok(r),
-            Err(e) => Err(build_deserialize_error(path, &e))
-        }
+        let raw = match serde_json::from_reader::<BufReader<File>, Vec<RawRule>>(file) {
+            Ok(r) => (r),
+            Err(e) => return Err(build_deserialize_error(path, &e))
+        };
+
+        Ok(raw.into_iter().map(|r| Rule::RawRule(r)).collect())
     }
 
     #[cfg(feature = "yaml")]
@@ -42,10 +45,12 @@ impl Reader {
         extern crate serde_yaml;
 
         let file: BufReader<File> = get_file_reader(path)?;
-        match serde_yaml::from_reader::<BufReader<File>, Vec<Rule>>(file) {
-            Ok(r) => Ok(r),
-            Err(e) => Err(build_deserialize_error(path, &e))
-        }
+        let raw = match serde_yaml::from_reader::<BufReader<File>, Vec<RawRule>>(file) {
+            Ok(r) => (r),
+            Err(e) => return Err(build_deserialize_error(path, &e))
+        };
+
+        Ok(raw.into_iter().map(|r| Rule::RawRule(r)).collect())
     }
 }
 
@@ -84,6 +89,20 @@ mod test {
     use rule::RuleTrait;
     use severity::Severity;
 
+    fn path(rule: &Rule) -> String {
+        match rule {
+            &Rule::RawRule(ref rule) => rule.path().unwrap().to_string(),
+            &Rule::PatternRule(ref rule) => rule.path().unwrap().to_string(),
+        }
+    }
+
+    fn content(rule: &Rule) -> String {
+        match rule {
+            &Rule::RawRule(ref rule) => rule.content().unwrap().to_string(),
+            &Rule::PatternRule(ref rule) => rule.content().unwrap().to_string(),
+        }
+    }
+
     fn test_loaded_rules(result: Result<Vec<Rule>, Error>) {
         assert!(result.is_ok(), "{}", result.unwrap_err());
         let rules = result.unwrap();
@@ -91,13 +110,13 @@ mod test {
         assert_eq!(2, rules.len());
 
         assert_eq!("some rule", rules[0].name().clone());
-        assert_eq!("some/path", rules[0].path().unwrap());
-        assert_eq!("some bad content", rules[0].content().unwrap());
+        assert_eq!("some/path", path(&rules[0]));
+        assert_eq!("some bad content", content(&rules[0]));
         assert_eq!(Severity::CRITICAL, rules[0].severity());
 
         assert_eq!("some whitelist rule", rules[1].name().clone());
-        assert_eq!("\\.php", rules[1].path().unwrap());
-        assert_eq!("love", rules[1].content().unwrap());
+        assert_eq!("\\.php", path(&rules[1]));
+        assert_eq!("love", content(&rules[1]));
         assert_eq!(Severity::WHITELIST, rules[1].severity());
     }
 

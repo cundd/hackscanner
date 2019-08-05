@@ -60,10 +60,10 @@ fn print_rating_simple(rating: &Rating) {
     );
 }
 
-fn join_rules<D: RuleTrait<T>, T>(rules: &Vec<&D>) -> String {
+fn join_rules(rules: &Vec<Rule>) -> String {
     rules.iter().fold(
         String::new(),
-        |acc, &rule| {
+        |acc, rule| {
             let separator = if !acc.is_empty() {
                 ", "
             } else {
