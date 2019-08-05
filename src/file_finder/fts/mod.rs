@@ -123,6 +123,7 @@ impl FileFinderTrait for FileFinder {
     }
 }
 
+#[cfg(feature = "fts")]
 #[cfg(test)]
 mod test {
     use super::*;

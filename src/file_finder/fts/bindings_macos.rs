@@ -9,7 +9,8 @@ pub const FTS_SEEDOT: u32 = 32;
 pub const FTS_XDEV: u32 = 64;
 pub const FTS_WHITEOUT: u32 = 128;
 pub const FTS_COMFOLLOWDIR: u32 = 1024;
-pub const FTS_OPTIONMASK: u32 = 1279;
+pub const FTS_NOSTAT_TYPE: u32 = 2048;
+pub const FTS_OPTIONMASK: u32 = 3327;
 pub const FTS_NAMEONLY: u32 = 256;
 pub const FTS_STOP: u32 = 512;
 pub const FTS_BLOCK_COMPAR: u32 = 2147483648;
@@ -39,9 +40,10 @@ pub const FTS_NOINSTR: u32 = 3;
 pub const FTS_SKIP: u32 = 4;
 pub type __uint16_t = ::std::os::raw::c_ushort;
 pub type __int32_t = ::std::os::raw::c_int;
-pub type __uint32_t = ::std::os::raw::c_uint;
+pub type __uint64_t = ::std::os::raw::c_ulonglong;
 pub type __darwin_dev_t = __int32_t;
-pub type __darwin_ino_t = __uint32_t;
+pub type __darwin_ino64_t = __uint64_t;
+pub type __darwin_ino_t = __darwin_ino64_t;
 pub type dev_t = __darwin_dev_t;
 pub type ino_t = __darwin_ino_t;
 pub type nlink_t = __uint16_t;
@@ -230,7 +232,7 @@ pub struct _ftsent {
 fn bindgen_test_layout__ftsent() {
     assert_eq!(
         ::std::mem::size_of::<_ftsent>(),
-        104usize,
+        112usize,
         concat!("Size of: ", stringify!(_ftsent))
     );
     assert_eq!(
@@ -350,7 +352,7 @@ fn bindgen_test_layout__ftsent() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<_ftsent>())).fts_ino as *const _ as usize },
-        68usize,
+        72usize,
         concat!(
             "Offset of field: ",
             stringify!(_ftsent),
@@ -360,7 +362,7 @@ fn bindgen_test_layout__ftsent() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<_ftsent>())).fts_dev as *const _ as usize },
-        72usize,
+        80usize,
         concat!(
             "Offset of field: ",
             stringify!(_ftsent),
@@ -370,7 +372,7 @@ fn bindgen_test_layout__ftsent() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<_ftsent>())).fts_nlink as *const _ as usize },
-        76usize,
+        84usize,
         concat!(
             "Offset of field: ",
             stringify!(_ftsent),
@@ -380,7 +382,7 @@ fn bindgen_test_layout__ftsent() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<_ftsent>())).fts_level as *const _ as usize },
-        78usize,
+        86usize,
         concat!(
             "Offset of field: ",
             stringify!(_ftsent),
@@ -390,7 +392,7 @@ fn bindgen_test_layout__ftsent() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<_ftsent>())).fts_info as *const _ as usize },
-        80usize,
+        88usize,
         concat!(
             "Offset of field: ",
             stringify!(_ftsent),
@@ -400,7 +402,7 @@ fn bindgen_test_layout__ftsent() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<_ftsent>())).fts_flags as *const _ as usize },
-        82usize,
+        90usize,
         concat!(
             "Offset of field: ",
             stringify!(_ftsent),
@@ -410,7 +412,7 @@ fn bindgen_test_layout__ftsent() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<_ftsent>())).fts_instr as *const _ as usize },
-        84usize,
+        92usize,
         concat!(
             "Offset of field: ",
             stringify!(_ftsent),
@@ -420,7 +422,7 @@ fn bindgen_test_layout__ftsent() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<_ftsent>())).fts_statp as *const _ as usize },
-        88usize,
+        96usize,
         concat!(
             "Offset of field: ",
             stringify!(_ftsent),
@@ -430,7 +432,7 @@ fn bindgen_test_layout__ftsent() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<_ftsent>())).fts_name as *const _ as usize },
-        96usize,
+        104usize,
         concat!(
             "Offset of field: ",
             stringify!(_ftsent),
@@ -441,26 +443,28 @@ fn bindgen_test_layout__ftsent() {
 }
 pub type FTSENT = _ftsent;
 extern "C" {
-    #[link_name = "\u{1}_fts_children"]
+    #[link_name = "\u{1}_fts_children$INODE64"]
     pub fn fts_children(arg1: *mut FTS, arg2: ::std::os::raw::c_int) -> *mut FTSENT;
 }
 extern "C" {
-    #[link_name = "\u{1}_fts_close"]
+    #[link_name = "\u{1}_fts_close$INODE64"]
     pub fn fts_close(arg1: *mut FTS) -> ::std::os::raw::c_int;
 }
 extern "C" {
-    #[link_name = "\u{1}_fts_open"]
+    #[link_name = "\u{1}_fts_open$INODE64"]
     pub fn fts_open(
         arg1: *const *const ::std::os::raw::c_char,
         arg2: ::std::os::raw::c_int,
         arg3: ::std::option::Option<
-            unsafe extern "C" fn(arg1: *mut *const FTSENT, arg2: *mut *const FTSENT)
-                -> ::std::os::raw::c_int,
+            unsafe extern "C" fn(
+                arg1: *mut *const FTSENT,
+                arg2: *mut *const FTSENT,
+            ) -> ::std::os::raw::c_int,
         >,
     ) -> *mut FTS;
 }
 extern "C" {
-    #[link_name = "\u{1}_fts_read"]
+    #[link_name = "\u{1}_fts_read$INODE64"]
     pub fn fts_read(arg1: *mut FTS) -> *mut FTSENT;
 }
 #[repr(C)]

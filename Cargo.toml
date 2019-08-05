@@ -19,6 +19,7 @@ path = "src/debug.rs"
 backtrace = ["error-chain/backtrace"]
 json = ["serde_json"]
 yaml = ["serde_yaml"]
+fts = []
 default = ["backtrace", "json", "yaml"]
 
 [dependencies]
