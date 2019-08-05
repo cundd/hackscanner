@@ -36,10 +36,9 @@ fn classify_entry<'a, 'b, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<Pattern
                 content = match read_entry_content(entry) {
                     Ok(s) => Some(s),
                     Err(e) => {
-                        error!("{}", e);
-                        Some("".to_string())
+                        let error_message = ::std::error::Error::description(&e);
 
-//                        return Some(&Rule::with_io_error(e, entry))
+                        return Some(Rule::new_inline(error_message, entry.path().to_string_lossy(), error_message));
                     }
                 };
             }

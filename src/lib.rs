@@ -15,6 +15,7 @@ extern crate walkdir;
 extern crate regex;
 
 extern crate libc;
+extern crate core;
 
 pub mod errors;
 mod fs;

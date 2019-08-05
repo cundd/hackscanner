@@ -14,14 +14,11 @@ pub struct PatternRule {
 }
 
 impl PatternRule {
-//    pub fn with_io_error<S2: Into<String>>(path: S2, error: Error) -> Self {
-//        Self::new(StdError::description(&error).to_owned(), Severity::NOTICE, Some(path.into()), None)
-//    }
-
     pub fn from_rule(rule: &Rule) -> Result<PatternRule, Error> {
         match rule {
             Rule::RawRule(rule) => Self::from_raw_rule(rule),
-            Rule::PatternRule(rule) => Ok(rule.clone())
+            Rule::InlineRule(_) => panic!("Inline rule must not be transformed into a PatternRule"),
+            Rule::PatternRule(rule) => Ok(rule.clone()),
         }
     }
 
