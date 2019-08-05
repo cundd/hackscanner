@@ -55,7 +55,7 @@ fn run() -> Result<(), Error> {
             .short("m")
             .takes_value(true)
             .help("Sets the minimum severity to display (CRITICAL, MAJOR, MINOR, NOTICE, ALL)"))
-    ;
+        ;
 
     #[cfg(any(feature = "json", feature = "yaml"))]
         let app = app.arg(Arg::with_name("configuration")

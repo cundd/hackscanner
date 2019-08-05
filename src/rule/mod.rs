@@ -69,6 +69,9 @@ impl Rule {
         Rule::RawRule(RawRule::new(name, score, path, content))
     }
 
+    pub fn raw_with_path<S1: Into<String>, S2: Into<String>>(name: S1, severity: Severity, path: S2) -> Self {
+        Rule::RawRule(RawRule::with_path(name, severity, path))
+    }
 
     pub fn raw_with_content<S1: Into<String>, S2: Into<String>>(name: S1, severity: Severity, content: S2) -> Self {
         Rule::RawRule(RawRule::with_content(name, severity, content))
