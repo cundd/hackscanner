@@ -52,6 +52,10 @@ impl PatternRule {
 }
 
 impl RuleTrait<Regex> for PatternRule {
+    fn name(&self) -> &String {
+        self.rule.name()
+    }
+
     fn path(&self) -> Option<Regex> {
         self.path.clone()
     }
@@ -62,10 +66,6 @@ impl RuleTrait<Regex> for PatternRule {
 
     fn severity(&self) -> Severity {
         self.rule.severity()
-    }
-
-    fn name(&self) -> &String {
-        self.rule.name()
     }
 }
 

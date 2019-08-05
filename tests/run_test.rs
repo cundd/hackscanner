@@ -3,6 +3,7 @@ extern crate simplelog;
 
 use hackscanner_lib::*;
 use std::path::Path;
+use simplelog::TerminalMode;
 
 /// Assert that the `ratings` contain a Rating with the path matching `path` and a rating equal to or bigger than `score`
 fn assert_contains_entry_with_score(ratings: &Vec<Rating>, score: isize, path: &str) {
@@ -50,7 +51,7 @@ fn configure_logging(log_level_filter: simplelog::LevelFilter) {
     let mut config = simplelog::Config::default();
     config.time_format = Some("%H:%M:%S%.3f");
 
-    if let Some(core_logger) = simplelog::TermLogger::new(log_level_filter, config) {
+    if let Some(core_logger) = simplelog::TermLogger::new(log_level_filter, config, TerminalMode::Mixed) {
         loggers.push(core_logger);
     } else {
         loggers.push(simplelog::SimpleLogger::new(log_level_filter, config));

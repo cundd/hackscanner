@@ -36,6 +36,9 @@ impl Rule {
 }
 
 impl RuleTrait<String> for Rule {
+    fn name(&self) -> &String {
+        &self.name
+    }
     fn path(&self) -> Option<String> {
         self.path.clone()
     }
@@ -44,8 +47,5 @@ impl RuleTrait<String> for Rule {
     }
     fn severity(&self) -> Severity {
         self.severity
-    }
-    fn name(&self) -> &String {
-        &self.name
     }
 }

@@ -1,7 +1,7 @@
 use std::ffi::CStr;
 use std::ffi::CString;
-use libc::c_char;
-use libc::c_int;
+use std::os::raw::c_char;
+use std::os::raw::c_int;
 use libc::stat;
 
 use std::path::Path;
@@ -49,7 +49,7 @@ extern {
     fn ftw(dirpath: *const c_char, f: FtwFn, nopenfd: c_int) -> c_int;
 }
 
-/// Thread local vector to hold the found paths
+// Thread local vector to hold the found paths
 thread_local! {
     static FOUND_PATHS: RefCell<Vec<StandaloneDirEntry>> = RefCell::new(vec![]);
 }

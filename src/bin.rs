@@ -19,6 +19,7 @@ use clap::ArgMatches;
 use hackscanner_lib::*;
 use std::env;
 use std::path::Path;
+use simplelog::TerminalMode;
 
 mod ui;
 
@@ -57,7 +58,7 @@ fn run() -> Result<(), Error> {
     ;
 
     #[cfg(any(feature = "json", feature = "yaml"))]
-    let app = app.arg(Arg::with_name("configuration")
+        let app = app.arg(Arg::with_name("configuration")
         .help("File with additional rules")
         .short("c")
         .long("configuration")
@@ -69,9 +70,9 @@ fn run() -> Result<(), Error> {
     configure_logging(&matches).unwrap();
 
     #[cfg(not(any(feature = "json", feature = "yaml")))]
-    let rules = &get_merged_rules(None)?;
+        let rules = &get_merged_rules(None)?;
     #[cfg(any(feature = "json", feature = "yaml"))]
-    let rules = &get_merged_rules(match matches.value_of("configuration") {
+        let rules = &get_merged_rules(match matches.value_of("configuration") {
         Some(c) => {
             info!("Load custom rules from '{}'", c);
             Some(Path::new(c))
@@ -131,7 +132,7 @@ fn configure_logging(matches: &ArgMatches) -> Result<(), Error> {
     let mut config = simplelog::Config::default();
     config.time_format = Some("%H:%M:%S%.3f");
 
-    if let Some(core_logger) = simplelog::TermLogger::new(log_level_filter, config) {
+    if let Some(core_logger) = simplelog::TermLogger::new(log_level_filter, config, TerminalMode::Mixed) {
         loggers.push(core_logger);
     } else {
         loggers.push(simplelog::SimpleLogger::new(log_level_filter, config));
