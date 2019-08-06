@@ -17,7 +17,6 @@ impl PatternRule {
     pub fn from_rule(rule: &Rule) -> Result<PatternRule, Error> {
         match rule {
             Rule::RawRule(rule) => Self::from_raw_rule(rule),
-            Rule::InlineRule(_) => panic!("Inline rule must not be transformed into a PatternRule"),
             Rule::PatternRule(rule) => Ok(rule.clone()),
         }
     }

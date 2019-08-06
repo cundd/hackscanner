@@ -93,7 +93,6 @@ mod test {
         match rule {
             &Rule::RawRule(ref rule) => rule.path().unwrap().to_string(),
             &Rule::PatternRule(ref rule) => rule.path().unwrap().to_string(),
-            &Rule::InlineRule(ref rule) => rule.path().unwrap().to_string(),
         }
     }
 
@@ -101,7 +100,6 @@ mod test {
         match rule {
             &Rule::RawRule(ref rule) => rule.content().unwrap().to_string(),
             &Rule::PatternRule(ref rule) => rule.content().unwrap().to_string(),
-            &Rule::InlineRule(ref rule) => rule.content().unwrap().to_string(),
         }
     }
 

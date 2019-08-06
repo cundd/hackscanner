@@ -1,6 +1,5 @@
 mod raw_rule;
 mod pattern_rule;
-mod inline_rule;
 mod builtin;
 mod reader;
 
@@ -9,7 +8,6 @@ use errors::*;
 use severity::Severity;
 pub use self::raw_rule::RawRule;
 pub use self::pattern_rule::PatternRule;
-pub use self::inline_rule::InlineRule;
 use self::builtin::get_builtin_rules;
 
 /// Generic trait for Rule functions
@@ -41,7 +39,6 @@ pub trait RuleTrait<T> {
 pub enum Rule {
     RawRule(RawRule),
     PatternRule(PatternRule),
-    InlineRule(InlineRule),
 }
 
 impl Rule {
@@ -53,7 +50,6 @@ impl Rule {
         match self {
             &Rule::RawRule(ref rule) => rule.name(),
             &Rule::PatternRule(ref rule) => rule.name(),
-            &Rule::InlineRule(ref rule) => rule.name(),
         }
     }
 
@@ -61,7 +57,6 @@ impl Rule {
         match self {
             &Rule::RawRule(ref rule) => rule.severity(),
             &Rule::PatternRule(ref rule) => rule.severity(),
-            &Rule::InlineRule(ref rule) => rule.severity(),
         }
     }
 
@@ -69,14 +64,7 @@ impl Rule {
         match self {
             &Rule::RawRule(ref rule) => rule.has_content(),
             &Rule::PatternRule(ref rule) => rule.has_content(),
-            &Rule::InlineRule(ref rule) => rule.has_content(),
         }
-    }
-
-    /// Build new inline rules
-    #[deprecated()]
-    pub fn new_inline<S1: Into<String>, S2: Into<String>, S3: Into<String>>(name: S1, path: S2, content: S3) -> Self {
-        Rule::InlineRule(InlineRule::new(name.into(), Severity::NOTICE, Some(path.into()), Some(content.into())))
     }
 
     /// Build new raw rules
