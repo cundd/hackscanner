@@ -3,6 +3,7 @@ use super::RuleTrait;
 
 /// "inline" on-the-fly Rule
 #[derive(Debug, Clone, Deserialize)]
+#[deprecated()]
 pub struct InlineRule {
     name: String,
     path: Option<String>,

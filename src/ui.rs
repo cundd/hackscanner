@@ -35,7 +35,7 @@ fn print_rating_colored(rating: &Rating) {
         "{} {} \t(Rules: {})",
         rating_description,
         Colour::Black.bold().paint(get_path_as_string(rating)),
-        join_rules(rating.rules())
+        join_violations(rating.violations())
     );
 }
 
@@ -56,21 +56,6 @@ fn print_rating_simple(rating: &Rating) {
         "{} {} \t(Rules: {})",
         rating_description,
         get_path_as_string(rating),
-        join_rules(rating.rules())
+        join_violations(rating.violations())
     );
-}
-
-fn join_rules(rules: &Vec<Rule>) -> String {
-    rules.iter().fold(
-        String::new(),
-        |acc, rule| {
-            let separator = if !acc.is_empty() {
-                ", "
-            } else {
-                ""
-            };
-
-            acc + separator + &format!("{}", rule.name())
-        },
-    )
 }

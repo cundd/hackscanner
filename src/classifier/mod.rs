@@ -1,3 +1,5 @@
+mod violation;
+
 use dir_entry::*;
 use errors::*;
 use matcher::Matcher;
@@ -5,6 +7,9 @@ use rating::Rating;
 use rule::*;
 use std::fs::File;
 use std::io::prelude::*;
+
+
+pub use self::violation::Violation;
 
 /// Number of bytes to read from files
 const BUFFER_SIZE: usize = 1024 * 4;
@@ -22,42 +27,42 @@ pub fn classify_entries<'a, 'b, D: DirEntryTrait>(entries: &'a Vec<D>, rules: &'
 
 fn classify_entry<'a, 'b, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<PatternRule>) -> Rating<'a> {
     trace!("Will classify entry {:?}", entry);
-    let mut rating: isize = 0;
-    let mut content: Option<String> = None;
+    let mut file_content: Option<String> = None;
 
-    let matching_rules: Vec<Rule> = rules.iter().filter_map(|rule| {
+    let violations: Vec<Violation> = rules.iter().filter_map(|rule| {
         if !Matcher::match_entry_path(rule, entry) {
             return None;
         }
 
-        if rule.has_content() {
-            // Read the entry's content if it is not already loaded
-            if content.is_none() {
-                content = match read_entry_content(entry) {
-                    Ok(s) => Some(s),
-                    Err(e) => {
-                        let error_message = ::std::error::Error::description(&e);
+        if !rule.has_content() {
+            return Some(Violation::from(rule));
+        }
 
-                        return Some(Rule::new_inline(error_message, entry.path().to_string_lossy(), error_message));
-                    }
-                };
-            }
+        // Read the entry's content if it is not already loaded
+        if file_content.is_none() {
+            file_content = match read_entry_content(entry) {
+                Ok(s) => Some(s),
+                Err(e) => return Some(Violation::from(&e))
+            };
+        }
 
-            if let Some(ref c) = content {
-                if !Matcher::match_entry_content(rule, c) {
-                    return None;
-                }
+        if let Some(ref c) = file_content {
+            if !Matcher::match_entry_content(rule, c) {
+                return None;
             }
         }
 
-        trace!("  Update rating {} {} {}", rating, rule.severity() as isize, rule.name());
-        rating += rule.severity() as isize;
-
-        return Some(Rule::from_pattern_rule(rule));
+        Some(Violation::from(rule))
     }).collect();
-    trace!("Did classify entry {:?} (rating: {})", entry, rating);
 
-    Rating::new(entry, rating, matching_rules)
+
+    let rating = violations.iter().fold(0, |acc, violation| {
+        trace!("  Update rating {} {} {}", acc, violation.severity() as isize, violation.name());
+
+        acc + violation.severity() as isize
+    });
+    trace!("Did classify entry {:?} (rating: {})", entry, rating);
+    Rating::new(entry, rating, violations)
 }
 
 

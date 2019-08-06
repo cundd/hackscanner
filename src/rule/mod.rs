@@ -74,6 +74,7 @@ impl Rule {
     }
 
     /// Build new inline rules
+    #[deprecated()]
     pub fn new_inline<S1: Into<String>, S2: Into<String>, S3: Into<String>>(name: S1, path: S2, content: S3) -> Self {
         Rule::InlineRule(InlineRule::new(name.into(), Severity::NOTICE, Some(path.into()), Some(content.into())))
     }
@@ -127,5 +128,17 @@ pub fn get_merged_rules(path: Option<&Path>) -> Result<Vec<Rule>, Error> {
             Ok(collection)
         }
         None => Ok(get_builtin_rules())
+    }
+}
+
+impl From<PatternRule> for Rule {
+    fn from(pattern_rule: PatternRule) -> Self {
+        Rule::PatternRule(pattern_rule)
+    }
+}
+
+impl From<&PatternRule> for Rule {
+    fn from(pattern_rule: &PatternRule) -> Self {
+        Rule::PatternRule(pattern_rule.clone())
     }
 }
