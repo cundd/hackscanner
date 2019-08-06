@@ -5,22 +5,24 @@ use hackscanner_lib::*;
 pub fn print_summary(min_severity: Severity, ratings: &Vec<Rating>) {
     let summary = Summary::build(ratings);
 
+    println!("[SUMMARY]");
     println!("Detected {} ratings (> {})", summary.ratings_above(min_severity), min_severity);
     if summary.critical() > 0 {
-        println!("{}", color_for_severity(Severity::CRITICAL).paint(format!("{} critical ratings", summary.critical())));
+        println!("{}", color_for_severity(Severity::CRITICAL).paint(format!("{} critical", summary.critical())));
     }
     if summary.major() > 0 {
-        println!("{}", color_for_severity(Severity::MAJOR).paint(format!("{} major ratings", summary.major())));
+        println!("{}", color_for_severity(Severity::MAJOR).paint(format!("{} major", summary.major())));
     }
     if summary.minor() > 0 {
-        println!("{}", color_for_severity(Severity::MINOR).paint(format!("{} minor ratings", summary.minor())));
+        println!("{}", color_for_severity(Severity::MINOR).paint(format!("{} minor", summary.minor())));
     }
     if summary.notice() > 0 {
-        println!("{}", color_for_severity(Severity::NOTICE).paint(format!("{} notice ratings", summary.notice())));
+        println!("{}", color_for_severity(Severity::NOTICE).paint(format!("{} notice", summary.notice())));
     }
 //    if summary.mention() > 0 {
 //        println!("{}", color_for_severity(Severity::NONE).paint(format!("{} mentions", summary.mention())));
 //    }
+    println!()
 }
 
 pub fn print_ratings(min_severity: Severity, ratings: &Vec<Rating>) {
