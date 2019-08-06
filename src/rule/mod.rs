@@ -14,12 +14,26 @@ use self::builtin::get_builtin_rules;
 
 /// Generic trait for Rule functions
 pub trait RuleTrait<T> {
+    /// Return the name
     fn name(&self) -> &String;
+
+    /// Return the path(-pattern)
     fn path(&self) -> Option<T>;
+
+    /// Return the content to check against
     fn content(&self) -> Option<T>;
+
+    /// Return the severity
     fn severity(&self) -> Severity;
+
+    /// Return if the Rule has a content to check against
     fn has_content(&self) -> bool {
         self.content().is_some()
+    }
+
+    /// Return if the Rule has a path(-pattern)
+    fn has_path(&self) -> bool {
+        self.path().is_some()
     }
 }
 

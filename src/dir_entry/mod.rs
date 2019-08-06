@@ -11,7 +11,7 @@ pub trait DirEntryTrait: Debug {
     /// See [`walkdir::DirEntry::path`] for more details
     fn path(&self) -> &Path;
 
-    /// Returns `true` if and only if this entry was created from a symbolic
+    /// Return `true` if and only if this entry was created from a symbolic
     /// link. This is unaffected by the [`follow_links`] setting.
     ///
     /// See [`walkdir::DirEntry::path_is_symlink`] for more details

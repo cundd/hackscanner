@@ -16,7 +16,7 @@ impl DirEntry {
         DirEntry { raw }
     }
 
-    /// Returns the depth at which this entry was created relative to the root.
+    /// Return the depth at which this entry was created relative to the root.
     ///
     /// See [`walkdir::DirEntry::depth`] for more details
     #[allow(unused)]
@@ -33,7 +33,7 @@ impl DirEntryTrait for DirEntry {
         &self.raw.path()
     }
 
-    /// Returns `true` if and only if this entry was created from a symbolic
+    /// Return `true` if and only if this entry was created from a symbolic
     /// link. This is unaffected by the [`follow_links`] setting.
     ///
     /// See [`walkdir::DirEntry::path_is_symlink`] for more details
