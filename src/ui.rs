@@ -2,6 +2,35 @@ use ansi_term::Colour;
 use term;
 use hackscanner_lib::*;
 
+pub fn print_summary(min_severity: Severity, ratings: &Vec<Rating>) {
+    let summary = Summary::build(ratings);
+
+    println!("Detected {} ratings (> {})", summary.ratings_above(min_severity), min_severity);
+    if summary.critical() > 0 {
+        println!("{}", color_for_severity(Severity::CRITICAL).paint(format!("{} critical ratings", summary.critical())));
+    }
+    if summary.major() > 0 {
+        println!("{}", color_for_severity(Severity::MAJOR).paint(format!("{} major ratings", summary.major())));
+    }
+    if summary.minor() > 0 {
+        println!("{}", color_for_severity(Severity::MINOR).paint(format!("{} minor ratings", summary.minor())));
+    }
+    if summary.notice() > 0 {
+        println!("{}", color_for_severity(Severity::NOTICE).paint(format!("{} notice ratings", summary.notice())));
+    }
+//    if summary.mention() > 0 {
+//        println!("{}", color_for_severity(Severity::NONE).paint(format!("{} mentions", summary.mention())));
+//    }
+}
+
+pub fn print_ratings(min_severity: Severity, ratings: &Vec<Rating>) {
+    for rating in ratings {
+        if rating.rating() >= min_severity as isize {
+            print_rating(&rating);
+        }
+    }
+}
+
 pub fn print_rating(rating: &Rating) {
     let supports_color = match term::stdout() {
         Some(t) => t.supports_color(),
@@ -19,43 +48,37 @@ fn get_path_as_string(rating: &Rating) -> String {
 }
 
 fn print_rating_colored(rating: &Rating) {
-    let rating_description = if rating.rating() >= Severity::CRITICAL as isize {
-        Colour::RGB(225, 17, 0).paint("[CRITICAL]")
-    } else if rating.rating() >= Severity::MAJOR as isize {
-        Colour::RGB(237, 131, 0).paint("[MAJOR]   ")
-    } else if rating.rating() >= Severity::MINOR as isize {
-        Colour::RGB(245, 207, 0).paint("[MINOR]   ")
-    } else if rating.rating() >= Severity::NOTICE as isize {
-        Colour::RGB(255, 255, 0).paint("[NOTICE]  ")
-    } else {
-        Colour::Blue.paint("[CLEAN]   ")
-    };
-
     println!(
         "{} {} \t(Rules: {})",
-        rating_description,
+        colored_description_for_severity(rating.rating().into()),
         Colour::Black.bold().paint(get_path_as_string(rating)),
         join_violations(rating.violations())
     );
 }
 
 fn print_rating_simple(rating: &Rating) {
-    let rating_description = if rating.rating() >= Severity::CRITICAL as isize {
-        "[CRITICAL]"
-    } else if rating.rating() >= Severity::MAJOR as isize {
-        "[MAJOR]   "
-    } else if rating.rating() >= Severity::MINOR as isize {
-        "[MINOR]   "
-    } else if rating.rating() >= Severity::NOTICE as isize {
-        "[NOTICE]  "
-    } else {
-        "[CLEAN]   "
-    };
-
     println!(
         "{} {} \t(Rules: {})",
-        rating_description,
+        description_for_severity(rating.rating().into()),
         get_path_as_string(rating),
         join_violations(rating.violations())
     );
+}
+
+fn colored_description_for_severity(severity: Severity) -> String {
+    format!("{}", color_for_severity(severity).paint(description_for_severity(severity)))
+}
+
+fn color_for_severity(severity: Severity) -> Colour {
+    match severity {
+        Severity::CRITICAL => Colour::RGB(225, 17, 0),
+        Severity::MAJOR => Colour::RGB(237, 131, 0),
+        Severity::MINOR => Colour::RGB(245, 207, 0),
+        Severity::NOTICE => Colour::RGB(255, 255, 0),
+        _ => Colour::Blue,
+    }
+}
+
+fn description_for_severity(severity: Severity) -> String {
+    format!("{:width$}", format!("[{}]", severity.description()), width = 10)
 }

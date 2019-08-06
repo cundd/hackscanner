@@ -32,6 +32,10 @@ error_chain! {
             description("Invalid configuration file")
             display("Configuration file can not be loaded: '{}'", t)
         }
+        SeverityError(t: String) {
+            description("Invalid severity given")
+            display("Given severity string '{}' can not be parsed", t)
+        }
 //        InvalidToolchainName(t: String) {
 //            description("invalid toolchain name")
 //            display("invalid toolchain name: '{}'", t)

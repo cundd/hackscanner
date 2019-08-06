@@ -2,7 +2,7 @@ use ::{Rule, Severity};
 use std::error::Error as StdError;
 use PatternRule;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Violation {
     rule: Option<Rule>,
     name: String,

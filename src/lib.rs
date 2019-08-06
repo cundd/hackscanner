@@ -16,6 +16,8 @@ extern crate regex;
 
 extern crate libc;
 extern crate core;
+extern crate term;
+extern crate clap;
 
 pub mod errors;
 mod fs;

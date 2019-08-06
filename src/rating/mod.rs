@@ -1,10 +1,13 @@
+mod summary;
+
+pub use self::summary::Summary;
 use std::fmt;
 use dir_entry::DirEntryTrait;
 use severity::Severity;
 use classifier::Violation;
 use join::join_violations;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Rating<'a> {
     entry: &'a DirEntryTrait,
     rating: isize,
@@ -56,6 +59,14 @@ impl<'a> Rating<'a> {
             join_violations(&self.violations)
         )
     }
+}
+
+pub fn sort_ratings<'a>(ratings: &[Rating<'a>]) -> Vec<Rating<'a>> {
+    let mut copy = ratings.to_vec();
+
+    copy.sort_unstable_by(|a, b| b.rating().cmp(&a.rating()));
+
+    copy
 }
 
 impl<'a> fmt::Display for Rating<'a> {

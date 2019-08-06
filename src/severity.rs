@@ -1,5 +1,7 @@
 use std::fmt;
 use std::fmt::Display;
+use std::str::FromStr;
+use errors::Error;
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Deserialize)]
 pub enum Severity {
@@ -7,6 +9,8 @@ pub enum Severity {
     MAJOR = 60,
     MINOR = 40,
     NOTICE = 20,
+
+    NONE = 0,
 
     EASE = -20,
     WHITELIST = -250,
@@ -20,6 +24,8 @@ impl Severity {
             &Severity::MINOR => "MINOR".to_owned(),
             &Severity::NOTICE => "NOTICE".to_owned(),
 
+            &Severity::NONE => "NONE".to_owned(),
+
             &Severity::EASE => "EASE".to_owned(),
             &Severity::WHITELIST => "WHITELIST".to_owned(),
         }
@@ -29,5 +35,42 @@ impl Severity {
 impl Display for Severity {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.description())
+    }
+}
+
+impl FromStr for Severity {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_uppercase().as_str() {
+            "CRITICAL" => Ok(Severity::CRITICAL),
+            "MAJOR" => Ok(Severity::MAJOR),
+            "MINOR" => Ok(Severity::MINOR),
+            "NOTICE" => Ok(Severity::NOTICE),
+            "EASE" => Ok(Severity::EASE),
+            "NONE" => Ok(Severity::NONE),
+            "WHITELIST" => Ok(Severity::WHITELIST),
+            _ => Err(s.into())
+        }
+    }
+}
+
+impl From<isize> for Severity {
+    fn from(rating: isize) -> Self {
+        if rating >= Severity::CRITICAL as isize {
+            Severity::CRITICAL
+        } else if rating >= Severity::MAJOR as isize {
+            Severity::MAJOR
+        } else if rating >= Severity::MINOR as isize {
+            Severity::MINOR
+        } else if rating >= Severity::NOTICE as isize {
+            Severity::NOTICE
+        } else if rating == Severity::EASE as isize {
+            Severity::EASE
+        } else if rating == Severity::WHITELIST as isize {
+            Severity::WHITELIST
+        } else {
+            Severity::NONE
+        }
     }
 }

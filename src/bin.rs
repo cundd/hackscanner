@@ -85,14 +85,10 @@ fn run() -> Result<(), Error> {
 
     let files = file_finder::find_files(root, rules);
     let pattern_rules = PatternRule::from_rules_filtered(rules);
-    let mut ratings = classifier::classify_entries(&files, &pattern_rules);
+    let ratings = sort_ratings(&classifier::classify_entries(&files, &pattern_rules));
 
-    ratings.sort_unstable_by(|rating_a, rating_b| rating_b.rating().cmp(&rating_a.rating()));
-    for rating in ratings {
-        if rating.rating() >= min_severity {
-            ui::print_rating(&rating);
-        }
-    }
+    ui::print_summary(min_severity, &ratings);
+    ui::print_ratings(min_severity, &ratings);
 
     Ok(())
 }
@@ -104,18 +100,18 @@ fn get_root(matches: &ArgMatches) -> String {
     }
 }
 
-fn get_minimum_severity(matches: &ArgMatches) -> isize {
+fn get_minimum_severity(matches: &ArgMatches) -> Severity {
     let min_severity = matches.value_of("min-severity");
     if min_severity.is_none() {
-        return Severity::NOTICE as isize;
+        return Severity::NOTICE;
     }
 
     match min_severity.unwrap().to_uppercase().as_ref() {
-        "CRITICAL" => Severity::CRITICAL as isize,
-        "MAJOR" => Severity::MAJOR as isize,
-        "MINOR" => Severity::MINOR as isize,
-        "NOTICE" => Severity::NOTICE as isize,
-        _ => Severity::WHITELIST as isize
+        "CRITICAL" => Severity::CRITICAL,
+        "MAJOR" => Severity::MAJOR,
+        "MINOR" => Severity::MINOR,
+        "NOTICE" => Severity::NOTICE,
+        _ => Severity::WHITELIST
     }
 }
 

@@ -178,8 +178,8 @@ mod test {
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
             let rating = classify_entries(&entries, &pattern_rules);
 
-            assert_eq!(Severity::NOTICE as isize, rating[0].rating());
-            assert_eq!(Severity::NOTICE as isize, rating[1].rating());
+            assert_eq!(Severity::NOTICE as isize, rating[0].rating(), "Rating {} does not match expected Severity::NOTICE", rating[0].rating());
+            assert_eq!(Severity::NOTICE as isize, rating[1].rating(), "Rating {} does not match expected Severity::NOTICE", rating[1].rating());
         }
 
         #[test]
@@ -197,7 +197,7 @@ mod test {
             let rating = classify_entries(&entries, &pattern_rules);
 
             assert_eq!(60, rating[0].rating());
-            assert_eq!(Severity::MINOR as isize, rating[1].rating());
+            assert_eq!(Severity::MINOR as isize, rating[1].rating(), "Rating {} does not match expected Severity::MINOR", rating[1].rating());
         }
 
         #[test]
@@ -214,9 +214,9 @@ mod test {
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
             let rating = classify_entries(&entries, &pattern_rules);
 
-            assert_eq!(20, rating[0].rating());
-            assert_eq!(Severity::NOTICE as isize, rating[0].rating());
-            assert_eq!(Severity::MINOR as isize, rating[1].rating());
+            assert_eq!(20, rating[0].rating(), "Rating {} does not equal expected 20", rating[0].rating());
+            assert_eq!(Severity::NOTICE as isize, rating[0].rating(), "Rating {} does not match expected Severity::NOTICE", rating[0].rating());
+            assert_eq!(Severity::MINOR as isize, rating[1].rating(), "Rating {} does not match expected Severity::MINOR", rating[1].rating());
         }
 
         #[test]
@@ -233,9 +233,9 @@ mod test {
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
             let rating = classify_entries(&entries, &pattern_rules);
 
-            assert_eq!(0, rating[0].rating());
-            assert_eq!(0, rating[1].rating());
-            assert_eq!(Severity::MINOR as isize, rating[2].rating());
+            assert_eq!(0, rating[0].rating(), "Rating {} does not match expected 0", rating[0].rating());
+            assert_eq!(0, rating[1].rating(), "Rating {} does not match expected 0", rating[1].rating());
+            assert_eq!(Severity::MINOR as isize, rating[2].rating(), "Rating {} does not match expected Severity::MINOR", rating[2].rating());
         }
     }
 }
