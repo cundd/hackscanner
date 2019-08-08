@@ -17,17 +17,17 @@ pub enum Severity {
 }
 
 impl Severity {
-    pub fn description(&self) -> String {
+    pub fn description(&self) -> &str {
         match self {
-            &Severity::CRITICAL => "CRITICAL".to_owned(),
-            &Severity::MAJOR => "MAJOR".to_owned(),
-            &Severity::MINOR => "MINOR".to_owned(),
-            &Severity::NOTICE => "NOTICE".to_owned(),
+            &Severity::CRITICAL => "CRITICAL",
+            &Severity::MAJOR => "MAJOR",
+            &Severity::MINOR => "MINOR",
+            &Severity::NOTICE => "NOTICE",
 
-            &Severity::NONE => "NONE".to_owned(),
+            &Severity::NONE => "NONE",
 
-            &Severity::EASE => "EASE".to_owned(),
-            &Severity::WHITELIST => "WHITELIST".to_owned(),
+            &Severity::EASE => "EASE",
+            &Severity::WHITELIST => "WHITELIST",
         }
     }
 }
