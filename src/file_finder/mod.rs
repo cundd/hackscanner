@@ -2,6 +2,7 @@ use std::path::Path;
 use std::fmt::Debug;
 
 pub mod ftw;
+#[cfg(feature = "fts")]
 pub mod fts;
 pub mod walkdir;
 
