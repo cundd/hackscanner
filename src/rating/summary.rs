@@ -5,7 +5,7 @@ pub struct Summary {
     major: isize,
     minor: isize,
     notice: isize,
-    mention: isize,
+    clean: isize,
 }
 
 impl Summary {
@@ -16,7 +16,7 @@ impl Summary {
             major: 0,
             minor: 0,
             notice: 0,
-            mention: 0,
+            clean: 0,
         };
         for rating in ratings {
             match rating.rating() {
@@ -24,7 +24,7 @@ impl Summary {
                 r if r >= Severity::MAJOR as isize => summary.major += 1,
                 r if r >= Severity::MINOR as isize => summary.minor += 1,
                 r if r >= Severity::NOTICE as isize => summary.notice += 1,
-                _ => summary.mention += 1,
+                _ => summary.clean += 1,
             }
         }
 
@@ -47,10 +47,11 @@ impl Summary {
         self.notice
     }
 
-    pub fn mention(&self) -> isize {
-        self.mention
+    pub fn clean(&self) -> isize {
+        self.clean
     }
 
+    /// Return the number of ratings including and greater than the `severity`
     pub fn ratings_above(&self, severity: Severity) -> isize {
         match severity {
             Severity::CRITICAL => self.critical,
