@@ -11,10 +11,6 @@ path = "src/lib.rs"
 name = "hackscanner"
 path = "src/bin.rs"
 
-[[bin]]
-name = "hackscanner-debug"
-path = "src/debug.rs"
-
 [features]
 backtrace = ["error-chain/backtrace"]
 json = ["serde_json"]
