@@ -110,6 +110,7 @@ extern fn nftw_collector(
 pub struct FileFinder {}
 
 impl FileFinder {
+    #[allow(unused)]
     pub fn new() -> Self {
         FileFinder {}
     }
