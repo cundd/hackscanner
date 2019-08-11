@@ -11,27 +11,17 @@ pub fn print_summary(min_severity: Severity, ratings: &Vec<Rating>) {
         summary.ratings_above(min_severity),
         min_severity.description().to_lowercase()
     );
-    if summary.critical() > 0 {
-        println!("{}", color_for_severity(Severity::CRITICAL)
-            .paint(format!("CRITICAL: {}", summary.critical()))
-        );
+    let supports_color = match term::stdout() {
+        Some(t) => t.supports_color(),
+        None => false,
+    };
+
+    if supports_color {
+        print_summary_colored(&summary);
+    } else {
+        print_summary_simple(&summary);
     }
-    if summary.major() > 0 {
-        println!("{}", color_for_severity(Severity::MAJOR)
-            .paint(format!("MAJOR:    {}", summary.major())));
-    }
-    if summary.minor() > 0 {
-        println!("{}", color_for_severity(Severity::MINOR)
-            .paint(format!("MINOR:    {}", summary.minor())));
-    }
-    if summary.notice() > 0 {
-        println!("{}", color_for_severity(Severity::NOTICE)
-            .paint(format!("NOTICE:   {}", summary.notice())));
-    }
-    if summary.clean() > 0 {
-        println!("{}", color_for_severity(Severity::NONE)
-            .paint(format!("CLEAN:    {}", summary.clean())));
-    }
+
     println!()
 }
 
@@ -71,14 +61,14 @@ fn print_rating_colored(rating: &Rating) {
 fn print_rating_simple(rating: &Rating) {
     println!(
         "{} {} \t(Rules: {})",
-        description_for_severity(rating.rating().into()),
+        description_for_severity(rating.rating().into(), true),
         get_path_as_string(rating),
         join_violations(rating.violations())
     );
 }
 
 fn colored_description_for_severity(severity: Severity) -> String {
-    format!("{}", color_for_severity(severity).paint(description_for_severity(severity)))
+    format!("{}", color_for_severity(severity).paint(description_for_severity(severity, true)))
 }
 
 fn color_for_severity(severity: Severity) -> Colour {
@@ -91,6 +81,52 @@ fn color_for_severity(severity: Severity) -> Colour {
     }
 }
 
-fn description_for_severity(severity: Severity) -> String {
-    format!("{:width$}", format!("[{}]", severity.description()), width = 10)
+fn description_for_severity(severity: Severity, brackets: bool) -> String {
+    if brackets {
+        format!("{:width$}", format!("[{}]", severity.description()), width = 10)
+    } else {
+        format!("{:width$}", format!("{}:", severity.description()), width = 10)
+    }
+}
+
+
+fn print_summary_colored(summary: &Summary) {
+    if summary.critical() > 0 {
+        println!("{}", color_for_severity(Severity::CRITICAL)
+            .paint(format!("{} {}", description_for_severity(Severity::CRITICAL, false), summary.critical())));
+    }
+    if summary.major() > 0 {
+        println!("{}", color_for_severity(Severity::MAJOR)
+            .paint(format!("{} {}", description_for_severity(Severity::MAJOR, false), summary.major())));
+    }
+    if summary.minor() > 0 {
+        println!("{}", color_for_severity(Severity::MINOR)
+            .paint(format!("{} {}", description_for_severity(Severity::MINOR, false), summary.minor())));
+    }
+    if summary.notice() > 0 {
+        println!("{}", color_for_severity(Severity::NOTICE)
+            .paint(format!("{} {}", description_for_severity(Severity::NOTICE, false), summary.notice())));
+    }
+    if summary.clean() > 0 {
+        println!("{}", color_for_severity(Severity::NONE)
+            .paint(format!("{} {}", description_for_severity(Severity::NONE, false), summary.clean())));
+    }
+}
+
+fn print_summary_simple(summary: &Summary) {
+    if summary.critical() > 0 {
+        println!("{} {}",description_for_severity(Severity::CRITICAL, false), summary.critical());
+    }
+    if summary.major() > 0 {
+        println!("{} {}",description_for_severity(Severity::MAJOR, false), summary.major());
+    }
+    if summary.minor() > 0 {
+        println!("{} {}",description_for_severity(Severity::MINOR, false), summary.minor());
+    }
+    if summary.notice() > 0 {
+        println!("{} {}",description_for_severity(Severity::NOTICE, false), summary.notice());
+    }
+    if summary.clean() > 0 {
+        println!("{} {}",description_for_severity(Severity::NONE, false), summary.clean());
+    }
 }
