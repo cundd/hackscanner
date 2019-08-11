@@ -1,3 +1,4 @@
+use std::convert::TryFrom;
 use regex::Regex;
 use errors::*;
 use severity::Severity;
@@ -14,14 +15,28 @@ pub struct PatternRule {
 }
 
 impl PatternRule {
-    pub fn from_rule(rule: &Rule) -> Result<PatternRule, Error> {
+    pub fn from_rules_filtered(rules: &Vec<Rule>) -> Vec<PatternRule> {
+        trace!("Will transform rules to PatternRules");
+        let result = Self::from_rules(rules).into_iter()
+            .filter_map(|result| result.ok())
+            .collect();
+        trace!("Did transform rules to PatternRules");
+
+        result
+    }
+
+    pub fn from_rules(rules: &Vec<Rule>) -> Vec<Result<PatternRule>> {
+        rules.into_iter().map(|rule| PatternRule::try_from(rule)).collect()
+    }
+
+    fn from_rule(rule: &Rule) -> Result<PatternRule> {
         match rule {
             Rule::RawRule(rule) => Self::from_raw_rule(rule),
             Rule::PatternRule(rule) => Ok(rule.clone()),
         }
     }
 
-    pub fn from_raw_rule(rule: &RawRule) -> Result<PatternRule, Error> {
+    fn from_raw_rule(rule: &RawRule) -> Result<PatternRule> {
         let path = match rule.path() {
             None => None,
             Some(pattern) => Some(Self::build_regex(&pattern)?)
@@ -38,21 +53,7 @@ impl PatternRule {
         })
     }
 
-    pub fn from_rules(rules: &Vec<Rule>) -> Vec<Result<PatternRule, Error>> {
-        rules.into_iter().map(|rule| PatternRule::from_rule(rule)).collect()
-    }
-
-    pub fn from_rules_filtered(rules: &Vec<Rule>) -> Vec<PatternRule> {
-        trace!("Will transform rules to PatternRules");
-        let result = Self::from_rules(rules).into_iter()
-            .filter_map(|result| result.ok())
-            .collect();
-        trace!("Did transform rules to PatternRules");
-
-        result
-    }
-
-    fn build_regex(pattern: &str) -> Result<Regex, Error> {
+    fn build_regex(pattern: &str) -> Result<Regex> {
         let regex = Regex::new(&format!("(?i){}", pattern))?;
 
         Ok(regex)
@@ -77,23 +78,21 @@ impl RuleTrait<Regex> for PatternRule {
     }
 }
 
-//// and we'll implement FromIterator
-//impl<'a> FromIterator<&PatternRule> for Vec<&'a RuleTrait<Regex>> {
-//    fn from_iter<T: IntoIterator<Item=&PatternRule>>(iter: T) -> Self {
-//        unimplemented!()
-//    }
-//
-////    fn from_iter<I: IntoIterator<Item=>>(iter: I) -> Self {
-////        let mut c = Vec::new();
-////
-//////        for i in iter {
-//////            c.add(i);
-//////        }
-////
-////        c
-////    }
-//}
+impl TryFrom<&Rule> for PatternRule {
+    type Error = Error;
 
+    fn try_from(value: &Rule) -> Result<Self, Self::Error> {
+        PatternRule::from_rule(value)
+    }
+}
+
+impl TryFrom<Rule> for PatternRule {
+    type Error = Error;
+
+    fn try_from(value: Rule) -> Result<Self, Self::Error> {
+        PatternRule::from_rule(&value)
+    }
+}
 
 #[cfg(test)]
 mod test {

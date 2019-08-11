@@ -1,21 +1,17 @@
 mod violation;
+mod classification;
+mod content_classifier;
+mod path_classifier;
 
 use dir_entry::*;
-use errors::*;
-use matcher::Matcher;
-use rating::Rating;
 use rule::*;
-use std::fs::File;
-use std::io::prelude::*;
-
 
 pub use self::violation::Violation;
+use self::classification::*;
+use self::content_classifier::ContentClassifier;
+use self::path_classifier::PathClassifier;
 
-/// Number of bytes to read from files
-const BUFFER_SIZE: usize = 1024 * 4;
-
-#[allow(unused_imports)]
-pub fn classify_entries<'a, 'b, D: DirEntryTrait>(entries: &'a Vec<D>, rules: &'a Vec<PatternRule>) -> Vec<Rating<'a>> {
+pub fn classify_entries<'a, 'b, D: DirEntryTrait>(entries: &'a Vec<D>, rules: &'a Vec<PatternRule>) -> Vec<Vec<Violation>> {
     debug!("Will classify entries");
     let result = entries.iter()
         .map(|entry| { classify_entry(entry, rules) })
@@ -25,217 +21,106 @@ pub fn classify_entries<'a, 'b, D: DirEntryTrait>(entries: &'a Vec<D>, rules: &'
     result
 }
 
-fn classify_entry<'a, 'b, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<PatternRule>) -> Rating<'a> {
-    trace!("Will classify entry {:?}", entry);
-    let mut file_content: Option<String> = None;
-
-    let violations: Vec<Violation> = rules.iter().filter_map(|rule| {
-        if !Matcher::match_entry_path(rule, entry) {
-            return None;
+pub fn classify_entry<'a, 'b, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<PatternRule>) -> Vec<Violation> {
+    let mut path_classifier = path_classifier::PathClassifier::new(entry);
+    let mut content_classifier = content_classifier::ContentClassifier::new(entry);
+    rules.iter().filter_map(|rule|
+        match classify_entry_with_rule(&mut path_classifier, &mut content_classifier, entry, rule) {
+            Classification::Empty => None,
+            Classification::NotApplicable => panic!("Classification::NotApplicable must not be returned from `get_classification()`"),
+            Classification::NoMatch => None,
+            Classification::Match(violation) => Some(violation),
+            Classification::Error(violation) => Some(violation)
         }
-
-        if !rule.has_content() {
-            return Some(Violation::from(rule));
-        }
-
-        // Read the entry's content if it is not already loaded
-        if file_content.is_none() {
-            file_content = match read_entry_content(entry) {
-                Ok(s) => Some(s),
-                Err(e) => return Some(Violation::from(&e))
-            };
-        }
-
-        if let Some(ref c) = file_content {
-            if !Matcher::match_entry_content(rule, c) {
-                return None;
-            }
-        }
-
-        Some(Violation::from(rule))
-    }).collect();
-
-
-    let rating = violations.iter().fold(0, |acc, violation| {
-        trace!("  Update rating {} {} {}", acc, violation.severity() as isize, violation.name());
-
-        acc + violation.severity() as isize
-    });
-    trace!("Did classify entry {:?} (rating: {})", entry, rating);
-    Rating::new(entry, rating, violations)
+    ).collect()
 }
 
 
-fn read_entry_content<D: DirEntryTrait>(entry: &D) -> Result<String, Error> {
-    let path = entry.path();
-    let mut file = match File::open(path) {
-        Ok(f) => f,
-        Err(e) => bail!("Could not open file {:?} for reading: {}", entry.path(), e)
-    };
+trait ClassifierTrait<D: DirEntryTrait> {
+    fn new(entry: &D) -> Self;
+    fn classify(&mut self, entry: &D, rule: &PatternRule) -> Classification;
+}
 
-    trace!("Will read file {:?}", path);
-    let mut buffer = [0; BUFFER_SIZE];
-    match file.read(&mut buffer[..]) {
-        Ok(bytes_count) => bytes_count,
-        Err(e) => {
-            bail!("Could not read file {:?}: {}", entry.path(), e)
+fn classify_entry_with_rule<D: DirEntryTrait>(
+    path_classifier: &mut PathClassifier,
+    content_classifier: &mut ContentClassifier,
+    entry: &D,
+    rule: &PatternRule,
+) -> Classification {
+    if !rule.has_path() && !rule.has_content() {
+        return Classification::Empty;
+    }
+
+    if rule.has_path() && rule.has_content() {
+        let path_classification = ClassifierTrait::classify(path_classifier, entry, rule);
+        match path_classification {
+            Classification::Match(_) => { /* Path does match. Now check the content */ }
+            Classification::NoMatch => {
+                /* Path does not match. No need to check the content */
+                return Classification::NoMatch;
+            }
+            Classification::Error(_) => panic!("Classification::Error is not implemented for `PathClassifier`"),
+            _ => panic!("{:?} not possible", path_classification),
         }
-    };
-    trace!("Did read file {:?}", path);
 
-    Ok(String::from_utf8_lossy(&buffer).to_string())
+        let content_classification = ClassifierTrait::classify(content_classifier, entry, rule);
+        return match content_classification {
+            Classification::NotApplicable => panic!("Classification::NotApplicable not possible"),
+            Classification::Empty => panic_empty(),
+            Classification::NoMatch | Classification::Match(_) | Classification::Error(_) => content_classification,
+        };
+    }
+
+    if rule.has_path() {
+        let path_classification = ClassifierTrait::classify(path_classifier, entry, rule);
+        return match path_classification {
+            Classification::NoMatch => path_classification,
+            Classification::Match(_) => path_classification,
+            Classification::Error(_) => panic!("Classification::Error is not implemented for `PathClassifier`"),
+            _ => panic!("{:?} not possible", path_classification),
+        };
+    }
+
+    if rule.has_content() {
+        let content_classification = ClassifierTrait::classify(content_classifier, entry, rule);
+        return match content_classification {
+            Classification::NotApplicable => panic!("{:?} not possible", content_classification),
+            Classification::Empty => panic_empty(),
+            Classification::NoMatch | Classification::Match(_) | Classification::Error(_) => content_classification,
+        };
+    }
+
+    panic_empty();
+}
+
+fn panic_empty() -> ! {
+    panic!("Classification::Empty must be checked at the beginning of `get_classification()`")
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::path::PathBuf;
     use severity::Severity;
+    use std::convert::TryInto;
+    use fs::StandaloneFileType;
 
-    fn get_test_dir_entry(file: &str) -> StandaloneDirEntry {
-        StandaloneDirEntry::from_path(
-            PathBuf::from(format!(
-                "{}{}{}",
-                env!("CARGO_MANIFEST_DIR"),
-                "/tests/resources/files/",
-                file
-            ))
-        ).unwrap()
+    fn test_classify_entry<'a, 'b, D: DirEntryTrait>(entry: &'a D, rule: &'a PatternRule) -> Classification {
+        let mut path_classifier = path_classifier::PathClassifier::new(entry);
+        let mut content_classifier = content_classifier::ContentClassifier::new(entry);
+
+        classify_entry_with_rule(&mut path_classifier, &mut content_classifier, entry, rule)
     }
 
-    mod classify_entry {
-        use super::*;
-
-        #[test]
-        fn classify_entry_test() {
-            let entry = get_test_dir_entry("something.tx_mocfilemanager.php");
-            let rules = vec![
-                Rule::new_raw("1".to_string(), Severity::NOTICE, Some("tx_mocfilemanager".to_owned()), None)
-            ];
-
-            let pattern_rules = PatternRule::from_rules_filtered(&rules);
-            let rating = classify_entry(&entry, &pattern_rules);
-
-            assert_eq!(Severity::NOTICE as isize, rating.rating());
-        }
-
-        #[test]
-        fn classify_entry_multiple_matches_test() {
-            let entry = get_test_dir_entry("something.tx_mocfilemanager.php");
-            let rules = vec![
-                Rule::new_raw("2".to_string(), Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
-                Rule::new_raw("3".to_string(), Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)
-            ];
-
-            let pattern_rules = PatternRule::from_rules_filtered(&rules);
-            let rating = classify_entry(&entry, &pattern_rules);
-
-            assert_eq!(60, rating.rating());
-        }
-
-        #[test]
-        fn classify_entry_multiple_matches_subtract_test() {
-            let entry = get_test_dir_entry("something.tx_mocfilemanager.php");
-            let rules = vec![
-                Rule::new_raw("4".to_string(), Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
-                Rule::new_raw("5".to_string(), Severity::EASE, Some("tests/resources/files".to_owned()), None)
-            ];
-
-            let pattern_rules = PatternRule::from_rules_filtered(&rules);
-            let rating = classify_entry(&entry, &pattern_rules);
-
-            assert_eq!(20, rating.rating());
-            assert_eq!(Severity::NOTICE as isize, rating.rating());
-        }
-
-        #[test]
-        fn classify_entry_with_content_test() {
-            let entry = get_test_dir_entry("dezmond.php");
-            let rules = vec![
-                Rule::new_raw("6".to_string(), Severity::NOTICE, Some("\\.php".to_owned()), Some("dezmond".to_string())),
-            ];
-
-            let pattern_rules = PatternRule::from_rules_filtered(&rules);
-            let rating = classify_entry(&entry, &pattern_rules);
-
-            assert_eq!(Severity::NOTICE as isize, rating.rating());
-        }
-    }
-
-    mod classify_entries {
-        use super::*;
-
-        #[test]
-        fn classify_entries_test() {
-            let entries = vec![
-                get_test_dir_entry("something.tx_mocfilemanager.php"),
-                get_test_dir_entry("tx_mocfilemanager.php"),
-            ];
-            let rules = vec![
-                Rule::new_raw("7".to_string(), Severity::NOTICE, Some("tx_mocfilemanager".to_owned()), None)
-            ];
-
-            let pattern_rules = PatternRule::from_rules_filtered(&rules);
-            let rating = classify_entries(&entries, &pattern_rules);
-
-            assert_eq!(Severity::NOTICE as isize, rating[0].rating(), "Rating {} does not match expected Severity::NOTICE", rating[0].rating());
-            assert_eq!(Severity::NOTICE as isize, rating[1].rating(), "Rating {} does not match expected Severity::NOTICE", rating[1].rating());
-        }
-
-        #[test]
-        fn classify_entries_multiple_matches_test() {
-            let entries = vec![
-                get_test_dir_entry("something.tx_mocfilemanager.php"),
-                get_test_dir_entry("tx_mocfilemanager.php"),
-            ];
-            let rules = vec![
-                Rule::new_raw("8".to_string(), Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
-                Rule::new_raw("9".to_string(), Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)
-            ];
-
-            let pattern_rules = PatternRule::from_rules_filtered(&rules);
-            let rating = classify_entries(&entries, &pattern_rules);
-
-            assert_eq!(60, rating[0].rating());
-            assert_eq!(Severity::MINOR as isize, rating[1].rating(), "Rating {} does not match expected Severity::MINOR", rating[1].rating());
-        }
-
-        #[test]
-        fn classify_entries_multiple_matches_subtract_test() {
-            let entries = vec![
-                get_test_dir_entry("something.tx_mocfilemanager.php"),
-                get_test_dir_entry("tx_mocfilemanager.php"),
-            ];
-            let rules = vec![
-                Rule::new_raw("10".to_string(), Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
-                Rule::new_raw("11".to_string(), Severity::EASE, Some("\\.tx_mocfilemanager".to_owned()), None)
-            ];
-
-            let pattern_rules = PatternRule::from_rules_filtered(&rules);
-            let rating = classify_entries(&entries, &pattern_rules);
-
-            assert_eq!(20, rating[0].rating(), "Rating {} does not equal expected 20", rating[0].rating());
-            assert_eq!(Severity::NOTICE as isize, rating[0].rating(), "Rating {} does not match expected Severity::NOTICE", rating[0].rating());
-            assert_eq!(Severity::MINOR as isize, rating[1].rating(), "Rating {} does not match expected Severity::MINOR", rating[1].rating());
-        }
-
-        #[test]
-        fn classify_entries_with_content_test() {
-            let entries = vec![
-                get_test_dir_entry("something.tx_mocfilemanager.php"),
-                get_test_dir_entry("tx_mocfilemanager.php"),
-                get_test_dir_entry("dezmond.php"),
-            ];
-            let rules = vec![
-                Rule::new_raw("12".to_string(), Severity::MINOR, Some("\\.php".to_owned()), Some("dezmond".to_string())),
-            ];
-
-            let pattern_rules = PatternRule::from_rules_filtered(&rules);
-            let rating = classify_entries(&entries, &pattern_rules);
-
-            assert_eq!(0, rating[0].rating(), "Rating {} does not match expected 0", rating[0].rating());
-            assert_eq!(0, rating[1].rating(), "Rating {} does not match expected 0", rating[1].rating());
-            assert_eq!(Severity::MINOR as isize, rating[2].rating(), "Rating {} does not match expected Severity::MINOR", rating[2].rating());
+    #[test]
+    fn classify_entry_non_existing_file() {
+        let entry = StandaloneDirEntry::from_path_with_file_type("not-existing-file.php", StandaloneFileType::File);
+        let rule = Rule::new_raw("Any PHP".to_string(), Severity::MAJOR, None, Some("does not matter".to_string())).try_into().unwrap();
+        match test_classify_entry(&entry, &rule) {
+            Classification::Error(violation) => assert_eq!(
+                "Could not open file \"not-existing-file.php\" for reading: No such file or directory (os error 2)",
+                violation.name()
+            ),
+            _ => panic!("Classification must be Classification::Error")
         }
     }
 }

@@ -2,7 +2,7 @@ use severity::Severity;
 use super::RuleTrait;
 
 /// "raw" Rule
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, PartialOrd, PartialEq)]
 pub struct RawRule {
     name: String,
     path: Option<String>,

@@ -1,3 +1,15 @@
+//! Rule
+//!
+//! A [`Rule`] defines a set of checks to perform on a file. The [`Rule`] contains a `name`
+//! describing the [`Rule`] and the `severity` of a violation. The [`Rule`] also may contain a
+//! `path` and/or a `content`.
+//!
+//! If `path` **and** `content` are defined, a file violates the [`Rule`] if the file path matches
+//! the [`Rule`]'s `path` **and** the file content matches the [`Rule`]s `content`.
+//!
+//! If only `path` is defined, a matching file path violates the [`Rule`].
+//!
+//! If only `content` is defined, a matching file content violates the [`Rule`].
 mod raw_rule;
 mod pattern_rule;
 mod builtin;
@@ -42,10 +54,6 @@ pub enum Rule {
 }
 
 impl Rule {
-    pub fn from_pattern_rule(pattern_rule: &PatternRule) -> Self {
-        Rule::PatternRule(pattern_rule.clone())
-    }
-
     pub fn name(&self) -> &String {
         match self {
             &Rule::RawRule(ref rule) => rule.name(),

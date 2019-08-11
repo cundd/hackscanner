@@ -6,7 +6,7 @@ use walkdir;
 use fs::FileTypeTrait;
 use super::DirEntryTrait;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DirEntry {
     raw: walkdir::DirEntry,
 }

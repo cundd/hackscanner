@@ -72,7 +72,7 @@ fn run_rules_with_configuration_test() {
 
     let files = file_finder::find_files(format!("{}/tests", env!("CARGO_MANIFEST_DIR")), rules);
     let pattern_rules = PatternRule::from_rules_filtered(rules);
-    let ratings = classifier::classify_entries(&files, &pattern_rules);
+    let ratings = rate_entries(&files, &pattern_rules);
 
     assert_contains_entry_with_score(&ratings, Severity::WHITELIST as isize, "/tests/resources/files/whitelist_me.php");
 }
@@ -84,7 +84,7 @@ fn run_builtin_rules_test() {
 
     let files = file_finder::find_files(format!("{}/tests", env!("CARGO_MANIFEST_DIR")), rules);
     let pattern_rules = PatternRule::from_rules_filtered(rules);
-    let ratings = classifier::classify_entries(&files, &pattern_rules);
+    let ratings = rate_entries(&files, &pattern_rules);
 
     assert_contains_entry_with_score(&ratings, Severity::CRITICAL as isize, "/tests/resources/files/dezmond.php");
     assert_contains_entry_with_score(&ratings, Severity::MAJOR as isize, "/tests/resources/files/tx_mocfilemanager.php");

@@ -14,15 +14,19 @@ pub struct DirEntry {
 }
 
 impl DirEntry {
-    pub fn from_path(raw: PathBuf) -> Result<Self, io::Error> {
-        let metadata = raw.metadata()?;
+    pub fn from_path<P: Into<PathBuf>>(raw: P) -> Result<Self, io::Error> {
+        let path_buf = raw.into();
+        let metadata = path_buf.metadata()?;
         let file_type = metadata.file_type();
 
-        Self::from_path_with_file_type(raw, StandaloneFileType::from_file_type(&file_type))
+        Ok(Self::from_path_with_file_type(path_buf, StandaloneFileType::from_file_type(&file_type)))
     }
 
-    pub fn from_path_with_file_type(raw: PathBuf, file_type: StandaloneFileType) -> Result<Self, io::Error> {
-        Ok(DirEntry { raw, file_type })
+    pub fn from_path_with_file_type<P: Into<PathBuf>>(raw: P, file_type: StandaloneFileType) -> Self {
+        DirEntry {
+            raw: raw.into(),
+            file_type,
+        }
     }
 }
 

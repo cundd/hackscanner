@@ -85,7 +85,7 @@ fn run() -> Result<(), Error> {
 
     let files = file_finder::find_files(root, rules);
     let pattern_rules = PatternRule::from_rules_filtered(rules);
-    let ratings = sort_ratings(&classifier::classify_entries(&files, &pattern_rules));
+    let ratings = sort_ratings(&rating::rate_entries(&files, &pattern_rules));
 
     ui::print_summary(min_severity, &ratings);
     ui::print_ratings(min_severity, &ratings);

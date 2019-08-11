@@ -49,3 +49,5 @@ error_chain! {
 //        }
     }
 }
+
+pub type Result<T, E = self::Error> = ::std::result::Result<T, E>;

@@ -69,11 +69,9 @@ extern fn ftw_collector(
             StandaloneFileType::from_ftw(typeflag),
         );
 
-        if let Ok(dir_entry) = dir_entry {
-            FOUND_PATHS.with(|p| {
-                p.borrow_mut().push(dir_entry)
-            });
-        }
+        FOUND_PATHS.with(|p| {
+            p.borrow_mut().push(dir_entry)
+        });
     }
 
     0
@@ -91,15 +89,13 @@ extern fn nftw_collector(
 
         if typeflag == FTW_F {
             let dir_entry = StandaloneDirEntry::from_path_with_file_type(
-                PathBuf::from(path_string.to_string_lossy().into_owned()),
+                path_string.to_string_lossy().into_owned(),
                 StandaloneFileType::from_ftw(typeflag),
             );
 
-            if let Ok(dir_entry) = dir_entry {
-                FOUND_PATHS.with(|p| {
-                    p.borrow_mut().push(dir_entry)
-                });
-            }
+            FOUND_PATHS.with(|p| {
+                p.borrow_mut().push(dir_entry)
+            });
         }
     }
 
