@@ -12,13 +12,13 @@ pub fn get_test_dir() -> String {
 
 pub fn get_rules_multiple_results() -> Vec<Rule> {
     vec![
-        Rule::new_raw("1".to_string(), Severity::NOTICE, Some("tx_mocfilemanager".to_owned()), None)
+        Rule::new_raw("1", Severity::NOTICE, Some("tx_mocfilemanager".to_owned()), None)
     ]
 }
 
 pub fn get_rules_single_result() -> Vec<Rule> {
     vec![
-        Rule::new_raw("2".to_string(), Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)
+        Rule::new_raw("2", Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)
     ]
 }
 

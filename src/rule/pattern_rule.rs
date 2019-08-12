@@ -100,19 +100,19 @@ mod test {
 
     #[test]
     fn from_rule_test() {
-        let pattern_rule = PatternRule::from_rule(&Rule::new_raw(1.to_string(), Severity::NOTICE, None, None)).unwrap();
+        let pattern_rule = PatternRule::from_rule(&Rule::new_raw("1", Severity::NOTICE, None, None)).unwrap();
         assert!(pattern_rule.path().is_none());
         assert!(pattern_rule.content().is_none());
         assert_eq!(pattern_rule.severity(), Severity::NOTICE);
 
-        let pattern_rule = PatternRule::from_rule(&Rule::new_raw(2.to_string(), Severity::EASE, None, None)).unwrap();
+        let pattern_rule = PatternRule::from_rule(&Rule::new_raw("2", Severity::EASE, None, None)).unwrap();
         assert!(pattern_rule.path().is_none());
         assert!(pattern_rule.content().is_none());
         assert_eq!(pattern_rule.severity(), Severity::EASE);
 
         let pattern_rule = PatternRule::from_rule(
             &Rule::new_raw(
-                3.to_string(),
+                "3",
                 Severity::EASE,
                 Some("^\\d{4}-\\d{2}-\\d{2}$".to_owned()),
                 None,
@@ -123,7 +123,7 @@ mod test {
 
         let pattern_rule = PatternRule::from_rule(
             &Rule::new_raw(
-                4.to_string(),
+                "4",
                 Severity::EASE,
                 None,
                 Some("^\\d{4}-\\d{2}-\\d{2}$".to_owned()),

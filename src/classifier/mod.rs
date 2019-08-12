@@ -104,17 +104,30 @@ mod test {
     use std::convert::TryInto;
     use fs::StandaloneFileType;
 
-    fn test_classify_entry<'a, 'b, D: DirEntryTrait>(entry: &'a D, rule: &'a PatternRule) -> Classification {
+    fn test_classify_entry<D: DirEntryTrait>(entry: &D, rule: &Rule) -> Classification {
         let mut path_classifier = path_classifier::PathClassifier::new(entry);
         let mut content_classifier = content_classifier::ContentClassifier::new(entry);
 
-        classify_entry_with_rule(&mut path_classifier, &mut content_classifier, entry, rule)
+        classify_entry_with_rule(&mut path_classifier, &mut content_classifier, entry, &rule.try_into().unwrap())
     }
 
     #[test]
     fn classify_entry_non_existing_file() {
         let entry = StandaloneDirEntry::from_path_with_file_type("not-existing-file.php", StandaloneFileType::File);
-        let rule = Rule::new_raw("Any PHP".to_string(), Severity::MAJOR, None, Some("does not matter".to_string())).try_into().unwrap();
+        let rule = Rule::new_raw("Any PHP", Severity::MAJOR, None, Some("does not matter".to_string()));
+        match test_classify_entry(&entry, &rule) {
+            Classification::Error(violation) => assert_eq!(
+                "Could not open file \"not-existing-file.php\" for reading: No such file or directory (os error 2)",
+                violation.name()
+            ),
+            _ => panic!("Classification must be Classification::Error")
+        }
+    }
+
+    #[test]
+    fn classify_entry_non_existing_whitelisted_file() {
+        let entry = StandaloneDirEntry::from_path_with_file_type("not-existing-file.php", StandaloneFileType::File);
+        let rule = Rule::new_raw("Any PHP", Severity::MAJOR, None, Some("does not matter".to_string()));
         match test_classify_entry(&entry, &rule) {
             Classification::Error(violation) => assert_eq!(
                 "Could not open file \"not-existing-file.php\" for reading: No such file or directory (os error 2)",

@@ -76,8 +76,13 @@ impl Rule {
     }
 
     /// Build new raw rules
-    pub fn new_raw(name: String, score: Severity, path: Option<String>, content: Option<String>) -> Self {
-        Rule::RawRule(RawRule::new(name, score, path, content))
+    pub fn new_raw(name: &str, score: Severity, path: Option<String>, content: Option<String>) -> Self {
+        Rule::RawRule(RawRule::new(
+            name.to_owned(),
+            score,
+            path,
+            content,
+        ))
     }
 
     pub fn raw_with_path<S1: Into<String>, S2: Into<String>>(name: S1, severity: Severity, path: S2) -> Self {

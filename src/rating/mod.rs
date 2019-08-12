@@ -125,7 +125,7 @@ mod test {
         fn rate_entry_test() {
             let entry = get_test_dir_entry("something.tx_mocfilemanager.php");
             let rules = vec![
-                Rule::new_raw("1".to_string(), Severity::NOTICE, Some("tx_mocfilemanager".to_owned()), None)
+                Rule::new_raw("1", Severity::NOTICE, Some("tx_mocfilemanager".to_owned()), None)
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -138,8 +138,8 @@ mod test {
         fn rate_entry_multiple_matches_test() {
             let entry = get_test_dir_entry("something.tx_mocfilemanager.php");
             let rules = vec![
-                Rule::new_raw("2".to_string(), Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
-                Rule::new_raw("3".to_string(), Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)
+                Rule::new_raw("2", Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
+                Rule::new_raw("3", Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -152,8 +152,8 @@ mod test {
         fn rate_entry_multiple_matches_subtract_test() {
             let entry = get_test_dir_entry("something.tx_mocfilemanager.php");
             let rules = vec![
-                Rule::new_raw("4".to_string(), Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
-                Rule::new_raw("5".to_string(), Severity::EASE, Some("tests/resources/files".to_owned()), None)
+                Rule::new_raw("4", Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
+                Rule::new_raw("5", Severity::EASE, Some("tests/resources/files".to_owned()), None)
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -167,7 +167,7 @@ mod test {
         fn rate_entry_with_content_test() {
             let entry = get_test_dir_entry("dezmond.php");
             let rules = vec![
-                Rule::new_raw("6".to_string(), Severity::NOTICE, Some("\\.php".to_owned()), Some("dezmond".to_string())),
+                Rule::new_raw("6", Severity::NOTICE, Some("\\.php".to_owned()), Some("dezmond".to_string())),
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -180,7 +180,7 @@ mod test {
         fn rate_entry_non_existing_file() {
             let entry = StandaloneDirEntry::from_path_with_file_type("not-existing-file.php", StandaloneFileType::File);
             let rules = vec![
-                Rule::new_raw("Any PHP".to_string(), Severity::MAJOR, None, Some("does not matter".to_string())),
+                Rule::new_raw("Any PHP", Severity::MAJOR, None, Some("does not matter".to_string())),
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -190,6 +190,27 @@ mod test {
                 Severity::NOTICE as isize,
                 rating.rating(),
                 "Rating {} does not match expected Severity::NOTICE", rating.rating()
+            );
+            assert_eq!(
+                "Could not open file \"not-existing-file.php\" for reading: No such file or directory (os error 2)",
+                rating.violations()[0].name()
+            );
+        }
+
+        #[test]
+        fn rate_entry_non_existing_whitelisted_file() {
+            let entry = StandaloneDirEntry::from_path_with_file_type("not-existing-file.php", StandaloneFileType::File);
+            let rules = vec![
+                Rule::new_raw("Any PHP", Severity::MAJOR, None, Some("does not matter".to_string())),
+                Rule::new_raw("Whitelisted PHP file", Severity::WHITELIST, Some("not-existing-file.php".into()), None),
+            ];
+
+            let pattern_rules = PatternRule::from_rules_filtered(&rules);
+            let rating = rate_entry(&entry, &pattern_rules);
+
+            assert!(
+                rating.rating() < 0,
+                "Rating {} should be smaller than zero", rating.rating()
             );
             assert_eq!(
                 "Could not open file \"not-existing-file.php\" for reading: No such file or directory (os error 2)",
@@ -208,7 +229,7 @@ mod test {
                 get_test_dir_entry("tx_mocfilemanager.php"),
             ];
             let rules = vec![
-                Rule::new_raw("7".to_string(), Severity::NOTICE, Some("tx_mocfilemanager".to_owned()), None)
+                Rule::new_raw("7", Severity::NOTICE, Some("tx_mocfilemanager".to_owned()), None)
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -225,8 +246,8 @@ mod test {
                 get_test_dir_entry("tx_mocfilemanager.php"),
             ];
             let rules = vec![
-                Rule::new_raw("8".to_string(), Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
-                Rule::new_raw("9".to_string(), Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)
+                Rule::new_raw("8", Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
+                Rule::new_raw("9", Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -243,8 +264,8 @@ mod test {
                 get_test_dir_entry("tx_mocfilemanager.php"),
             ];
             let rules = vec![
-                Rule::new_raw("10".to_string(), Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
-                Rule::new_raw("11".to_string(), Severity::EASE, Some("\\.tx_mocfilemanager".to_owned()), None)
+                Rule::new_raw("10", Severity::MINOR, Some("tx_mocfilemanager".to_owned()), None),
+                Rule::new_raw("11", Severity::EASE, Some("\\.tx_mocfilemanager".to_owned()), None)
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
@@ -263,7 +284,7 @@ mod test {
                 get_test_dir_entry("dezmond.php"),
             ];
             let rules = vec![
-                Rule::new_raw("12".to_string(), Severity::MINOR, Some("\\.php".to_owned()), Some("dezmond".to_string())),
+                Rule::new_raw("12", Severity::MINOR, Some("\\.php".to_owned()), Some("dezmond".to_string())),
             ];
 
             let pattern_rules = PatternRule::from_rules_filtered(&rules);
