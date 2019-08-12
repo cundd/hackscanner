@@ -74,7 +74,7 @@ fn run_rules_with_configuration_test() {
     let pattern_rules = PatternRule::from_rules_filtered(rules);
     let ratings = rate_entries(&files, &pattern_rules);
 
-    assert_contains_entry_with_score(&ratings, Severity::WHITELIST as isize, "/tests/resources/files/whitelist_me.php");
+    assert_not_contains_entry(&ratings, "/tests/resources/files/whitelist_me.php");
 }
 
 #[test]

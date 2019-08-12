@@ -9,6 +9,7 @@ pub mod walkdir;
 use rule::*;
 use dir_entry::*;
 use matcher::Matcher;
+use Severity;
 
 pub trait FileFinderTrait {
     type DirEntry: DirEntryTrait;
@@ -22,9 +23,20 @@ pub trait FileFinderTrait {
                 return false;
             }
 
-            pattern_rules.iter()
-                .find(|rule| Matcher::match_entry_path(rule, entry))
-                .is_some()
+            let mut store_entry = false;
+            for rule in &pattern_rules {
+                // Check if the `Rule` has a path that matches the current entry
+                if rule.has_path() && Matcher::match_entry_path(&rule, entry) {
+                    // If the `Rule`'s path matches and the `Rule` is a whitelist-rule exit the loop
+                    // and ignore the entry
+                    if rule.severity() == Severity::WHITELIST {
+                        return false;
+                    }
+                    store_entry = true;
+                }
+            }
+
+            store_entry
         })
     }
 
