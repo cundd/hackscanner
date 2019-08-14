@@ -115,18 +115,18 @@ fn print_summary_colored(summary: &Summary) {
 
 fn print_summary_simple(summary: &Summary) {
     if summary.critical() > 0 {
-        println!("{} {}",description_for_severity(Severity::CRITICAL, false), summary.critical());
+        println!("{} {}", description_for_severity(Severity::CRITICAL, false), summary.critical());
     }
     if summary.major() > 0 {
-        println!("{} {}",description_for_severity(Severity::MAJOR, false), summary.major());
+        println!("{} {}", description_for_severity(Severity::MAJOR, false), summary.major());
     }
     if summary.minor() > 0 {
-        println!("{} {}",description_for_severity(Severity::MINOR, false), summary.minor());
+        println!("{} {}", description_for_severity(Severity::MINOR, false), summary.minor());
     }
     if summary.notice() > 0 {
-        println!("{} {}",description_for_severity(Severity::NOTICE, false), summary.notice());
+        println!("{} {}", description_for_severity(Severity::NOTICE, false), summary.notice());
     }
     if summary.clean() > 0 {
-        println!("{} {}",description_for_severity(Severity::NONE, false), summary.clean());
+        println!("{} {}", description_for_severity(Severity::NONE, false), summary.clean());
     }
 }
