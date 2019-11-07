@@ -1,6 +1,6 @@
-use ::{Rule, Severity};
+use crate::{Rule, Severity};
 use std::error::Error as StdError;
-use PatternRule;
+use crate::PatternRule;
 
 #[derive(Debug, Clone)]
 pub struct Violation {
@@ -39,14 +39,14 @@ impl Violation {
     }
 }
 
-impl From<&StdError> for Violation {
-    fn from(error: &StdError) -> Self {
+impl From<&dyn StdError> for Violation {
+    fn from(error: &dyn StdError) -> Self {
         Self::with_name_and_severity(error.description().to_owned(), Severity::NOTICE)
     }
 }
 
-impl From<&::errors::Error> for Violation {
-    fn from(error: &::errors::Error) -> Self {
+impl From<&crate::errors::Error> for Violation {
+    fn from(error: &crate::errors::Error) -> Self {
         Self::with_name_and_severity(error.description().to_owned(), Severity::NOTICE)
     }
 }

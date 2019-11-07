@@ -2,11 +2,11 @@ mod summary;
 
 pub use self::summary::Summary;
 use std::fmt;
-use dir_entry::DirEntryTrait;
-use severity::Severity;
-use classifier::{Violation, classify_entry};
-use join::join_violations;
-use ::PatternRule;
+use crate::dir_entry::DirEntryTrait;
+use crate::severity::Severity;
+use crate::classifier::{Violation, classify_entry};
+use crate::join::join_violations;
+use crate::PatternRule;
 
 pub fn rate_entries<'a, 'b, D: DirEntryTrait>(entries: &'a Vec<D>, rules: &'a Vec<PatternRule>) -> Vec<Rating<'a>> {
     debug!("Will rate entries");
@@ -28,13 +28,13 @@ pub fn sort_ratings<'a>(ratings: &[Rating<'a>]) -> Vec<Rating<'a>> {
 
 #[derive(Debug, Clone)]
 pub struct Rating<'a> {
-    entry: &'a DirEntryTrait,
+    entry: &'a dyn DirEntryTrait,
     rating: isize,
     violations: Vec<Violation>,
 }
 
 impl<'a> Rating<'a> {
-    pub fn new(entry: &'a DirEntryTrait, rating: isize, violations: Vec<Violation>) -> Self {
+    pub fn new(entry: &'a dyn DirEntryTrait, rating: isize, violations: Vec<Violation>) -> Self {
         Rating {
             entry,
             rating,
@@ -42,7 +42,7 @@ impl<'a> Rating<'a> {
         }
     }
 
-    pub fn entry(&self) -> &DirEntryTrait {
+    pub fn entry(&self) -> &dyn DirEntryTrait {
         self.entry
     }
 
@@ -102,10 +102,10 @@ fn rate_entry<'a, 'b, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<PatternRule
 #[cfg(test)]
 mod test {
     use super::*;
-    use severity::Severity;
-    use StandaloneDirEntry;
-    use fs::StandaloneFileType;
-    use Rule;
+    use crate::severity::Severity;
+    use crate::StandaloneDirEntry;
+    use crate::fs::StandaloneFileType;
+    use crate::Rule;
 
     fn get_test_dir_entry(file: &str) -> StandaloneDirEntry {
         StandaloneDirEntry::from_path(

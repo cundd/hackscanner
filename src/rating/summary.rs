@@ -1,4 +1,4 @@
-use ::{Rating, Severity};
+use crate::{Rating, Severity};
 
 pub struct Summary {
     critical: isize,

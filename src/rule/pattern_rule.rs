@@ -1,10 +1,10 @@
 use std::convert::TryFrom;
 use regex::Regex;
-use errors::*;
-use severity::Severity;
+use crate::errors::*;
+use crate::severity::Severity;
 use super::RuleTrait;
 use super::raw_rule::RawRule;
-use Rule;
+use crate::Rule;
 
 /// Rule with compiled regular expression members
 #[derive(Debug, Clone)]

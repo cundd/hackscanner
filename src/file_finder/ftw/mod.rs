@@ -10,11 +10,11 @@ use std::fmt::Debug;
 use std::vec::Vec;
 use std::cell::RefCell;
 
-use fs::constants::*;
+use crate::fs::constants::*;
 
 use super::FileFinderTrait;
-use dir_entry::StandaloneDirEntry;
-use fs::StandaloneFileType;
+use crate::dir_entry::StandaloneDirEntry;
+use crate::fs::StandaloneFileType;
 
 #[repr(C)]
 struct FTW {

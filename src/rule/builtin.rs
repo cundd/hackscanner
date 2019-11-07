@@ -1,5 +1,5 @@
-use severity::Severity;
-use Rule;
+use crate::severity::Severity;
+use crate::Rule;
 
 pub fn get_builtin_rules() -> Vec<Rule> {
     let mut collection = vec![];

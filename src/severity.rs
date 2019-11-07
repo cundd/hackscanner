@@ -1,7 +1,7 @@
 use std::fmt;
 use std::fmt::Display;
 use std::str::FromStr;
-use errors::Error;
+use crate::errors::Error;
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Deserialize)]
 pub enum Severity {

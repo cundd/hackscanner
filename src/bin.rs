@@ -132,7 +132,7 @@ fn configure_logging(matches: &ArgMatches) -> Result<(), Error> {
         _ => simplelog::LevelFilter::Warn,
     };
 
-    let mut loggers: Vec<Box<simplelog::SharedLogger>> = vec![];
+    let mut loggers: Vec<Box<dyn simplelog::SharedLogger>> = vec![];
     let mut config = simplelog::Config::default();
     config.time_format = Some("%H:%M:%S%.3f");
 

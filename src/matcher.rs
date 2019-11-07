@@ -1,6 +1,6 @@
-use rule::RuleTrait;
-use rule::PatternRule;
-use dir_entry::*;
+use crate::rule::RuleTrait;
+use crate::rule::PatternRule;
+use crate::dir_entry::*;
 
 pub struct Matcher {}
 

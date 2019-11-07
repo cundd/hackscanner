@@ -1,9 +1,10 @@
-use rule::raw_rule::RawRule;
+use crate::rule::raw_rule::RawRule;
 use std::path::Path;
-use errors::*;
+use crate::errors::*;
 use std::fs::File;
 use std::io::BufReader;
-use Rule;
+use crate::Rule;
+use std::error::Error as StdError;
 
 pub struct Reader {}
 
@@ -61,7 +62,7 @@ fn build_file_type_error(path: &Path) -> Error {
     }.into()
 }
 
-fn build_deserialize_error(path: &Path, error: &::std::error::Error) -> Error {
+fn build_deserialize_error(path: &Path, error: &dyn StdError) -> Error {
     match path.to_str() {
         None => ErrorKind::ReaderError(format!("Could not deserialize file: {}", error)),
         Some(f) => ErrorKind::ReaderError(format!("Could not deserialize the file '{}': {}", f, error)),
@@ -86,8 +87,8 @@ fn get_file_reader(path: &Path) -> Result<BufReader<File>, Error> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use rule::RuleTrait;
-    use severity::Severity;
+    use crate::rule::RuleTrait;
+    use crate::severity::Severity;
 
     fn path(rule: &Rule) -> String {
         match rule {

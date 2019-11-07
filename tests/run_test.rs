@@ -47,7 +47,7 @@ fn assert_not_contains_entry_with_score(ratings: &Vec<Rating>, score: isize, pat
 }
 
 fn configure_logging(log_level_filter: simplelog::LevelFilter) {
-    let mut loggers: Vec<Box<simplelog::SharedLogger>> = vec![];
+    let mut loggers: Vec<Box<dyn simplelog::SharedLogger>> = vec![];
     let mut config = simplelog::Config::default();
     config.time_format = Some("%H:%M:%S%.3f");
 

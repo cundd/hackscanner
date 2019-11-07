@@ -30,10 +30,10 @@ pub mod rating;
 pub mod file_finder;
 pub mod classifier;
 
-pub use errors::*;
-pub use dir_entry::*;
-pub use rule::*;
-pub use rating::*;
-pub use file_finder::find_files;
-pub use severity::Severity;
-pub use join::join_violations;
+pub use crate::errors::*;
+pub use crate::dir_entry::*;
+pub use crate::rule::*;
+pub use crate::rating::*;
+pub use crate::file_finder::find_files;
+pub use crate::severity::Severity;
+pub use crate::join::join_violations;

@@ -1,11 +1,11 @@
 extern crate hackscanner_lib;
 
-mod test_helpers;
+pub mod test_helpers;
 
 // FTS support is disable by default
 #[cfg(feature = "fts")]
 mod file_finder_test_suite_fts {
-    use test_helpers::*;
+    use crate::test_helpers::*;
     use hackscanner_lib::file_finder::FileFinderTrait;
     use hackscanner_lib::file_finder::fts::FileFinder;
 

@@ -1,10 +1,10 @@
-use DirEntryTrait;
+use crate::DirEntryTrait;
 use super::Classification;
 use super::ClassifierTrait;
 use super::Violation;
-use rule::*;
-use matcher::Matcher;
-use errors::Result;
+use crate::rule::*;
+use crate::matcher::Matcher;
+use crate::errors::Result;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::PathBuf;

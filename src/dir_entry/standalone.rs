@@ -3,8 +3,8 @@ use std::io;
 use std::path::Path;
 use std::path::PathBuf;
 use std::fs;
-use fs::FileTypeTrait;
-use fs::StandaloneFileType;
+use crate::fs::FileTypeTrait;
+use crate::fs::StandaloneFileType;
 use super::DirEntryTrait;
 
 #[derive(Debug, Clone)]
@@ -56,7 +56,7 @@ impl DirEntryTrait for DirEntry {
     /// Return the file type for the file that this entry points to.
     ///
     /// See [`walkdir::DirEntry::file_type`] for more details
-    fn file_type(&self) -> Box<FileTypeTrait> {
+    fn file_type(&self) -> Box<dyn FileTypeTrait> {
         Box::new(self.file_type.clone())
     }
 

@@ -6,10 +6,10 @@ pub mod ftw;
 pub mod fts;
 pub mod walkdir;
 
-use rule::*;
-use dir_entry::*;
-use matcher::Matcher;
-use Severity;
+use crate::rule::*;
+use crate::dir_entry::*;
+use crate::matcher::Matcher;
+use crate::Severity;
 
 pub trait FileFinderTrait {
     type DirEntry: DirEntryTrait;

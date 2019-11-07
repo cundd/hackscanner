@@ -3,7 +3,7 @@ extern crate hackscanner_lib;
 mod test_helpers;
 
 mod file_finder_test_suite_ftw {
-    use test_helpers::*;
+    use crate::test_helpers::*;
     use hackscanner_lib::file_finder::FileFinderTrait;
     use hackscanner_lib::file_finder::ftw::FileFinder;
 

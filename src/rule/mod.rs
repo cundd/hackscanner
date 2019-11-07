@@ -16,8 +16,8 @@ mod builtin;
 mod reader;
 
 use std::path::Path;
-use errors::*;
-use severity::Severity;
+use crate::errors::*;
+use crate::severity::Severity;
 pub use self::raw_rule::RawRule;
 pub use self::pattern_rule::PatternRule;
 use self::builtin::get_builtin_rules;

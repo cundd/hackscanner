@@ -1,4 +1,4 @@
-use dir_entry::WalkdirDirEntry;
+use crate::dir_entry::WalkdirDirEntry;
 use std::fmt::Debug;
 use std::path::Path;
 use super::FileFinderTrait;

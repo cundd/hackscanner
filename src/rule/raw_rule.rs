@@ -1,4 +1,4 @@
-use severity::Severity;
+use crate::severity::Severity;
 use super::RuleTrait;
 
 /// "raw" Rule

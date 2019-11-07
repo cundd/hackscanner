@@ -3,7 +3,7 @@ extern crate hackscanner_lib;
 mod test_helpers;
 
 mod file_finder_test_suite {
-    use test_helpers::*;
+    use crate::test_helpers::*;
     use hackscanner_lib::*;
 
     #[test]

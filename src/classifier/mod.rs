@@ -3,8 +3,8 @@ mod classification;
 mod content_classifier;
 mod path_classifier;
 
-use dir_entry::*;
-use rule::*;
+use crate::dir_entry::*;
+use crate::rule::*;
 
 pub use self::violation::Violation;
 use self::classification::*;
@@ -100,9 +100,9 @@ fn panic_empty() -> ! {
 #[cfg(test)]
 mod test {
     use super::*;
-    use severity::Severity;
+    use crate::severity::Severity;
     use std::convert::TryInto;
-    use fs::StandaloneFileType;
+    use crate::fs::StandaloneFileType;
 
     fn test_classify_entry<D: DirEntryTrait>(entry: &D, rule: &Rule) -> Classification {
         let mut path_classifier = path_classifier::PathClassifier::new(entry);
