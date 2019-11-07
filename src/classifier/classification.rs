@@ -10,7 +10,7 @@ pub enum Classification {
 }
 
 impl Debug for Classification {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(f, "{}", match self {
             Classification::NotApplicable => "NotApplicable",
             Classification::Empty => "Empty",

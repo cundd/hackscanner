@@ -33,8 +33,8 @@ pub trait DirEntryTrait: Debug {
     fn file_name(&self) -> &OsStr;
 }
 
-pub mod walkdir;
+pub mod walkdir_impl;
 pub mod standalone;
 
-pub type WalkdirDirEntry = walkdir::DirEntry;
+pub type WalkdirDirEntry = walkdir_impl::DirEntry;
 pub type StandaloneDirEntry = standalone::DirEntry;

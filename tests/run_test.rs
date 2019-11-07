@@ -1,13 +1,12 @@
-extern crate hackscanner_lib;
-extern crate simplelog;
+use simplelog;
 
 use hackscanner_lib::*;
 use std::path::Path;
 use simplelog::TerminalMode;
 
 /// Assert that the `ratings` contain a Rating with the path matching `path` and a rating equal to or bigger than `score`
-fn assert_contains_entry_with_score(ratings: &Vec<Rating>, score: isize, path: &str) {
-    let mut matching_rating: Option<&Rating> = None;
+fn assert_contains_entry_with_score(ratings: &Vec<Rating<'_>>, score: isize, path: &str) {
+    let mut matching_rating: Option<&Rating<'_>> = None;
     for rating in ratings {
         let path_as_string = rating.entry().path().to_string_lossy().into_owned();
         if path_as_string.contains(path) {
@@ -30,12 +29,12 @@ fn assert_contains_entry_with_score(ratings: &Vec<Rating>, score: isize, path: &
 }
 
 /// Assert that none of the Ratings contain a path matching `path` and a rating bigger than 0
-fn assert_not_contains_entry(ratings: &Vec<Rating>, path: &str) {
+fn assert_not_contains_entry(ratings: &Vec<Rating<'_>>, path: &str) {
     assert_not_contains_entry_with_score(ratings, 1, path)
 }
 
 /// Assert that none of the Ratings contain a path matching `path` and a rating equal to or bigger than `score`
-fn assert_not_contains_entry_with_score(ratings: &Vec<Rating>, score: isize, path: &str) {
+fn assert_not_contains_entry_with_score(ratings: &Vec<Rating<'_>>, score: isize, path: &str) {
     for rating in ratings {
         let path_as_string = rating.entry().path().to_string_lossy().into_owned();
         if path_as_string.contains(path) {

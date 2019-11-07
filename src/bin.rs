@@ -1,18 +1,11 @@
 // `error_chain!` can recurse deeply
 #![recursion_limit = "1024"]
 
-extern crate ansi_term;
-extern crate clap;
 #[macro_use]
 extern crate error_chain;
-extern crate hackscanner_lib;
 #[macro_use]
 extern crate log;
-extern crate regex;
-extern crate simplelog;
-extern crate term;
-extern crate walkdir;
-
+use simplelog;
 use clap::App;
 use clap::Arg;
 use clap::ArgMatches;
@@ -101,14 +94,14 @@ fn run() -> Result<(), Error> {
     Ok(())
 }
 
-fn get_root(matches: &ArgMatches) -> String {
+fn get_root(matches: &ArgMatches<'_>) -> String {
     match matches.value_of("directory") {
         Some(d) => d.to_owned(),
         None => String::from(env::current_dir().unwrap().to_string_lossy()),
     }
 }
 
-fn get_minimum_severity(matches: &ArgMatches) -> Severity {
+fn get_minimum_severity(matches: &ArgMatches<'_>) -> Severity {
     let min_severity = matches.value_of("min-severity");
     if min_severity.is_none() {
         return Severity::NOTICE;
@@ -124,7 +117,7 @@ fn get_minimum_severity(matches: &ArgMatches) -> Severity {
 }
 
 
-fn configure_logging(matches: &ArgMatches) -> Result<(), Error> {
+fn configure_logging(matches: &ArgMatches<'_>) -> Result<(), Error> {
     let log_level_filter = match matches.occurrences_of("v") {
         1 => simplelog::LevelFilter::Info,
         2 => simplelog::LevelFilter::Debug,

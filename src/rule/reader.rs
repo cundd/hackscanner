@@ -30,8 +30,6 @@ impl Reader {
 
     #[cfg(feature = "json")]
     fn read_rules_from_json_file(path: &Path) -> Result<Vec<Rule>, Error> {
-        extern crate serde_json;
-
         let file: BufReader<File> = get_file_reader(path)?;
         let raw = match serde_json::from_reader::<BufReader<File>, Vec<RawRule>>(file) {
             Ok(r) => (r),
@@ -43,8 +41,6 @@ impl Reader {
 
     #[cfg(feature = "yaml")]
     fn read_rules_from_yaml_file(path: &Path) -> Result<Vec<Rule>, Error> {
-        extern crate serde_yaml;
-
         let file: BufReader<File> = get_file_reader(path)?;
         let raw = match serde_yaml::from_reader::<BufReader<File>, Vec<RawRule>>(file) {
             Ok(r) => (r),

@@ -1,6 +1,4 @@
-extern crate hackscanner_lib;
-
-mod test_helpers;
+pub mod test_helpers;
 
 mod file_finder_test_suite {
     use crate::test_helpers::*;

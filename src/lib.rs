@@ -4,20 +4,11 @@
 #[macro_use]
 extern crate error_chain;
 
-extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
 #[macro_use]
 extern crate log;
-extern crate simplelog;
-extern crate walkdir;
-extern crate regex;
-
-extern crate libc;
-extern crate core;
-extern crate term;
-extern crate clap;
 
 pub mod errors;
 mod fs;

@@ -3,8 +3,6 @@ use term;
 use hackscanner_lib::*;
 
 pub fn print_summary(min_severity: Severity, summary: &Summary) {
-//    let summary = Summary::build(ratings);
-
     println!("[SUMMARY]");
     println!(
         "Detected {} violations with severity '{}' or higher",
@@ -25,7 +23,7 @@ pub fn print_summary(min_severity: Severity, summary: &Summary) {
     println!()
 }
 
-pub fn print_ratings(min_severity: Severity, ratings: &Vec<Rating>) {
+pub fn print_ratings(min_severity: Severity, ratings: &Vec<Rating<'_>>) {
     for rating in ratings {
         if rating.rating() >= min_severity as isize {
             print_rating(&rating);
@@ -33,7 +31,7 @@ pub fn print_ratings(min_severity: Severity, ratings: &Vec<Rating>) {
     }
 }
 
-pub fn print_rating(rating: &Rating) {
+pub fn print_rating(rating: &Rating<'_>) {
     let supports_color = match term::stdout() {
         Some(t) => t.supports_color(),
         None => false,
@@ -45,11 +43,11 @@ pub fn print_rating(rating: &Rating) {
     }
 }
 
-fn get_path_as_string(rating: &Rating) -> String {
+fn get_path_as_string(rating: &Rating<'_>) -> String {
     rating.entry().path().to_string_lossy().into_owned()
 }
 
-fn print_rating_colored(rating: &Rating) {
+fn print_rating_colored(rating: &Rating<'_>) {
     println!(
         "{} {} \t(Rules: {})",
         colored_description_for_severity(rating.rating().into()),
@@ -58,7 +56,7 @@ fn print_rating_colored(rating: &Rating) {
     );
 }
 
-fn print_rating_simple(rating: &Rating) {
+fn print_rating_simple(rating: &Rating<'_>) {
     println!(
         "{} {} \t(Rules: {})",
         description_for_severity(rating.rating().into(), true),

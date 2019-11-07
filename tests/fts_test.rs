@@ -1,5 +1,3 @@
-extern crate hackscanner_lib;
-
 pub mod test_helpers;
 
 // FTS support is disable by default

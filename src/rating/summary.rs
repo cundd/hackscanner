@@ -10,7 +10,7 @@ pub struct Summary {
 
 impl Summary {
     /// Build a summary of the overall Ratings
-    pub fn build(ratings: &Vec<Rating>) -> Self {
+    pub fn build(ratings: &Vec<Rating<'_>>) -> Self {
         let mut summary = Summary {
             critical: 0,
             major: 0,
