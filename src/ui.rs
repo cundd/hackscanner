@@ -2,8 +2,8 @@ use ansi_term::Colour;
 use term;
 use hackscanner_lib::*;
 
-pub fn print_summary(min_severity: Severity, ratings: &Vec<Rating>) {
-    let summary = Summary::build(ratings);
+pub fn print_summary(min_severity: Severity, summary: &Summary) {
+//    let summary = Summary::build(ratings);
 
     println!("[SUMMARY]");
     println!(
@@ -88,7 +88,6 @@ fn description_for_severity(severity: Severity, brackets: bool) -> String {
         format!("{:width$}", format!("{}:", severity.description()), width = 10)
     }
 }
-
 
 fn print_summary_colored(summary: &Summary) {
     if summary.critical() > 0 {

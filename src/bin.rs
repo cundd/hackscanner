@@ -55,6 +55,11 @@ fn run() -> Result<(), Error> {
             .short("m")
             .takes_value(true)
             .help("Sets the minimum severity to display (CRITICAL, MAJOR, MINOR, NOTICE, ALL)"))
+        .arg(Arg::with_name("quiet")
+            .short("q")
+            .long("quiet")
+            .alias("silent")
+            .help("Do not write to standard output if no violations > min-severity are found"))
         ;
 
     #[cfg(any(feature = "json", feature = "yaml"))]
@@ -82,14 +87,17 @@ fn run() -> Result<(), Error> {
 
     let min_severity = get_minimum_severity(&matches);
     let root = get_root(&matches);
+    let quiet = matches.is_present("quiet");
 
     let files = file_finder::find_files(root, rules);
     let pattern_rules = PatternRule::from_rules_filtered(rules);
     let ratings = sort_ratings(&rating::rate_entries(&files, &pattern_rules));
+    let summary = Summary::build(&ratings);
 
-    ui::print_summary(min_severity, &ratings);
-    ui::print_ratings(min_severity, &ratings);
-
+    if !quiet || 0 < summary.ratings_above(min_severity) {
+        ui::print_summary(min_severity, &summary);
+        ui::print_ratings(min_severity, &ratings);
+    }
     Ok(())
 }
 
