@@ -10,6 +10,7 @@
 //! If only `path` is defined, a matching file path violates the [`Rule`].
 //!
 //! If only `content` is defined, a matching file content violates the [`Rule`].
+mod rule_path;
 mod raw_rule;
 mod pattern_rule;
 mod builtin;
@@ -21,6 +22,7 @@ use crate::severity::Severity;
 pub use self::raw_rule::RawRule;
 pub use self::pattern_rule::PatternRule;
 use self::builtin::get_builtin_rules;
+use rule_path::RulePath;
 
 /// Generic trait for Rule functions
 pub trait RuleTrait<T> {
@@ -68,10 +70,17 @@ impl Rule {
         }
     }
 
-    pub fn has_content(&self) -> bool {
+    pub fn path(&self) -> Option<RulePath> {
         match self {
-            &Rule::RawRule(ref rule) => rule.has_content(),
-            &Rule::PatternRule(ref rule) => rule.has_content(),
+            &Rule::RawRule(ref rule) => rule.path().map(|v| RulePath::String(v)),
+            &Rule::PatternRule(ref rule) => rule.path().map(|v| RulePath::Regex(v)),
+        }
+    }
+
+    pub fn content(&self) -> Option<RulePath> {
+        match self {
+            &Rule::RawRule(ref rule) => rule.content().map(|v| RulePath::String(v)),
+            &Rule::PatternRule(ref rule) => rule.content().map(|v| RulePath::Regex(v)),
         }
     }
 
@@ -98,25 +107,21 @@ impl Rule {
     }
 }
 
-impl<T> RuleTrait<T> for Rule {
+impl RuleTrait<RulePath> for Rule {
     fn name(&self) -> &String {
         Rule::name(self)
     }
 
-    fn path(&self) -> Option<T> {
-        unimplemented!()
+    fn path(&self) -> Option<RulePath> {
+        Rule::path(self)
     }
 
-    fn content(&self) -> Option<T> {
-        unimplemented!()
+    fn content(&self) -> Option<RulePath> {
+        Rule::content(self)
     }
 
     fn severity(&self) -> Severity {
         Rule::severity(self)
-    }
-
-    fn has_content(&self) -> bool {
-        Rule::has_content(self)
     }
 }
 
