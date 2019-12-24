@@ -1,6 +1,8 @@
 use crate::{Rule, Severity};
 use std::error::Error as StdError;
+use crate::errors::Error;
 use crate::PatternRule;
+use crate::classifier::content_classifier::*;
 
 #[derive(Debug, Clone)]
 pub struct Violation {
@@ -28,6 +30,20 @@ impl Violation {
         }
     }
 
+    pub fn with_rule_and_file_io_error(rule: Rule, error: &ContentClassificationError) -> Option<Self> {
+        if error.kind() == ContentClassificationErrorKind::NotExists {
+            return None;
+        }
+        let severity = Severity::NOTICE;
+        let name = rule.name().to_owned();
+
+        Some(Violation {
+            rule: Some(rule),
+            name,
+            severity,
+        })
+    }
+
     /// Return the name describing the Violation (e.g. the name of the violated Rule)
     pub fn name(&self) -> &String {
         &self.name
@@ -45,8 +61,8 @@ impl From<&dyn StdError> for Violation {
     }
 }
 
-impl From<&crate::errors::Error> for Violation {
-    fn from(error: &crate::errors::Error) -> Self {
+impl From<&Error> for Violation {
+    fn from(error: &Error) -> Self {
         Self::with_name_and_severity(error.description().to_owned(), Severity::NOTICE)
     }
 }

@@ -8,6 +8,10 @@ use crate::errors::Result;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::PathBuf;
+pub use self::error::ContentClassificationError;
+pub use self::error::ContentClassificationErrorKind;
+
+mod error;
 
 /// Number of bytes to read from files
 const BUFFER_SIZE: usize = 1024 * 4;
@@ -18,9 +22,9 @@ pub struct ContentClassifier {
 }
 
 impl ContentClassifier {
-    fn get_file_content<'f, D: DirEntryTrait>(&mut self, entry: &D) -> Result<String> {
+    fn get_file_content<'f, D: DirEntryTrait>(&mut self, entry: &D) -> Result<String, ContentClassificationError> {
         if !(entry.path() == self.path.as_path()) {
-            panic!(
+            unreachable!(
                 "Entry path does not match path stored in struct ContentClassifier. \n{:?} != \n{:?}",
                 entry.path(),
                 self.path
@@ -52,25 +56,29 @@ impl<'a, D: DirEntryTrait> ClassifierTrait<D> for ContentClassifier {
                 }
             }
             // If the file content could not be read build a Violation from the error
-            Err(e) => Classification::Error(Violation::from(&e))
+            Err(e) => {
+                let violation_option = Violation::with_rule_and_file_io_error(Rule::from(rule), &e);
+                match violation_option {
+                    Some(v) => Classification::Error(v),
+                    None => Classification::NoMatch,
+                }
+            }
         }
     }
 }
 
-fn read_entry_content<D: DirEntryTrait>(entry: &D) -> Result<String> {
+fn read_entry_content<D: DirEntryTrait>(entry: &D) -> Result<String, ContentClassificationError> {
     let path = entry.path();
     let mut file = match File::open(path) {
         Ok(f) => f,
-        Err(e) => bail!("Could not open file {:?} for reading: {}", entry.path(), e)
+        Err(e) => return Err(ContentClassificationError::from_io_error(path, e))
     };
 
     trace!("Will read file {:?}", path);
     let mut buffer = [0; BUFFER_SIZE];
     match file.read(&mut buffer[..]) {
         Ok(bytes_count) => bytes_count,
-        Err(e) => {
-            bail!("Could not read file {:?}: {}", entry.path(), e)
-        }
+        Err(e) => return Err(ContentClassificationError::from_io_error(path, e))
     };
     trace!("Did read file {:?}", path);
 
