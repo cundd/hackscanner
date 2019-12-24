@@ -43,6 +43,18 @@ pub fn print_rating(rating: &Rating<'_>) {
     }
 }
 
+pub fn print_validation(rating: &Rating<'_>, verbose: bool) {
+    let supports_color = match term::stdout() {
+        Some(t) => t.supports_color(),
+        None => false,
+    };
+    if supports_color {
+        print_validation_colored(rating, verbose)
+    } else {
+        print_validation_simple(rating, verbose)
+    }
+}
+
 fn get_path_as_string(rating: &Rating<'_>) -> String {
     rating.entry().path().to_string_lossy().into_owned()
 }
@@ -63,6 +75,49 @@ fn print_rating_simple(rating: &Rating<'_>) {
         get_path_as_string(rating),
         join_violations(rating.violations())
     );
+}
+
+fn print_validation_colored(rating: &Rating<'_>, verbose: bool) {
+    let rating_value = rating.rating();
+    if rating_value <= 0 {
+        println!(
+            "{} No violations found for path {}",
+            Colour::Blue.paint("[OK]"),
+            Colour::Black.bold().paint(get_path_as_string(rating))
+        );
+    } else {
+        println!(
+            "{} {} violations found for path {} \t(Rules: {})",
+            colored_description_for_severity(rating_value.into()),
+            Severity::from(rating_value),
+            Colour::Black.bold().paint(get_path_as_string(rating)),
+            join_violations(rating.violations())
+        )
+    }
+    if verbose {
+        println!("Calculated rating: {}", rating_value)
+    }
+}
+
+fn print_validation_simple(rating: &Rating<'_>, verbose: bool) {
+    let rating_value = rating.rating();
+    if rating_value <= 0 {
+        println!(
+            "[OK] No violations found for path {}",
+            get_path_as_string(rating)
+        );
+    } else {
+        println!(
+            "{} {} violations found for path {} \t(Rules: {})",
+            description_for_severity(rating_value.into(), true),
+            Severity::from(rating_value),
+            get_path_as_string(rating),
+            join_violations(rating.violations())
+        )
+    }
+    if verbose {
+        println!("Calculated rating: {}", rating_value)
+    }
 }
 
 fn colored_description_for_severity(severity: Severity) -> String {

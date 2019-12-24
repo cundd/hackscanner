@@ -35,6 +35,8 @@ pub trait DirEntryTrait: Debug {
 
 pub mod walkdir_impl;
 pub mod standalone;
+pub mod validation_dir_entry;
 
 pub type WalkdirDirEntry = walkdir_impl::DirEntry;
 pub type StandaloneDirEntry = standalone::DirEntry;
+pub type ValidationDirEntry = validation_dir_entry::DirEntry;

@@ -8,7 +8,7 @@ use crate::classifier::{Violation, classify_entry};
 use crate::join::join_violations;
 use crate::PatternRule;
 
-pub fn rate_entries<'a, 'b, D: DirEntryTrait>(entries: &'a Vec<D>, rules: &'a Vec<PatternRule>) -> Vec<Rating<'a>> {
+pub fn rate_entries<'a, D: DirEntryTrait>(entries: &'a Vec<D>, rules: &'a Vec<PatternRule>) -> Vec<Rating<'a>> {
     debug!("Will rate entries");
     let result = entries.iter()
         .map(|entry| { rate_entry(entry, rules) })
@@ -16,6 +16,19 @@ pub fn rate_entries<'a, 'b, D: DirEntryTrait>(entries: &'a Vec<D>, rules: &'a Ve
     debug!("Did rate entries");
 
     result
+}
+
+pub fn rate_entry<'a, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<PatternRule>) -> Rating<'a> {
+    trace!("Will rate entry {:?}", entry);
+    let violations: Vec<Violation> = classify_entry(entry, rules);
+
+    let rating = violations.iter().fold(0, |acc, violation| {
+        trace!("  Update rating {} {} {}", acc, violation.severity() as isize, violation.name());
+
+        acc + violation.severity() as isize
+    });
+    trace!("Did rate entry {:?} (rating: {})", entry, rating);
+    Rating::new(entry, rating, violations)
 }
 
 pub fn sort_ratings<'a>(ratings: &[Rating<'a>]) -> Vec<Rating<'a>> {
@@ -84,19 +97,6 @@ impl<'a> fmt::Display for Rating<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.description())
     }
-}
-
-fn rate_entry<'a, 'b, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<PatternRule>) -> Rating<'a> {
-    trace!("Will rate entry {:?}", entry);
-    let violations: Vec<Violation> = classify_entry(entry, rules);
-
-    let rating = violations.iter().fold(0, |acc, violation| {
-        trace!("  Update rating {} {} {}", acc, violation.severity() as isize, violation.name());
-
-        acc + violation.severity() as isize
-    });
-    trace!("Did rate entry {:?} (rating: {})", entry, rating);
-    Rating::new(entry, rating, violations)
 }
 
 #[cfg(test)]
@@ -187,13 +187,9 @@ mod test {
             let rating = rate_entry(&entry, &pattern_rules);
 
             assert_eq!(
-                Severity::NOTICE as isize,
+                Severity::NONE as isize,
                 rating.rating(),
                 "Rating {} does not match expected Severity::NOTICE", rating.rating()
-            );
-            assert_eq!(
-                "Could not open file \"not-existing-file.php\" for reading: No such file or directory (os error 2)",
-                rating.violations()[0].name()
             );
         }
 
@@ -213,7 +209,7 @@ mod test {
                 "Rating {} should be smaller than zero", rating.rating()
             );
             assert_eq!(
-                "Could not open file \"not-existing-file.php\" for reading: No such file or directory (os error 2)",
+                "Whitelisted PHP file",
                 rating.violations()[0].name()
             );
         }

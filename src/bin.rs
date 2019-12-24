@@ -5,6 +5,7 @@
 extern crate error_chain;
 #[macro_use]
 extern crate log;
+
 use simplelog;
 use clap::App;
 use clap::Arg;
@@ -28,9 +29,6 @@ fn main() {
     }
 }
 
-// Most functions will return the `Result` type, imported from the
-// `errors` module. It is a typedef of the standard `Result` type
-// for which the error type is always our own `Error`.
 fn run() -> Result<(), Error> {
     let app = App::new("hackscanner")
         .version(env!("CARGO_PKG_VERSION"))
@@ -53,6 +51,12 @@ fn run() -> Result<(), Error> {
             .long("quiet")
             .alias("silent")
             .help("Do not write to standard output if no violations > min-severity are found"))
+        .arg(Arg::with_name("validate")
+            .short("l")
+            .long("validate")
+            .takes_value(true)
+            .value_name("test-path")
+            .help("Check if the given test-path would create a violation (ignores if the path exists)"))
         ;
 
     #[cfg(any(feature = "json", feature = "yaml"))]
@@ -78,19 +82,34 @@ fn run() -> Result<(), Error> {
         None => None,
     })?;
 
+    let pattern_rules = PatternRule::from_rules_filtered(rules);
+
+    match matches.value_of("validate") {
+        Some(test_path) => validate(&matches, pattern_rules, test_path),
+        None => scan(&matches, rules, pattern_rules),
+    }
+}
+
+fn scan(matches: &ArgMatches, rules: &Vec<Rule>, pattern_rules: Vec<PatternRule>) -> Result<(), Error> {
     let min_severity = get_minimum_severity(&matches);
     let root = get_root(&matches);
     let quiet = matches.is_present("quiet");
-
     let files = file_finder::find_files(root, rules);
-    let pattern_rules = PatternRule::from_rules_filtered(rules);
     let ratings = sort_ratings(&rating::rate_entries(&files, &pattern_rules));
     let summary = Summary::build(&ratings);
-
     if !quiet || 0 < summary.ratings_above(min_severity) {
         ui::print_summary(min_severity, &summary);
         ui::print_ratings(min_severity, &ratings);
     }
+
+    Ok(())
+}
+
+fn validate(matches: &ArgMatches, pattern_rules: Vec<PatternRule>, test_path: &str) -> Result<(), Error> {
+    let entry = ValidationDirEntry::from_path_str(test_path);
+    let rating = rate_entry(&entry, &pattern_rules);
+    ui::print_validation(&rating, matches.occurrences_of("v") > 0);
+
     Ok(())
 }
 
