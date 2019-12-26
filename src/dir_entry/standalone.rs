@@ -1,11 +1,11 @@
+use super::DirEntryTrait;
+use crate::fs::FileTypeTrait;
+use crate::fs::StandaloneFileType;
 use std::ffi::OsStr;
+use std::fs;
 use std::io;
 use std::path::Path;
 use std::path::PathBuf;
-use std::fs;
-use crate::fs::FileTypeTrait;
-use crate::fs::StandaloneFileType;
-use super::DirEntryTrait;
 
 #[derive(Debug, Clone)]
 pub struct DirEntry {
@@ -19,10 +19,16 @@ impl DirEntry {
         let metadata = path_buf.metadata()?;
         let file_type = metadata.file_type();
 
-        Ok(Self::from_path_with_file_type(path_buf, StandaloneFileType::from_file_type(&file_type)))
+        Ok(Self::from_path_with_file_type(
+            path_buf,
+            StandaloneFileType::from_file_type(&file_type),
+        ))
     }
 
-    pub fn from_path_with_file_type<P: Into<PathBuf>>(raw: P, file_type: StandaloneFileType) -> Self {
+    pub fn from_path_with_file_type<P: Into<PathBuf>>(
+        raw: P,
+        file_type: StandaloneFileType,
+    ) -> Self {
         DirEntry {
             raw: raw.into(),
             file_type,
@@ -64,7 +70,8 @@ impl DirEntryTrait for DirEntry {
     ///
     /// See [`walkdir::DirEntry::file_name`] for more details
     fn file_name(&self) -> &OsStr {
-        self.raw.file_name()
+        self.raw
+            .file_name()
             .expect("An invalid DirEntry instance has been created. This must not have happened")
     }
 }

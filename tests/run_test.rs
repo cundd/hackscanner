@@ -1,8 +1,8 @@
 use simplelog;
 
 use hackscanner_lib::*;
-use std::path::Path;
 use simplelog::TerminalMode;
+use std::path::Path;
 
 /// Assert that the `ratings` contain a Rating with the path matching `path` and a rating equal to or bigger than `score`
 fn assert_contains_entry_with_score(ratings: &Vec<Rating<'_>>, score: isize, path: &str) {
@@ -39,7 +39,11 @@ fn assert_not_contains_entry_with_score(ratings: &Vec<Rating<'_>>, score: isize,
         let path_as_string = rating.entry().path().to_string_lossy().into_owned();
         if path_as_string.contains(path) {
             if rating.rating() >= score {
-                panic!("Must not find entry {:?} with rating {}", rating.entry().path(), rating.rating());
+                panic!(
+                    "Must not find entry {:?} with rating {}",
+                    rating.entry().path(),
+                    rating.rating()
+                );
             }
         }
     }
@@ -50,7 +54,9 @@ fn configure_logging(log_level_filter: simplelog::LevelFilter) {
     let mut config = simplelog::Config::default();
     config.time_format = Some("%H:%M:%S%.3f");
 
-    if let Some(core_logger) = simplelog::TermLogger::new(log_level_filter, config, TerminalMode::Mixed) {
+    if let Some(core_logger) =
+        simplelog::TermLogger::new(log_level_filter, config, TerminalMode::Mixed)
+    {
         loggers.push(core_logger);
     } else {
         loggers.push(simplelog::SimpleLogger::new(log_level_filter, config));
@@ -85,27 +91,84 @@ fn run_builtin_rules_test() {
     let pattern_rules = PatternRule::from_rules_filtered(rules);
     let ratings = rate_entries(&files, &pattern_rules);
 
-    assert_contains_entry_with_score(&ratings, Severity::CRITICAL as isize, "/tests/resources/files/dezmond.php");
-    assert_contains_entry_with_score(&ratings, Severity::MAJOR as isize, "/tests/resources/files/tx_mocfilemanager.php");
-    assert_contains_entry_with_score(&ratings, Severity::MAJOR as isize, "/tests/resources/files/something.tx_mocfilemanager.php");
-    assert_contains_entry_with_score(&ratings, Severity::NOTICE as isize, "/tests/resources/files/eval-in-file.php");
-    assert_contains_entry_with_score(&ratings, Severity::MAJOR as isize, "tests/resources/files/multiple_violations.php");
+    assert_contains_entry_with_score(
+        &ratings,
+        Severity::CRITICAL as isize,
+        "/tests/resources/files/dezmond.php",
+    );
+    assert_contains_entry_with_score(
+        &ratings,
+        Severity::MAJOR as isize,
+        "/tests/resources/files/tx_mocfilemanager.php",
+    );
+    assert_contains_entry_with_score(
+        &ratings,
+        Severity::MAJOR as isize,
+        "/tests/resources/files/something.tx_mocfilemanager.php",
+    );
+    assert_contains_entry_with_score(
+        &ratings,
+        Severity::NOTICE as isize,
+        "/tests/resources/files/eval-in-file.php",
+    );
+    assert_contains_entry_with_score(
+        &ratings,
+        Severity::MAJOR as isize,
+        "tests/resources/files/multiple_violations.php",
+    );
 
-    assert_contains_entry_with_score(&ratings, Severity::MINOR as isize, "tests/resources/files/typo3/fileadmin/user_upload/some_file.php");
-    assert_contains_entry_with_score(&ratings, Severity::MAJOR as isize, "tests/resources/files/typo3/typo3conf/l10n/someext/some_file.php");
-    assert_contains_entry_with_score(&ratings, Severity::MINOR as isize, "tests/resources/files/typo3/typo3temp/bad_file.php");
-    assert_contains_entry_with_score(&ratings, Severity::MINOR as isize, "tests/resources/files/typo3/typo3temp/various_subdir/bad_file.php");
-    assert_contains_entry_with_score(&ratings, Severity::MINOR as isize, "tests/resources/files/typo3/typo3temp/autoload-tests/bad_file.php");
-    assert_contains_entry_with_score(&ratings, Severity::NOTICE as isize, "tests/resources/files/typo3/typo3conf/bad.php");
+    assert_contains_entry_with_score(
+        &ratings,
+        Severity::MINOR as isize,
+        "tests/resources/files/typo3/fileadmin/user_upload/some_file.php",
+    );
+    assert_contains_entry_with_score(
+        &ratings,
+        Severity::MAJOR as isize,
+        "tests/resources/files/typo3/typo3conf/l10n/someext/some_file.php",
+    );
+    assert_contains_entry_with_score(
+        &ratings,
+        Severity::MINOR as isize,
+        "tests/resources/files/typo3/typo3temp/bad_file.php",
+    );
+    assert_contains_entry_with_score(
+        &ratings,
+        Severity::MINOR as isize,
+        "tests/resources/files/typo3/typo3temp/various_subdir/bad_file.php",
+    );
+    assert_contains_entry_with_score(
+        &ratings,
+        Severity::MINOR as isize,
+        "tests/resources/files/typo3/typo3temp/autoload-tests/bad_file.php",
+    );
+    assert_contains_entry_with_score(
+        &ratings,
+        Severity::NOTICE as isize,
+        "tests/resources/files/typo3/typo3conf/bad.php",
+    );
     assert_contains_entry_with_score(&ratings, Severity::MAJOR as isize, "tests/resources/files/typo3/typo3conf/ext/static_info_tables/Classes/static_info_tables.php");
-    assert_not_contains_entry(&ratings, "tests/resources/files/typo3/typo3temp/Cache/allowed_file.php");
-    assert_not_contains_entry(&ratings, "tests/resources/files/typo3/typo3temp/var/Cache/allowed_file.php");
-    assert_not_contains_entry(&ratings, "tests/resources/files/typo3/typo3temp/autoload/autoload_allowed_file.php");
-    assert_not_contains_entry(&ratings, "tests/resources/files/typo3/typo3temp/autoload-tests/autoload_allowed_file.php");
+    assert_not_contains_entry(
+        &ratings,
+        "tests/resources/files/typo3/typo3temp/Cache/allowed_file.php",
+    );
+    assert_not_contains_entry(
+        &ratings,
+        "tests/resources/files/typo3/typo3temp/var/Cache/allowed_file.php",
+    );
+    assert_not_contains_entry(
+        &ratings,
+        "tests/resources/files/typo3/typo3temp/autoload/autoload_allowed_file.php",
+    );
+    assert_not_contains_entry(
+        &ratings,
+        "tests/resources/files/typo3/typo3temp/autoload-tests/autoload_allowed_file.php",
+    );
     assert_not_contains_entry(&ratings, "tests/resources/files/typo3/typo3temp/ExtensionManager/UpdateScripts/ext_update36596ab430661a78499d678a5bb65a9c.php");
     assert_not_contains_entry(&ratings, "tests/resources/files/typo3/typo3temp/var/transient/ext_updatebac283f6edfa19007d6b23122ff69aeb.php");
-    assert_contains_entry_with_score(&ratings, Severity::MINOR as isize, "tests/resources/files/typo3/typo3temp/autoload/autoload_subfolder/bad_file.php");
+    assert_contains_entry_with_score(
+        &ratings,
+        Severity::MINOR as isize,
+        "tests/resources/files/typo3/typo3temp/autoload/autoload_subfolder/bad_file.php",
+    );
 }
-
-
-

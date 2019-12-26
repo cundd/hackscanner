@@ -4,8 +4,8 @@ pub mod test_helpers;
 #[cfg(feature = "fts")]
 mod file_finder_test_suite_fts {
     use crate::test_helpers::*;
-    use hackscanner_lib::file_finder::FileFinderTrait;
     use hackscanner_lib::file_finder::fts::FileFinder;
+    use hackscanner_lib::file_finder::FileFinderTrait;
 
     #[test]
     fn find_files_test() {

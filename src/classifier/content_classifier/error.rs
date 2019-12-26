@@ -1,8 +1,8 @@
 use std::error::Error as StdError;
-use std::fmt::{Formatter, Display, Error as FmtError};
-use std::path::{PathBuf, Path};
+use std::fmt::{Display, Error as FmtError, Formatter};
 use std::io::Error as IoError;
 use std::io::ErrorKind as IoErrorKind;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
 pub struct ContentClassificationError {
@@ -34,7 +34,9 @@ impl ContentClassificationError {
 impl Display for ContentClassificationError {
     fn fmt(&self, f: &mut Formatter) -> Result<(), FmtError> {
         match self.kind() {
-            ContentClassificationErrorKind::NotExists => write!(f, "File {:?} does not exist", self.path),
+            ContentClassificationErrorKind::NotExists => {
+                write!(f, "File {:?} does not exist", self.path)
+            }
             ContentClassificationErrorKind::NotReadable => {
                 write!(f, "Could not read file {:?}", self.path)
             }
@@ -63,7 +65,7 @@ impl From<IoErrorKind> for ContentClassificationErrorKind {
         match e {
             IoErrorKind::NotFound => ContentClassificationErrorKind::NotExists,
             IoErrorKind::PermissionDenied => ContentClassificationErrorKind::NotReadable,
-            _ => ContentClassificationErrorKind::Unknown
+            _ => ContentClassificationErrorKind::Unknown,
         }
     }
 }

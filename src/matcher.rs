@@ -1,6 +1,6 @@
-use crate::rule::RuleTrait;
-use crate::rule::PatternRule;
 use crate::dir_entry::*;
+use crate::rule::PatternRule;
+use crate::rule::RuleTrait;
 
 pub struct Matcher {}
 
@@ -11,7 +11,10 @@ impl Matcher {
         let path_as_string: String = entry.path().to_string_lossy().into_owned();
 
         match rule.path() {
-            Some(p) => p.is_match(&path_as_string),
+            Some(p) => {
+                trace!("Match rule {} against path {}", p, path_as_string);
+                p.is_match(&path_as_string)
+            }
             None => false,
         }
     }
@@ -20,8 +23,8 @@ impl Matcher {
     #[inline]
     pub fn match_entry_content(rule: &PatternRule, content: &str) -> bool {
         match rule.content() {
+            Some(content_pattern) => content_pattern.is_match(content),
             None => false,
-            Some(content_pattern) => content_pattern.is_match(content)
         }
     }
 }

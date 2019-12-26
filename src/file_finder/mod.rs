@@ -1,21 +1,25 @@
-use std::path::Path;
 use std::fmt::Debug;
+use std::path::Path;
 
-pub mod ftw;
 #[cfg(feature = "fts")]
 pub mod fts;
+pub mod ftw;
 pub mod walkdir;
 
-use crate::rule::*;
 use crate::dir_entry::*;
 use crate::matcher::Matcher;
+use crate::rule::*;
 use crate::Severity;
 
 pub trait FileFinderTrait {
     type DirEntry: DirEntryTrait;
 
     /// Return all [`DirEntry`s] that match at least one of the [`Rule`s] starting at `root`
-    fn find<P: AsRef<Path> + Debug + Clone>(&self, root: P, rules: &Vec<Rule>) -> Vec<Self::DirEntry> {
+    fn find<P: AsRef<Path> + Debug + Clone>(
+        &self,
+        root: P,
+        rules: &Vec<Rule>,
+    ) -> Vec<Self::DirEntry> {
         let pattern_rules = PatternRule::from_rules_filtered(rules);
 
         self.walk_dir(root, |entry: &Self::DirEntry| {
@@ -41,10 +45,18 @@ pub trait FileFinderTrait {
     }
 
     /// Walk through all files and directories under `root` and filter results with `filter`
-    fn walk_dir<P: AsRef<Path> + Debug + Clone, F>(&self, root: P, filter: F) -> Vec<Self::DirEntry>
-        where F: Fn(&Self::DirEntry) -> bool;
+    fn walk_dir<P: AsRef<Path> + Debug + Clone, F>(
+        &self,
+        root: P,
+        filter: F,
+    ) -> Vec<Self::DirEntry>
+    where
+        F: Fn(&Self::DirEntry) -> bool;
 }
 
-pub fn find_files<P: AsRef<Path> + Debug + Clone>(root: P, rules: &Vec<Rule>) -> Vec<WalkdirDirEntry> {
+pub fn find_files<P: AsRef<Path> + Debug + Clone>(
+    root: P,
+    rules: &Vec<Rule>,
+) -> Vec<WalkdirDirEntry> {
     self::walkdir::FileFinder::find(&self::walkdir::FileFinder::new(), root, rules)
 }

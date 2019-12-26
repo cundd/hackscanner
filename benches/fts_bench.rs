@@ -1,13 +1,13 @@
 #![feature(test)]
-extern crate test;
 extern crate hackscanner_lib;
+extern crate test;
 
 mod bench_helper;
 
 mod fts {
     use super::*;
-    use test::Bencher;
     use hackscanner_lib::file_finder::walkdir::FileFinder;
+    use test::Bencher;
 
     #[bench]
     fn bench_find_files(b: &mut Bencher) {
@@ -19,5 +19,3 @@ mod fts {
         bench_helper::bench_find_files_without_rules(&FileFinder::new(), b);
     }
 }
-
-

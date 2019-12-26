@@ -1,9 +1,9 @@
-use crate::rule::*;
 use super::Classification;
 use super::ClassifierTrait;
 use super::Violation;
-use crate::DirEntryTrait;
 use crate::matcher::Matcher;
+use crate::rule::*;
+use crate::DirEntryTrait;
 
 pub struct PathClassifier {}
 

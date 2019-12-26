@@ -25,7 +25,6 @@ pub const FTW_DP: c_int = 5;
 #[allow(unused)]
 pub const FTW_SLN: c_int = 6;
 
-
 /// Perform physical walk, ignore symlinks.
 #[allow(unused)]
 pub const FTW_PHYS: c_int = 1;

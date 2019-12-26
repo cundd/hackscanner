@@ -2,8 +2,8 @@ pub mod test_helpers;
 
 mod file_finder_test_suite_ftw {
     use crate::test_helpers::*;
-    use hackscanner_lib::file_finder::FileFinderTrait;
     use hackscanner_lib::file_finder::ftw::FileFinder;
+    use hackscanner_lib::file_finder::FileFinderTrait;
 
     #[test]
     fn find_files_test() {

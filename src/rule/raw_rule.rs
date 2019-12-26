@@ -1,5 +1,5 @@
-use crate::severity::Severity;
 use super::RuleTrait;
+use crate::severity::Severity;
 
 /// "raw" Rule
 #[derive(Debug, Clone, Deserialize, PartialOrd, PartialEq)]
@@ -12,8 +12,12 @@ pub struct RawRule {
 
 impl RawRule {
     /// Build a new rule
-    pub fn new(name: String, score: Severity, path: Option<String>, content: Option<String>) -> Self
-    {
+    pub fn new(
+        name: String,
+        score: Severity,
+        path: Option<String>,
+        content: Option<String>,
+    ) -> Self {
         RawRule {
             name,
             path,
@@ -22,16 +26,34 @@ impl RawRule {
         }
     }
 
-    pub fn with_path<S1: Into<String>, S2: Into<String>>(name: S1, severity: Severity, path: S2) -> Self {
+    pub fn with_path<S1: Into<String>, S2: Into<String>>(
+        name: S1,
+        severity: Severity,
+        path: S2,
+    ) -> Self {
         Self::new(name.into(), severity, Some(path.into()), None)
     }
 
-    pub fn with_content<S1: Into<String>, S2: Into<String>>(name: S1, severity: Severity, content: S2) -> Self {
+    pub fn with_content<S1: Into<String>, S2: Into<String>>(
+        name: S1,
+        severity: Severity,
+        content: S2,
+    ) -> Self {
         Self::new(name.into(), severity, None, Some(content.into()))
     }
 
-    pub fn with_path_and_content<S1: Into<String>, S2: Into<String>, S3: Into<String>>(name: S1, severity: Severity, path: S2, content: S3) -> Self {
-        Self::new(name.into(), severity, Some(path.into()), Some(content.into()))
+    pub fn with_path_and_content<S1: Into<String>, S2: Into<String>, S3: Into<String>>(
+        name: S1,
+        severity: Severity,
+        path: S2,
+        content: S3,
+    ) -> Self {
+        Self::new(
+            name.into(),
+            severity,
+            Some(path.into()),
+            Some(content.into()),
+        )
     }
 }
 

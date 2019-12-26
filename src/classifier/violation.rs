@@ -1,8 +1,8 @@
-use crate::{Rule, Severity};
-use std::error::Error as StdError;
+use crate::classifier::content_classifier::*;
 use crate::errors::Error;
 use crate::PatternRule;
-use crate::classifier::content_classifier::*;
+use crate::{Rule, Severity};
+use std::error::Error as StdError;
 
 #[derive(Debug, Clone)]
 pub struct Violation {
@@ -30,7 +30,10 @@ impl Violation {
         }
     }
 
-    pub fn with_rule_and_file_io_error(rule: Rule, error: &ContentClassificationError) -> Option<Self> {
+    pub fn with_rule_and_file_io_error(
+        rule: Rule,
+        error: &ContentClassificationError,
+    ) -> Option<Self> {
         if error.kind() == ContentClassificationErrorKind::NotExists {
             return None;
         }

@@ -1,5 +1,5 @@
 use super::Violation;
-use std::fmt::{Formatter, Error, Debug};
+use std::fmt::{Debug, Error, Formatter};
 
 pub enum Classification {
     Empty,
@@ -11,12 +11,16 @@ pub enum Classification {
 
 impl Debug for Classification {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}", match self {
-            Classification::NotApplicable => "NotApplicable",
-            Classification::Empty => "Empty",
-            Classification::NoMatch => "NoMatch",
-            Classification::Match(_) => "Match",
-            Classification::Error(_) => "Error",
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                Classification::NotApplicable => "NotApplicable",
+                Classification::Empty => "Empty",
+                Classification::NoMatch => "NoMatch",
+                Classification::Match(_) => "Match",
+                Classification::Error(_) => "Error",
+            }
+        )
     }
 }

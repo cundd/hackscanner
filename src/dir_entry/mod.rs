@@ -1,9 +1,9 @@
-use std::fs;
-use std::path::Path;
-use std::ffi::OsStr;
-use std::io;
-use std::fmt::Debug;
 use crate::fs::FileTypeTrait;
+use std::ffi::OsStr;
+use std::fmt::Debug;
+use std::fs;
+use std::io;
+use std::path::Path;
 
 pub trait DirEntryTrait: Debug {
     /// The full path that this entry represents.
@@ -33,9 +33,9 @@ pub trait DirEntryTrait: Debug {
     fn file_name(&self) -> &OsStr;
 }
 
-pub mod walkdir_impl;
 pub mod standalone;
 pub mod validation_dir_entry;
+pub mod walkdir_impl;
 
 pub type WalkdirDirEntry = walkdir_impl::DirEntry;
 pub type StandaloneDirEntry = standalone::DirEntry;

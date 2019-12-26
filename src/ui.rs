@@ -1,6 +1,6 @@
 use ansi_term::Colour;
-use term;
 use hackscanner_lib::*;
+use term;
 
 pub fn print_summary(min_severity: Severity, summary: &Summary) {
     println!("[SUMMARY]");
@@ -121,7 +121,10 @@ fn print_validation_simple(rating: &Rating<'_>, verbose: bool) {
 }
 
 fn colored_description_for_severity(severity: Severity) -> String {
-    format!("{}", color_for_severity(severity).paint(description_for_severity(severity, true)))
+    format!(
+        "{}",
+        color_for_severity(severity).paint(description_for_severity(severity, true))
+    )
 }
 
 fn color_for_severity(severity: Severity) -> Colour {
@@ -136,49 +139,107 @@ fn color_for_severity(severity: Severity) -> Colour {
 
 fn description_for_severity(severity: Severity, brackets: bool) -> String {
     if brackets {
-        format!("{:width$}", format!("[{}]", severity.description()), width = 10)
+        format!(
+            "{:width$}",
+            format!("[{}]", severity.description()),
+            width = 10
+        )
     } else {
-        format!("{:width$}", format!("{}:", severity.description()), width = 10)
+        format!(
+            "{:width$}",
+            format!("{}:", severity.description()),
+            width = 10
+        )
     }
 }
 
 fn print_summary_colored(summary: &Summary) {
     if summary.critical() > 0 {
-        println!("{}", color_for_severity(Severity::CRITICAL)
-            .paint(format!("{} {}", description_for_severity(Severity::CRITICAL, false), summary.critical())));
+        println!(
+            "{}",
+            color_for_severity(Severity::CRITICAL).paint(format!(
+                "{} {}",
+                description_for_severity(Severity::CRITICAL, false),
+                summary.critical()
+            ))
+        );
     }
     if summary.major() > 0 {
-        println!("{}", color_for_severity(Severity::MAJOR)
-            .paint(format!("{} {}", description_for_severity(Severity::MAJOR, false), summary.major())));
+        println!(
+            "{}",
+            color_for_severity(Severity::MAJOR).paint(format!(
+                "{} {}",
+                description_for_severity(Severity::MAJOR, false),
+                summary.major()
+            ))
+        );
     }
     if summary.minor() > 0 {
-        println!("{}", color_for_severity(Severity::MINOR)
-            .paint(format!("{} {}", description_for_severity(Severity::MINOR, false), summary.minor())));
+        println!(
+            "{}",
+            color_for_severity(Severity::MINOR).paint(format!(
+                "{} {}",
+                description_for_severity(Severity::MINOR, false),
+                summary.minor()
+            ))
+        );
     }
     if summary.notice() > 0 {
-        println!("{}", color_for_severity(Severity::NOTICE)
-            .paint(format!("{} {}", description_for_severity(Severity::NOTICE, false), summary.notice())));
+        println!(
+            "{}",
+            color_for_severity(Severity::NOTICE).paint(format!(
+                "{} {}",
+                description_for_severity(Severity::NOTICE, false),
+                summary.notice()
+            ))
+        );
     }
     if summary.clean() > 0 {
-        println!("{}", color_for_severity(Severity::NONE)
-            .paint(format!("{} {}", description_for_severity(Severity::NONE, false), summary.clean())));
+        println!(
+            "{}",
+            color_for_severity(Severity::NONE).paint(format!(
+                "{} {}",
+                description_for_severity(Severity::NONE, false),
+                summary.clean()
+            ))
+        );
     }
 }
 
 fn print_summary_simple(summary: &Summary) {
     if summary.critical() > 0 {
-        println!("{} {}", description_for_severity(Severity::CRITICAL, false), summary.critical());
+        println!(
+            "{} {}",
+            description_for_severity(Severity::CRITICAL, false),
+            summary.critical()
+        );
     }
     if summary.major() > 0 {
-        println!("{} {}", description_for_severity(Severity::MAJOR, false), summary.major());
+        println!(
+            "{} {}",
+            description_for_severity(Severity::MAJOR, false),
+            summary.major()
+        );
     }
     if summary.minor() > 0 {
-        println!("{} {}", description_for_severity(Severity::MINOR, false), summary.minor());
+        println!(
+            "{} {}",
+            description_for_severity(Severity::MINOR, false),
+            summary.minor()
+        );
     }
     if summary.notice() > 0 {
-        println!("{} {}", description_for_severity(Severity::NOTICE, false), summary.notice());
+        println!(
+            "{} {}",
+            description_for_severity(Severity::NOTICE, false),
+            summary.notice()
+        );
     }
     if summary.clean() > 0 {
-        println!("{} {}", description_for_severity(Severity::NONE, false), summary.clean());
+        println!(
+            "{} {}",
+            description_for_severity(Severity::NONE, false),
+            summary.clean()
+        );
     }
 }

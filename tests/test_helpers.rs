@@ -1,25 +1,31 @@
 #![allow(unused)]
 extern crate hackscanner_lib;
 
-use std::thread;
-use hackscanner_lib::*;
 use hackscanner_lib::file_finder::FileFinderTrait;
+use hackscanner_lib::*;
 use std::path::Path;
+use std::thread;
 
 pub fn get_test_dir() -> String {
     format!("{}/tests", env!("CARGO_MANIFEST_DIR"))
 }
 
 pub fn get_rules_multiple_results() -> Vec<Rule> {
-    vec![
-        Rule::new_raw("1", Severity::NOTICE, Some("tx_mocfilemanager".to_owned()), None)
-    ]
+    vec![Rule::new_raw(
+        "1",
+        Severity::NOTICE,
+        Some("tx_mocfilemanager".to_owned()),
+        None,
+    )]
 }
 
 pub fn get_rules_single_result() -> Vec<Rule> {
-    vec![
-        Rule::new_raw("2", Severity::NOTICE, Some("\\.tx_mocfilemanager".to_owned()), None)
-    ]
+    vec![Rule::new_raw(
+        "2",
+        Severity::NOTICE,
+        Some("\\.tx_mocfilemanager".to_owned()),
+        None,
+    )]
 }
 
 pub fn assert_multiple_paths<D: DirEntryTrait>(matches: Vec<D>) {
@@ -60,26 +66,34 @@ pub fn assert_single_path<D: DirEntryTrait>(matches: Vec<D>) {
             "/tests/resources/files/something.tx_mocfilemanager.php"
         ),
     ));
-    assert_eq!(false, contains_path(
-        &matches,
-        format!(
-            "{}{}",
-            env!("CARGO_MANIFEST_DIR"),
-            "/tests/resources/files/tx_mocfilemanager.php"
-        ),
-    ));
-    assert_eq!(false, contains_path(
-        &matches,
-        format!(
-            "{}{}",
-            env!("CARGO_MANIFEST_DIR"),
-            "/tests/resources/files/tx_mocfilemanager-test.sh"
-        ),
-    ));
+    assert_eq!(
+        false,
+        contains_path(
+            &matches,
+            format!(
+                "{}{}",
+                env!("CARGO_MANIFEST_DIR"),
+                "/tests/resources/files/tx_mocfilemanager.php"
+            ),
+        )
+    );
+    assert_eq!(
+        false,
+        contains_path(
+            &matches,
+            format!(
+                "{}{}",
+                env!("CARGO_MANIFEST_DIR"),
+                "/tests/resources/files/tx_mocfilemanager-test.sh"
+            ),
+        )
+    );
 }
 
 pub fn test_multi_threading<D, F>(file_finder: F)
-    where D: DirEntryTrait, F: FileFinderTrait<DirEntry=D> + 'static + ::std::marker::Send + Clone
+where
+    D: DirEntryTrait,
+    F: FileFinderTrait<DirEntry = D> + 'static + ::std::marker::Send + Clone,
 {
     let mut threads = vec![];
     for _ in 0..4 {
@@ -99,7 +113,8 @@ pub fn test_multi_threading<D, F>(file_finder: F)
 }
 
 pub fn contains_path<E: DirEntryTrait>(paths: &Vec<E>, test_path: String) -> bool {
-    paths.into_iter()
+    paths
+        .into_iter()
         .find(|entry| {
             let path_as_string = entry.path().to_string_lossy().into_owned();
 
@@ -109,12 +124,11 @@ pub fn contains_path<E: DirEntryTrait>(paths: &Vec<E>, test_path: String) -> boo
 }
 
 pub fn get_entry_for_path<E: DirEntryTrait>(paths: &Vec<E>, test_path: String) -> Option<&E> {
-    paths.into_iter()
-        .find(|entry| {
-            let path_as_string = entry.path().to_string_lossy().into_owned();
+    paths.into_iter().find(|entry| {
+        let path_as_string = entry.path().to_string_lossy().into_owned();
 
-            path_as_string == test_path
-        })
+        path_as_string == test_path
+    })
 }
 
 //pub fn contains_path_ref<E: DirEntryTrait + ::std::marker::Sized>(paths: &Vec<&E>, test_path: String) -> bool {

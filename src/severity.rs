@@ -1,7 +1,7 @@
+use crate::errors::Error;
 use std::fmt;
 use std::fmt::Display;
 use std::str::FromStr;
-use crate::errors::Error;
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Deserialize)]
 pub enum Severity {
@@ -50,7 +50,7 @@ impl FromStr for Severity {
             "EASE" => Ok(Severity::EASE),
             "NONE" => Ok(Severity::NONE),
             "WHITELIST" => Ok(Severity::WHITELIST),
-            _ => Err(s.into())
+            _ => Err(s.into()),
         }
     }
 }

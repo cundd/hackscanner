@@ -1,8 +1,7 @@
 mod standalone_file_type;
 
-use std::fs;
 pub use self::standalone_file_type::FileType as StandaloneFileType;
-
+use std::fs;
 
 pub trait FileTypeTrait {
     /// Test whether this file type represents a directory.

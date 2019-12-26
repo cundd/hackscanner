@@ -1,14 +1,14 @@
+use libc::stat;
 use std::ffi::CStr;
 use std::ffi::CString;
 use std::os::raw::c_char;
 use std::os::raw::c_int;
-use libc::stat;
 
+use std::cell::RefCell;
+use std::fmt::Debug;
 use std::path::Path;
 use std::path::PathBuf;
-use std::fmt::Debug;
 use std::vec::Vec;
-use std::cell::RefCell;
 
 use crate::fs::constants::*;
 
@@ -23,13 +23,17 @@ struct FTW {
 }
 
 #[allow(unused)]
-type FtwFn = extern fn(fpath: *const c_char, sb: *const stat, typeflag: c_int) -> c_int;
+type FtwFn = extern "C" fn(fpath: *const c_char, sb: *const stat, typeflag: c_int) -> c_int;
 
 #[allow(unused)]
-type NftwFn = extern fn(fpath: *const c_char, sb: *const stat, typeflag: c_int, ftwbuf: *const FTW) -> c_int;
+type NftwFn = extern "C" fn(
+    fpath: *const c_char,
+    sb: *const stat,
+    typeflag: c_int,
+    ftwbuf: *const FTW,
+) -> c_int;
 
-
-extern {
+extern "C" {
     /// Wrapper for [`nftw`](https://linux.die.net/man/3/nftw)
     /// int nftw(
     ///          const char *dirpath,
@@ -56,11 +60,7 @@ thread_local! {
 
 /// Callback for [`ftw`](https://linux.die.net/man/3/ftw)
 #[allow(unused)]
-extern fn ftw_collector(
-    fpath: *const c_char,
-    _sb: *const stat,
-    typeflag: c_int,
-) -> c_int {
+extern "C" fn ftw_collector(fpath: *const c_char, _sb: *const stat, typeflag: c_int) -> c_int {
     unsafe {
         let path_string = CStr::from_ptr(fpath);
 
@@ -69,16 +69,14 @@ extern fn ftw_collector(
             StandaloneFileType::from_ftw(typeflag),
         );
 
-        FOUND_PATHS.with(|p| {
-            p.borrow_mut().push(dir_entry)
-        });
+        FOUND_PATHS.with(|p| p.borrow_mut().push(dir_entry));
     }
 
     0
 }
 
 /// Callback for [`nftw`](https://linux.die.net/man/3/nftw)
-extern fn nftw_collector(
+extern "C" fn nftw_collector(
     fpath: *const c_char,
     _sb: *const stat,
     typeflag: c_int,
@@ -93,9 +91,7 @@ extern fn nftw_collector(
                 StandaloneFileType::from_ftw(typeflag),
             );
 
-            FOUND_PATHS.with(|p| {
-                p.borrow_mut().push(dir_entry)
-            });
+            FOUND_PATHS.with(|p| p.borrow_mut().push(dir_entry));
         }
     }
 
@@ -115,18 +111,17 @@ impl FileFinder {
 impl FileFinderTrait for FileFinder {
     type DirEntry = StandaloneDirEntry;
     fn walk_dir<P: AsRef<Path> + Debug + Clone, F>(&self, root: P, filter: F) -> Vec<Self::DirEntry>
-        where F: FnMut(&Self::DirEntry) -> bool {
+    where
+        F: FnMut(&Self::DirEntry) -> bool,
+    {
         let entries = collect_dir_entries_nftw(&root.as_ref().to_string_lossy().into_owned());
 
         entries.into_iter().filter(filter).collect()
     }
 }
 
-
 fn clear_entries() {
-    FOUND_PATHS.with(|p| {
-        p.borrow_mut().clear()
-    });
+    FOUND_PATHS.with(|p| p.borrow_mut().clear());
 }
 
 #[allow(unused)]
@@ -136,48 +131,72 @@ fn collect_dir_entries_ftw(root: &str) -> Vec<StandaloneDirEntry> {
         ftw(CString::new(root).unwrap().as_ptr(), ftw_collector, 20);
     }
 
-    FOUND_PATHS.with(|p| {
-        (*p.borrow()).clone()
-    })
+    FOUND_PATHS.with(|p| (*p.borrow()).clone())
 }
 
 fn collect_dir_entries_nftw(root: &str) -> Vec<StandaloneDirEntry> {
     clear_entries();
     unsafe {
-        nftw(CString::new(root).unwrap().as_ptr(), nftw_collector, 20, FTW_PHYS);
+        nftw(
+            CString::new(root).unwrap().as_ptr(),
+            nftw_collector,
+            20,
+            FTW_PHYS,
+        );
     }
 
-    FOUND_PATHS.with(|p| {
-        (*p.borrow()).clone()
-    })
+    FOUND_PATHS.with(|p| (*p.borrow()).clone())
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
 
-
     #[test]
     fn collect_dir_entries_ftw_test() {
         let r = collect_dir_entries_ftw(&format!("{}/tests", env!("CARGO_MANIFEST_DIR")));
-        assert!(25 < r.len(), "Expected result length to be bigger than 25, got {}", r.len());
+        assert!(
+            25 < r.len(),
+            "Expected result length to be bigger than 25, got {}",
+            r.len()
+        );
     }
 
     #[test]
     fn collect_dir_entries_nftw_test() {
         let r = collect_dir_entries_nftw(&format!("{}/tests", env!("CARGO_MANIFEST_DIR")));
-        assert!(25 < r.len(), "Expected result length to be bigger than 25, got {}", r.len());
+        assert!(
+            25 < r.len(),
+            "Expected result length to be bigger than 25, got {}",
+            r.len()
+        );
     }
 
     #[test]
     fn walk_dir_test() {
-        let r = FileFinder::walk_dir(&FileFinder::new(), &format!("{}/tests", env!("CARGO_MANIFEST_DIR")), |_| true);
-        assert!(25 < r.len(), "Expected result length to be bigger than 25, got {}", r.len());
+        let r = FileFinder::walk_dir(
+            &FileFinder::new(),
+            &format!("{}/tests", env!("CARGO_MANIFEST_DIR")),
+            |_| true,
+        );
+        assert!(
+            25 < r.len(),
+            "Expected result length to be bigger than 25, got {}",
+            r.len()
+        );
     }
 
     #[test]
     fn find_test() {
-        let r = FileFinder::walk_dir(&FileFinder::new(), &format!("{}/tests", env!("CARGO_MANIFEST_DIR")), |_| true);
-        assert!(25 < r.len(), "Expected result length to be bigger than 25, got {}", r.len());
+        let r = FileFinder::walk_dir(
+            &FileFinder::new(),
+            &format!("{}/tests", env!("CARGO_MANIFEST_DIR")),
+            |_| true,
+        );
+        assert!(
+            25 < r.len(),
+            "Expected result length to be bigger than 25, got {}",
+            r.len()
+        );
     }
 }

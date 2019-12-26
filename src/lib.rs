@@ -10,21 +10,21 @@ extern crate serde_derive;
 #[macro_use]
 extern crate log;
 
-pub mod errors;
-mod fs;
-mod dir_entry;
-mod rule;
-mod matcher;
-mod severity;
-mod join;
-pub mod rating;
-pub mod file_finder;
 pub mod classifier;
+mod dir_entry;
+pub mod errors;
+pub mod file_finder;
+mod fs;
+mod join;
+mod matcher;
+pub mod rating;
+mod rule;
+mod severity;
 
-pub use crate::errors::*;
 pub use crate::dir_entry::*;
-pub use crate::rule::*;
-pub use crate::rating::*;
+pub use crate::errors::*;
 pub use crate::file_finder::find_files;
-pub use crate::severity::Severity;
 pub use crate::join::join_violations;
+pub use crate::rating::*;
+pub use crate::rule::*;
+pub use crate::severity::Severity;

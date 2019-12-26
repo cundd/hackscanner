@@ -3,12 +3,15 @@ extern crate core;
 use std::ffi::CStr;
 use std::ffi::CString;
 
-use errors::*;
+use self::bindings::*;
 use super::FileFinderTrait;
-use fs::StandaloneFileType;
-use dir_entry::StandaloneDirEntry;
-use std::path::Path;
+use crate::dir_entry::standalone::StandaloneDirEntry;
+use crate::errors::*;
+use crate::fs::StandaloneFileType;
+use crate::StandaloneDirEntry;
 use std::fmt::Debug;
+use std::path::Path;
+use std::path::PathBuf;
 
 /// Bindings generation
 ///
@@ -29,18 +32,11 @@ use std::fmt::Debug;
 ///
 mod bindings;
 
-use self::bindings::*;
-
-//#[cfg(target_os = "macos")]
-//mod bindings_macos;
-
-//#[cfg(target_os = "macos")]
-//use self::bindings_macos::*;
-use std::path::PathBuf;
-
 #[allow(unused)]
-extern "C" fn compare(arg1: *const *const FTSENT, arg2: *const *const FTSENT)
-                      -> ::std::os::raw::c_int {
+extern "C" fn compare(
+    arg1: *const *const FTSENT,
+    arg2: *const *const FTSENT,
+) -> ::std::os::raw::c_int {
     1
 }
 
@@ -50,12 +46,18 @@ fn collect_dir_entries(root: &str) -> Result<Vec<StandaloneDirEntry>, Error> {
     unsafe {
         let root_c = match CString::new(root) {
             Ok(root_c) => root_c,
-            Err(e) => bail!(ErrorKind::BindingError(format!("{}",e)))
+            Err(e) => bail!(ErrorKind::BindingError(format!("{}", e))),
         };
 
-        let file_system = fts_open(&(root_c.as_bytes_with_nul().as_ptr() as *const i8), (FTS_COMFOLLOW | FTS_NOCHDIR) as i32, None);
+        let file_system = fts_open(
+            &(root_c.as_bytes_with_nul().as_ptr() as *const i8),
+            (FTS_COMFOLLOW | FTS_NOCHDIR) as i32,
+            None,
+        );
         if file_system.is_null() {
-            bail!(ErrorKind::BindingError("Result of fts_open() is NULL".to_owned()));
+            bail!(ErrorKind::BindingError(
+                "Result of fts_open() is NULL".to_owned()
+            ));
         }
 
         let mut child;
@@ -72,7 +74,7 @@ fn collect_dir_entries(root: &str) -> Result<Vec<StandaloneDirEntry>, Error> {
                         break;
                     }
                     child = (*child).fts_link;
-                };
+                }
             }
             parent = fts_read(file_system);
         }
@@ -87,15 +89,10 @@ fn dir_entry_from_fts_entry(entry: &FTSENT) -> StandaloneDirEntry {
     let path = unsafe { CStr::from_ptr(entry.fts_path).to_str().unwrap() };
     let name = unsafe { CStr::from_ptr(entry.fts_name.as_ptr()).to_str().unwrap() };
 
-    let dir_entry = StandaloneDirEntry::from_path_with_file_type(
+    StandaloneDirEntry::from_path_with_file_type(
         PathBuf::from(format!("{}{}", path, name)),
         StandaloneFileType::File,
-    );
-
-    match dir_entry {
-        Ok(dir_entry) => dir_entry,
-        Err(_) => panic!("from_path_with_file_type() must return Ok"),
-    }
+    )
 }
 
 #[derive(Clone)]
@@ -110,7 +107,9 @@ impl FileFinder {
 impl FileFinderTrait for FileFinder {
     type DirEntry = StandaloneDirEntry;
     fn walk_dir<P: AsRef<Path> + Debug + Clone, F>(&self, root: P, filter: F) -> Vec<Self::DirEntry>
-        where F: FnMut(&Self::DirEntry) -> bool {
+        where
+            F: FnMut(&Self::DirEntry) -> bool,
+    {
         let entries = collect_dir_entries(&root.as_ref().to_string_lossy().into_owned());
 
         match entries {
@@ -128,25 +127,44 @@ impl FileFinderTrait for FileFinder {
 mod test {
     use super::*;
 
-
     #[test]
     fn collect_dir_entries_test() {
         let r = collect_dir_entries(&format!("{}/tests", env!("CARGO_MANIFEST_DIR")));
         assert!(r.is_ok());
 
         let v = r.unwrap();
-        assert!(25 < v.len(), "Expected result length to be bigger than 25, got {}", v.len());
+        assert!(
+            25 < v.len(),
+            "Expected result length to be bigger than 25, got {}",
+            v.len()
+        );
     }
 
     #[test]
     fn walk_dir_test() {
-        let r = FileFinder::walk_dir(&FileFinder::new(), &format!("{}/tests", env!("CARGO_MANIFEST_DIR")), |_| true);
-        assert!(25 < r.len(), "Expected result length to be bigger than 25, got {}", r.len());
+        let r = FileFinder::walk_dir(
+            &FileFinder::new(),
+            &format!("{}/tests", env!("CARGO_MANIFEST_DIR")),
+            |_| true,
+        );
+        assert!(
+            25 < r.len(),
+            "Expected result length to be bigger than 25, got {}",
+            r.len()
+        );
     }
 
     #[test]
     fn find_test() {
-        let r = FileFinder::walk_dir(&FileFinder::new(), &format!("{}/tests", env!("CARGO_MANIFEST_DIR")), |_| true);
-        assert!(25 < r.len(), "Expected result length to be bigger than 25, got {}", r.len());
+        let r = FileFinder::walk_dir(
+            &FileFinder::new(),
+            &format!("{}/tests", env!("CARGO_MANIFEST_DIR")),
+            |_| true,
+        );
+        assert!(
+            25 < r.len(),
+            "Expected result length to be bigger than 25, got {}",
+            r.len()
+        );
     }
 }

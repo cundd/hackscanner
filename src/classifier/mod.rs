@@ -1,28 +1,35 @@
-mod violation;
 mod classification;
 mod content_classifier;
 mod path_classifier;
+mod violation;
 
 use crate::dir_entry::*;
 use crate::rule::*;
 
-pub use self::violation::Violation;
-pub use self::content_classifier::ContentClassificationError;
 use self::classification::*;
+pub use self::content_classifier::ContentClassificationError;
 use self::content_classifier::ContentClassifier;
 use self::path_classifier::PathClassifier;
+pub use self::violation::Violation;
 
-pub fn classify_entries<'a, 'b, D: DirEntryTrait>(entries: &'a Vec<D>, rules: &'a Vec<PatternRule>) -> Vec<Vec<Violation>> {
+pub fn classify_entries<'a, 'b, D: DirEntryTrait>(
+    entries: &'a Vec<D>,
+    rules: &'a Vec<PatternRule>,
+) -> Vec<Vec<Violation>> {
     debug!("Will classify entries");
-    let result = entries.iter()
-        .map(|entry| { classify_entry(entry, rules) })
+    let result = entries
+        .iter()
+        .map(|entry| classify_entry(entry, rules))
         .collect();
     debug!("Did classify entries");
 
     result
 }
 
-pub fn classify_entry<'a, 'b, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<PatternRule>) -> Vec<Violation> {
+pub fn classify_entry<'a, 'b, D: DirEntryTrait>(
+    entry: &'a D,
+    rules: &'a Vec<PatternRule>,
+) -> Vec<Violation> {
     let mut path_classifier = path_classifier::PathClassifier::new(entry);
     let mut content_classifier = content_classifier::ContentClassifier::new(entry);
     rules.iter().filter_map(|rule|
@@ -35,7 +42,6 @@ pub fn classify_entry<'a, 'b, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<Pat
         }
     ).collect()
 }
-
 
 trait ClassifierTrait<D: DirEntryTrait> {
     fn new(entry: &D) -> Self;
@@ -60,15 +66,21 @@ fn classify_entry_with_rule<D: DirEntryTrait>(
                 /* Path does not match. No need to check the content */
                 return Classification::NoMatch;
             }
-            Classification::Error(_) => panic!("Classification::Error is not implemented for `PathClassifier`"),
+            Classification::Error(_) => {
+                panic!("Classification::Error is not implemented for `PathClassifier`")
+            }
             _ => unreachable!("{:?} not possible", path_classification),
         }
 
         let content_classification = ClassifierTrait::classify(content_classifier, entry, rule);
         return match content_classification {
-            Classification::NotApplicable => unreachable!("Classification::NotApplicable not possible"),
+            Classification::NotApplicable => {
+                unreachable!("Classification::NotApplicable not possible")
+            }
             Classification::Empty => panic_empty(),
-            Classification::NoMatch | Classification::Match(_) | Classification::Error(_) => content_classification,
+            Classification::NoMatch | Classification::Match(_) | Classification::Error(_) => {
+                content_classification
+            }
         };
     }
 
@@ -77,7 +89,9 @@ fn classify_entry_with_rule<D: DirEntryTrait>(
         return match path_classification {
             Classification::NoMatch => path_classification,
             Classification::Match(_) => path_classification,
-            Classification::Error(_) => panic!("Classification::Error is not implemented for `PathClassifier`"),
+            Classification::Error(_) => {
+                panic!("Classification::Error is not implemented for `PathClassifier`")
+            }
             _ => unreachable!("{:?} not possible", path_classification),
         };
     }
@@ -85,9 +99,13 @@ fn classify_entry_with_rule<D: DirEntryTrait>(
     if rule.has_content() {
         let content_classification = ClassifierTrait::classify(content_classifier, entry, rule);
         return match content_classification {
-            Classification::NotApplicable => unreachable!("{:?} not possible", content_classification),
+            Classification::NotApplicable => {
+                unreachable!("{:?} not possible", content_classification)
+            }
             Classification::Empty => panic_empty(),
-            Classification::NoMatch | Classification::Match(_) | Classification::Error(_) => content_classification,
+            Classification::NoMatch | Classification::Match(_) | Classification::Error(_) => {
+                content_classification
+            }
         };
     }
 
@@ -101,34 +119,55 @@ fn panic_empty() -> ! {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::fs::StandaloneFileType;
     use crate::severity::Severity;
     use std::convert::TryInto;
-    use crate::fs::StandaloneFileType;
 
     fn test_classify_entry<D: DirEntryTrait>(entry: &D, rule: &Rule) -> Classification {
         let mut path_classifier = path_classifier::PathClassifier::new(entry);
         let mut content_classifier = content_classifier::ContentClassifier::new(entry);
 
-        classify_entry_with_rule(&mut path_classifier, &mut content_classifier, entry, &rule.try_into().unwrap())
+        classify_entry_with_rule(
+            &mut path_classifier,
+            &mut content_classifier,
+            entry,
+            &rule.try_into().unwrap(),
+        )
     }
 
     #[test]
     fn classify_entry_non_existing_file() {
-        let entry = StandaloneDirEntry::from_path_with_file_type("not-existing-file.php", StandaloneFileType::File);
-        let rule = Rule::new_raw("Any PHP", Severity::MAJOR, None, Some("does not matter".to_string()));
+        let entry = StandaloneDirEntry::from_path_with_file_type(
+            "not-existing-file.php",
+            StandaloneFileType::File,
+        );
+        let rule = Rule::new_raw(
+            "Any PHP",
+            Severity::MAJOR,
+            None,
+            Some("does not matter".to_string()),
+        );
         match test_classify_entry(&entry, &rule) {
             Classification::NoMatch => {}
-            _ => panic!("Classification must be Classification::NoMatch")
+            _ => panic!("Classification must be Classification::NoMatch"),
         }
     }
 
     #[test]
     fn classify_entry_non_existing_whitelisted_file() {
-        let entry = StandaloneDirEntry::from_path_with_file_type("not-existing-file.php", StandaloneFileType::File);
-        let rule = Rule::new_raw("Any PHP", Severity::MAJOR, None, Some("does not matter".to_string()));
+        let entry = StandaloneDirEntry::from_path_with_file_type(
+            "not-existing-file.php",
+            StandaloneFileType::File,
+        );
+        let rule = Rule::new_raw(
+            "Any PHP",
+            Severity::MAJOR,
+            None,
+            Some("does not matter".to_string()),
+        );
         match test_classify_entry(&entry, &rule) {
             Classification::NoMatch => {}
-            _ => panic!("Classification must be Classification::NoMatch")
+            _ => panic!("Classification must be Classification::NoMatch"),
         }
     }
 }

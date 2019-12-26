@@ -10,19 +10,19 @@
 //! If only `path` is defined, a matching file path violates the [`Rule`].
 //!
 //! If only `content` is defined, a matching file content violates the [`Rule`].
-mod rule_path;
-mod raw_rule;
-mod pattern_rule;
 mod builtin;
+mod pattern_rule;
+mod raw_rule;
 mod reader;
+mod rule_path;
 
-use std::path::Path;
+use self::builtin::get_builtin_rules;
+pub use self::pattern_rule::PatternRule;
+pub use self::raw_rule::RawRule;
 use crate::errors::*;
 use crate::severity::Severity;
-pub use self::raw_rule::RawRule;
-pub use self::pattern_rule::PatternRule;
-use self::builtin::get_builtin_rules;
 use rule_path::RulePath;
+use std::path::Path;
 
 /// Generic trait for Rule functions
 pub trait RuleTrait<T> {
@@ -85,25 +85,40 @@ impl Rule {
     }
 
     /// Build new raw rules
-    pub fn new_raw(name: &str, score: Severity, path: Option<String>, content: Option<String>) -> Self {
-        Rule::RawRule(RawRule::new(
-            name.to_owned(),
-            score,
-            path,
-            content,
-        ))
+    pub fn new_raw<S: Into<String>>(
+        name: S,
+        score: Severity,
+        path: Option<String>,
+        content: Option<String>,
+    ) -> Self {
+        Rule::RawRule(RawRule::new(name.into(), score, path, content))
     }
 
-    pub fn raw_with_path<S1: Into<String>, S2: Into<String>>(name: S1, severity: Severity, path: S2) -> Self {
+    pub fn raw_with_path<S1: Into<String>, S2: Into<String>>(
+        name: S1,
+        severity: Severity,
+        path: S2,
+    ) -> Self {
         Rule::RawRule(RawRule::with_path(name, severity, path))
     }
 
-    pub fn raw_with_content<S1: Into<String>, S2: Into<String>>(name: S1, severity: Severity, content: S2) -> Self {
+    pub fn raw_with_content<S1: Into<String>, S2: Into<String>>(
+        name: S1,
+        severity: Severity,
+        content: S2,
+    ) -> Self {
         Rule::RawRule(RawRule::with_content(name, severity, content))
     }
 
-    pub fn raw_with_path_and_content<S1: Into<String>, S2: Into<String>, S3: Into<String>>(name: S1, severity: Severity, path: S2, content: S3) -> Self {
-        Rule::RawRule(RawRule::with_path_and_content(name, severity, path, content))
+    pub fn raw_with_path_and_content<S1: Into<String>, S2: Into<String>, S3: Into<String>>(
+        name: S1,
+        severity: Severity,
+        path: S2,
+        content: S3,
+    ) -> Self {
+        Rule::RawRule(RawRule::with_path_and_content(
+            name, severity, path, content,
+        ))
     }
 }
 
@@ -133,7 +148,7 @@ pub fn get_merged_rules(path: Option<&Path>) -> Result<Vec<Rule>, Error> {
 
             Ok(collection)
         }
-        None => Ok(get_builtin_rules())
+        None => Ok(get_builtin_rules()),
     }
 }
 

@@ -1,7 +1,7 @@
-use libc::c_int;
-use super::FileTypeTrait;
-use std::fs;
 use super::super::constants::*;
+use super::FileTypeTrait;
+use libc::c_int;
+use std::fs;
 
 #[derive(Debug, Clone)]
 pub enum FileType {
@@ -21,7 +21,7 @@ impl FileType {
             FTW_SL => FileType::Symlink,
             FTW_SLN => FileType::Symlink,
             FTW_NS => FileType::Unknown,
-            _ => FileType::Unknown
+            _ => FileType::Unknown,
         }
     }
 

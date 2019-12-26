@@ -6,21 +6,21 @@ extern crate error_chain;
 #[macro_use]
 extern crate log;
 
-use simplelog;
 use clap::App;
 use clap::Arg;
 use clap::ArgMatches;
 use hackscanner_lib::*;
+use simplelog;
+use simplelog::TerminalMode;
 use std::env;
 use std::path::Path;
-use simplelog::TerminalMode;
 
 mod ui;
 
 fn main() {
     if let Err(ref e) = run() {
-        use std::io::Write;
-        use error_chain::ChainedError; // trait which holds `display_chain`
+        use error_chain::ChainedError;
+        use std::io::Write; // trait which holds `display_chain`
         let stderr = &mut ::std::io::stderr();
         let errmsg = "Error writing to stderr";
 
@@ -60,11 +60,12 @@ fn run() -> Result<(), Error> {
         ;
 
     #[cfg(any(feature = "json", feature = "yaml"))]
-        let app = app.arg(Arg::with_name("configuration")
-        .help("File with additional rules")
-        .short("c")
-        .long("configuration")
-        .takes_value(true)
+    let app = app.arg(
+        Arg::with_name("configuration")
+            .help("File with additional rules")
+            .short("c")
+            .long("configuration")
+            .takes_value(true),
     );
 
     let matches = app.get_matches();
@@ -72,9 +73,9 @@ fn run() -> Result<(), Error> {
     configure_logging(&matches).unwrap();
 
     #[cfg(not(any(feature = "json", feature = "yaml")))]
-        let rules = &get_merged_rules(None)?;
+    let rules = &get_merged_rules(None)?;
     #[cfg(any(feature = "json", feature = "yaml"))]
-        let rules = &get_merged_rules(match matches.value_of("configuration") {
+    let rules = &get_merged_rules(match matches.value_of("configuration") {
         Some(c) => {
             info!("Load custom rules from '{}'", c);
             Some(Path::new(c))
@@ -90,11 +91,17 @@ fn run() -> Result<(), Error> {
     }
 }
 
-fn scan(matches: &ArgMatches, rules: &Vec<Rule>, pattern_rules: Vec<PatternRule>) -> Result<(), Error> {
+fn scan(
+    matches: &ArgMatches,
+    rules: &Vec<Rule>,
+    pattern_rules: Vec<PatternRule>,
+) -> Result<(), Error> {
     let min_severity = get_minimum_severity(&matches);
     let root = get_root(&matches);
     let quiet = matches.is_present("quiet");
+
     let files = file_finder::find_files(root, rules);
+
     let ratings = sort_ratings(&rating::rate_entries(&files, &pattern_rules));
     let summary = Summary::build(&ratings);
     if !quiet || 0 < summary.ratings_above(min_severity) {
@@ -105,7 +112,11 @@ fn scan(matches: &ArgMatches, rules: &Vec<Rule>, pattern_rules: Vec<PatternRule>
     Ok(())
 }
 
-fn validate(matches: &ArgMatches, pattern_rules: Vec<PatternRule>, test_path: &str) -> Result<(), Error> {
+fn validate(
+    matches: &ArgMatches,
+    pattern_rules: Vec<PatternRule>,
+    test_path: &str,
+) -> Result<(), Error> {
     let entry = ValidationDirEntry::from_path_str(test_path);
     let rating = rate_entry(&entry, &pattern_rules);
     ui::print_validation(&rating, matches.occurrences_of("v") > 0);
@@ -131,10 +142,9 @@ fn get_minimum_severity(matches: &ArgMatches<'_>) -> Severity {
         "MAJOR" => Severity::MAJOR,
         "MINOR" => Severity::MINOR,
         "NOTICE" => Severity::NOTICE,
-        _ => Severity::WHITELIST
+        _ => Severity::WHITELIST,
     }
 }
-
 
 fn configure_logging(matches: &ArgMatches<'_>) -> Result<(), Error> {
     let log_level_filter = match matches.occurrences_of("v") {
@@ -148,7 +158,9 @@ fn configure_logging(matches: &ArgMatches<'_>) -> Result<(), Error> {
     let mut config = simplelog::Config::default();
     config.time_format = Some("%H:%M:%S%.3f");
 
-    if let Some(core_logger) = simplelog::TermLogger::new(log_level_filter, config, TerminalMode::Mixed) {
+    if let Some(core_logger) =
+        simplelog::TermLogger::new(log_level_filter, config, TerminalMode::Mixed)
+    {
         loggers.push(core_logger);
     } else {
         loggers.push(simplelog::SimpleLogger::new(log_level_filter, config));
@@ -156,6 +168,6 @@ fn configure_logging(matches: &ArgMatches<'_>) -> Result<(), Error> {
 
     match simplelog::CombinedLogger::init(loggers) {
         Ok(_) => Ok(()),
-        Err(e) => bail!(format!("{}",e)),
+        Err(e) => bail!(format!("{}", e)),
     }
 }

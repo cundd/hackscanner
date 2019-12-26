@@ -1,10 +1,10 @@
+use super::DirEntryTrait;
+use crate::fs::FileTypeTrait;
+use std::ffi::OsStr;
 use std::fs;
 use std::io;
 use std::path::Path;
-use std::ffi::OsStr;
 use walkdir;
-use crate::fs::FileTypeTrait;
-use super::DirEntryTrait;
 
 #[derive(Debug, Clone)]
 pub struct DirEntry {
@@ -47,12 +47,12 @@ impl DirEntryTrait for DirEntry {
     fn metadata(&self) -> io::Result<fs::Metadata> {
         let walkdir_error = match self.raw.metadata() {
             Ok(m) => return Ok(m),
-            Err(e) => e
+            Err(e) => e,
         };
 
         match walkdir_error.into_io_error() {
             Some(e) => Err(e),
-            None => Err(io::Error::new(io::ErrorKind::Other, "Loop error"))
+            None => Err(io::Error::new(io::ErrorKind::Other, "Loop error")),
         }
     }
 
