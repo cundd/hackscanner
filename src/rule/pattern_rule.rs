@@ -1,10 +1,13 @@
-use std::convert::TryFrom;
-use regex::Regex;
+use self::regex_cache::RegexCache;
+use super::raw_rule::RawRule;
+use super::RuleTrait;
 use crate::errors::*;
 use crate::severity::Severity;
-use super::RuleTrait;
-use super::raw_rule::RawRule;
 use crate::Rule;
+use regex::Regex;
+use std::convert::TryFrom;
+
+mod regex_cache;
 
 /// Rule with compiled regular expression members
 #[derive(Debug, Clone)]
@@ -17,7 +20,8 @@ pub struct PatternRule {
 impl PatternRule {
     pub fn from_rules_filtered(rules: &Vec<Rule>) -> Vec<PatternRule> {
         trace!("Will transform rules to PatternRules");
-        let result = Self::from_rules(rules).into_iter()
+        let result = Self::from_rules(rules)
+            .into_iter()
             .filter_map(|result| result.ok())
             .collect();
         trace!("Did transform rules to PatternRules");
@@ -26,7 +30,10 @@ impl PatternRule {
     }
 
     pub fn from_rules(rules: &Vec<Rule>) -> Vec<Result<PatternRule>> {
-        rules.into_iter().map(|rule| PatternRule::try_from(rule)).collect()
+        rules
+            .into_iter()
+            .map(|rule| PatternRule::try_from(rule))
+            .collect()
     }
 
     fn from_rule(rule: &Rule) -> Result<PatternRule> {
@@ -39,11 +46,11 @@ impl PatternRule {
     fn from_raw_rule(rule: &RawRule) -> Result<PatternRule> {
         let path = match rule.path() {
             None => None,
-            Some(pattern) => Some(Self::build_regex(&pattern)?)
+            Some(pattern) => Some(Self::build_regex(&pattern)?),
         };
         let content = match rule.content() {
             None => None,
-            Some(pattern) => Some(Self::build_regex(&pattern)?)
+            Some(pattern) => Some(Self::build_regex(&pattern)?),
         };
 
         Ok(PatternRule {
@@ -54,9 +61,7 @@ impl PatternRule {
     }
 
     fn build_regex(pattern: &str) -> Result<Regex> {
-        let regex = Regex::new(&format!("(?i){}", pattern))?;
-
-        Ok(regex)
+        RegexCache::build(pattern)
     }
 }
 
@@ -100,35 +105,35 @@ mod test {
 
     #[test]
     fn from_rule_test() {
-        let pattern_rule = PatternRule::from_rule(&Rule::new_raw("1", Severity::NOTICE, None, None)).unwrap();
+        let pattern_rule =
+            PatternRule::from_rule(&Rule::new_raw("1", Severity::NOTICE, None, None)).unwrap();
         assert!(pattern_rule.path().is_none());
         assert!(pattern_rule.content().is_none());
         assert_eq!(pattern_rule.severity(), Severity::NOTICE);
 
-        let pattern_rule = PatternRule::from_rule(&Rule::new_raw("2", Severity::EASE, None, None)).unwrap();
+        let pattern_rule =
+            PatternRule::from_rule(&Rule::new_raw("2", Severity::EASE, None, None)).unwrap();
         assert!(pattern_rule.path().is_none());
         assert!(pattern_rule.content().is_none());
         assert_eq!(pattern_rule.severity(), Severity::EASE);
 
-        let pattern_rule = PatternRule::from_rule(
-            &Rule::new_raw(
-                "3",
-                Severity::EASE,
-                Some("^\\d{4}-\\d{2}-\\d{2}$".to_owned()),
-                None,
-            )
-        ).unwrap();
+        let pattern_rule = PatternRule::from_rule(&Rule::new_raw(
+            "3",
+            Severity::EASE,
+            Some("^\\d{4}-\\d{2}-\\d{2}$".to_owned()),
+            None,
+        ))
+        .unwrap();
         assert!(pattern_rule.path().is_some());
         assert!(pattern_rule.path().unwrap().is_match("2014-01-01"));
 
-        let pattern_rule = PatternRule::from_rule(
-            &Rule::new_raw(
-                "4",
-                Severity::EASE,
-                None,
-                Some("^\\d{4}-\\d{2}-\\d{2}$".to_owned()),
-            )
-        ).unwrap();
+        let pattern_rule = PatternRule::from_rule(&Rule::new_raw(
+            "4",
+            Severity::EASE,
+            None,
+            Some("^\\d{4}-\\d{2}-\\d{2}$".to_owned()),
+        ))
+        .unwrap();
         assert!(pattern_rule.content().is_some());
         assert!(pattern_rule.content().unwrap().is_match("2014-01-01"));
     }
