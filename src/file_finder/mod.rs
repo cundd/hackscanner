@@ -29,8 +29,10 @@ pub trait FileFinderTrait {
 
             let mut store_entry = false;
             for rule in &pattern_rules {
-                // Check if the `Rule` has a path that matches the current entry
-                if rule.has_path() && Matcher::match_entry_path(&rule, entry) {
+                // Check if a path-match is required for this `Rule`
+                if !rule.has_path() {
+                    store_entry = true;
+                } else if Matcher::match_entry_path(&rule, entry) { // Check if the `Rule`'s path matches the current entry
                     // If the `Rule`'s path matches and the `Rule` is a whitelist-rule exit the loop
                     // and ignore the entry
                     if rule.severity() == Severity::WHITELIST {
@@ -50,8 +52,8 @@ pub trait FileFinderTrait {
         root: P,
         filter: F,
     ) -> Vec<Self::DirEntry>
-    where
-        F: Fn(&Self::DirEntry) -> bool;
+        where
+            F: Fn(&Self::DirEntry) -> bool;
 }
 
 pub fn find_files<P: AsRef<Path> + Debug + Clone>(
