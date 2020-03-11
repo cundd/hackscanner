@@ -40,7 +40,7 @@ fn run() -> Result<(), Error> {
         .arg(Arg::with_name("v")
             .short("v")
             .multiple(true)
-            .help("Sets the level of verbosity (-v = Info, -vv = Debug, -vvv = Trace)"))
+            .help(get_verbosity_help()))
         .arg(Arg::with_name("min-severity")
             .short("m")
             .takes_value(true)
@@ -85,6 +85,18 @@ fn run() -> Result<(), Error> {
         Some(test_path) => validate(&matches, pattern_rules, test_path),
         None => scan(&matches, rules, pattern_rules),
     }
+}
+
+
+// Trace is only supported on debug-builds
+#[cfg(debug_assertions)]
+fn get_verbosity_help() -> &'static str {
+    "Sets the level of verbosity (-v = Info, -vv = Debug, -vvv = Trace)"
+}
+
+#[cfg(not(debug_assertions))]
+fn get_verbosity_help() -> &'static str {
+    "Sets the level of verbosity (-v = Info, -vv = Debug)"
 }
 
 fn scan(
