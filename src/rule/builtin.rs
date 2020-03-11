@@ -43,6 +43,18 @@ fn get_builtin_rules_php() -> Vec<Rule> {
             "\\bgzinflate\\(",
         ),
         Rule::raw_with_path_and_content(
+            "php::content::@gzinflate",
+            Severity::MINOR,
+            "\\.php",
+            "\\b@gzinflate\\(",
+        ),
+        Rule::raw_with_path_and_content(
+            "php::content::substr(MD5(strrev",
+            Severity::MINOR,
+            "\\.php",
+            "substr\\(MD5\\(strrev",
+        ),
+        Rule::raw_with_path_and_content(
             "php::content::system",
             Severity::NOTICE,
             "\\.php",
