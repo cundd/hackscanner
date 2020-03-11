@@ -23,7 +23,7 @@ pub fn rate_entries<'a, D: DirEntryTrait>(
 }
 
 pub fn rate_entry<'a, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<PatternRule>) -> Rating<'a> {
-    trace!("Will rate entry {:?}", entry);
+    info!("Will rate entry {:?}", entry);
     let violations: Vec<Violation> = classify_entry(entry, rules);
 
     let rating = violations.iter().fold(0, |acc, violation| {
@@ -36,7 +36,7 @@ pub fn rate_entry<'a, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<PatternRule
 
         acc + violation.severity() as isize
     });
-    trace!("Did rate entry {:?} (rating: {})", entry, rating);
+    debug!("Did rate entry {:?} (rating: {})", entry, rating);
     Rating::new(entry, rating, violations)
 }
 

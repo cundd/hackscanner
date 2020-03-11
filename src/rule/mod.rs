@@ -145,7 +145,7 @@ pub fn get_merged_rules(path: Option<&Path>) -> Result<Vec<Rule>, Error> {
         Some(p) => {
             let mut collection = reader::Reader::read_rules_from_file(p)?;
             info!("Read {} custom rule(s) from '{}'", collection.len(), p.display());
-            debug!("Custom rules: {:?}", collection);
+            trace!("Custom rules: {:?}", collection);
             collection.append(&mut get_builtin_rules());
 
             Ok(collection)
