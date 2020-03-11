@@ -12,7 +12,7 @@ impl Matcher {
 
         match rule.path() {
             Some(p) => {
-                trace!("Match rule {} against path {}", p, path_as_string);
+                trace!("Match rule '{}' with path '{}' against path '{}'", rule.name(), p, path_as_string);
                 p.is_match(&path_as_string)
             }
             None => false,
@@ -23,7 +23,10 @@ impl Matcher {
     #[inline]
     pub fn match_entry_content(rule: &PatternRule, content: &str) -> bool {
         match rule.content() {
-            Some(content_pattern) => content_pattern.is_match(content),
+            Some(content_pattern) => {
+                trace!("Match rule '{}' with pattern '{}'", rule.name(), content_pattern);
+                content_pattern.is_match(content)
+            }
             None => false,
         }
     }

@@ -3,7 +3,6 @@
 
 #[macro_use]
 extern crate error_chain;
-#[macro_use]
 extern crate log;
 
 use clap::App;
@@ -60,7 +59,7 @@ fn run() -> Result<(), Error> {
         ;
 
     #[cfg(any(feature = "json", feature = "yaml"))]
-    let app = app.arg(
+        let app = app.arg(
         Arg::with_name("configuration")
             .help("File with additional rules")
             .short("c")
@@ -73,13 +72,10 @@ fn run() -> Result<(), Error> {
     configure_logging(&matches).unwrap();
 
     #[cfg(not(any(feature = "json", feature = "yaml")))]
-    let rules = &get_merged_rules(None)?;
+        let rules = &get_merged_rules(None)?;
     #[cfg(any(feature = "json", feature = "yaml"))]
-    let rules = &get_merged_rules(match matches.value_of("configuration") {
-        Some(c) => {
-            info!("Load custom rules from '{}'", c);
-            Some(Path::new(c))
-        }
+        let rules = &get_merged_rules(match matches.value_of("configuration") {
+        Some(c) => Some(Path::new(c)),
         None => None,
     })?;
 
@@ -118,6 +114,10 @@ fn validate(
     test_path: &str,
 ) -> Result<(), Error> {
     let entry = ValidationDirEntry::from_path_str(test_path);
+    if !entry.path().exists() {
+        bail!(format!("File {} does not exist", entry.path().display()))
+    }
+
     let rating = rate_entry(&entry, &pattern_rules);
     ui::print_validation(&rating, matches.occurrences_of("v") > 0);
 
@@ -159,7 +159,7 @@ fn configure_logging(matches: &ArgMatches<'_>) -> Result<(), Error> {
     config.time_format = Some("%H:%M:%S%.3f");
 
     if let Some(core_logger) =
-        simplelog::TermLogger::new(log_level_filter, config, TerminalMode::Mixed)
+    simplelog::TermLogger::new(log_level_filter, config, TerminalMode::Mixed)
     {
         loggers.push(core_logger);
     } else {
