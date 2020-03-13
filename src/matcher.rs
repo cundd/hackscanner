@@ -15,7 +15,10 @@ impl Matcher {
                 trace!("Match rule '{}' with path '{}' against path '{}'", rule.name(), p, path_as_string);
                 p.is_match(&path_as_string)
             }
-            None => false,
+            None => {
+                info!("Rules without a path should be avoided for performance reason (will trigger a warning in next minor-release)");
+                false
+            }
         }
     }
 

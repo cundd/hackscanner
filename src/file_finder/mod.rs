@@ -15,6 +15,7 @@ pub trait FileFinderTrait {
     type DirEntry: DirEntryTrait;
 
     /// Return all [`DirEntry`s] that match at least one of the [`Rule`s] starting at `root`
+    #[allow(deprecated)]
     fn find<P: AsRef<Path> + Debug + Clone>(
         &self,
         root: P,

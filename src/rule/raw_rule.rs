@@ -34,6 +34,7 @@ impl RawRule {
         Self::new(name.into(), severity, Some(path.into()), None)
     }
 
+    #[deprecated(since = "0.3.3", note = "Rules without a path should be avoided for performance reason")]
     pub fn with_content<S1: Into<String>, S2: Into<String>>(
         name: S1,
         severity: Severity,

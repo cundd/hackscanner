@@ -48,6 +48,7 @@ trait ClassifierTrait<D: DirEntryTrait> {
     fn classify(&mut self, entry: &D, rule: &PatternRule) -> Classification;
 }
 
+#[allow(deprecated)]
 fn classify_entry_with_rule<D: DirEntryTrait>(
     path_classifier: &mut PathClassifier,
     content_classifier: &mut ContentClassifier,

@@ -44,6 +44,7 @@ pub trait RuleTrait<T> {
     }
 
     /// Return if the Rule has a path(-pattern)
+    #[deprecated(since = "0.3.3", note = "Rules without a path should be avoided for performance reason")]
     fn has_path(&self) -> bool {
         self.path().is_some()
     }
@@ -102,12 +103,14 @@ impl Rule {
         Rule::RawRule(RawRule::with_path(name, severity, path))
     }
 
+    #[deprecated(since = "0.3.3", note = "Rules without a path should be avoided for performance reason")]
     pub fn raw_with_content<S1: Into<String>, S2: Into<String>>(
         name: S1,
         severity: Severity,
         content: S2,
     ) -> Self {
-        Rule::RawRule(RawRule::with_content(name, severity, content))
+        #[allow(deprecated)]
+            Rule::RawRule(RawRule::with_content(name, severity, content))
     }
 
     pub fn raw_with_path_and_content<S1: Into<String>, S2: Into<String>, S3: Into<String>>(
