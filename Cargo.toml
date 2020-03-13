@@ -1,6 +1,6 @@
 [package]
 name = "hackscanner"
-version = "0.3.2"
+version = "0.3.3-dev"
 authors = ["Daniel Corn <info@cundd.net>"]
 edition = "2018"
 
@@ -35,3 +35,6 @@ serde_derive = "1.0.98"
 
 serde_yaml = { version = "0.8.9", optional = true }
 serde_json = { version = "1.0.40", optional = true }
+
+[profile.release]
+debug = true
