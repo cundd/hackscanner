@@ -27,13 +27,14 @@ pub trait FileFinderTrait {
             if entry.file_type().is_dir() {
                 return false;
             }
+            let path_as_string = entry.path().to_string_lossy();
 
             let mut store_entry = false;
             for rule in &pattern_rules {
                 // Check if a path-match is required for this `Rule`
                 if !rule.has_path() {
                     store_entry = true;
-                } else if Matcher::match_entry_path(&rule, entry) { // Check if the `Rule`'s path matches the current entry
+                } else if Matcher::match_path_str(&rule, &path_as_string) { // Check if the `Rule`'s path matches the current entry
                     // If the `Rule`'s path matches and the `Rule` is a whitelist-rule exit the loop
                     // and ignore the entry
                     if rule.severity() == Severity::WHITELIST {
