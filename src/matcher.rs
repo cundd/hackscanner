@@ -1,6 +1,7 @@
 use crate::dir_entry::*;
 use crate::rule::PatternRule;
 use crate::rule::RuleTrait;
+use crate::rule::RulePath;
 
 pub struct Matcher {}
 
@@ -13,15 +14,19 @@ impl Matcher {
     }
 
     /// Check if the given path matches the given rule
+    ///
+    /// # Panics
+    ///
+    /// Panics if `rule` doesn't contain a path
     pub fn match_path_str(rule: &PatternRule, path_as_string: &str) -> bool {
         match rule.path() {
-            Some(p) => {
-                trace!("Match rule '{}' with path '{}' against path '{}'", rule.name(), p, path_as_string);
-                p.is_match(&path_as_string)
+            RulePath::String(s) => {
+                trace!("Match rule '{}' with path '{}' against path '{}'", rule.name(), s, path_as_string);
+                path_as_string.contains(s.as_str())
             }
-            None => {
-                info!("Rules without a path should be avoided for performance reason (will trigger a warning in next minor-release)");
-                false
+            RulePath::Regex(r) => {
+                trace!("Match rule '{}' with path '{}' against path '{}'", rule.name(), r, path_as_string);
+                r.is_match(&path_as_string)
             }
         }
     }

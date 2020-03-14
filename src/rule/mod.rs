@@ -21,16 +21,16 @@ pub use self::pattern_rule::PatternRule;
 pub use self::raw_rule::RawRule;
 use crate::errors::*;
 use crate::severity::Severity;
-use rule_path::RulePath;
+pub use rule_path::RulePath;
 use std::path::Path;
 
 /// Generic trait for Rule functions
 pub trait RuleTrait<T> {
     /// Return the name
-    fn name(&self) -> &String;
+    fn name(&self) -> &str;
 
     /// Return the path(-pattern)
-    fn path(&self) -> Option<T>;
+    fn path(&self) -> RulePath;
 
     /// Return the content to check against
     fn content(&self) -> Option<T>;
@@ -43,10 +43,13 @@ pub trait RuleTrait<T> {
         self.content().is_some()
     }
 
-    /// Return if the Rule has a path(-pattern)
-    #[deprecated(since = "0.3.3", note = "Rules without a path should be avoided for performance reason")]
-    fn has_path(&self) -> bool {
-        self.path().is_some()
+    /// Return if the `Rule`'s path is a regular expression
+    fn is_regex_path(&self) -> bool {
+        if let RulePath::Regex(_) = self.path() {
+            true
+        } else {
+            false
+        }
     }
 }
 
@@ -57,7 +60,7 @@ pub enum Rule {
 }
 
 impl Rule {
-    pub fn name(&self) -> &String {
+    pub fn name(&self) -> &str {
         match self {
             &Rule::RawRule(ref rule) => rule.name(),
             &Rule::PatternRule(ref rule) => rule.name(),
@@ -71,10 +74,10 @@ impl Rule {
         }
     }
 
-    pub fn path(&self) -> Option<RulePath> {
+    pub fn path(&self) -> RulePath {
         match self {
-            &Rule::RawRule(ref rule) => rule.path().map(|v| RulePath::String(v)),
-            &Rule::PatternRule(ref rule) => rule.path().map(|v| RulePath::Regex(v)),
+            &Rule::RawRule(ref rule) => rule.path(),
+            &Rule::PatternRule(ref rule) => rule.path(),
         }
     }
 
@@ -86,51 +89,44 @@ impl Rule {
     }
 
     /// Build new raw rules
-    pub fn new_raw<S: Into<String>>(
-        name: S,
+    pub fn new_raw<S1: Into<String>, S2: Into<String>>(
+        name: S1,
         score: Severity,
-        path: Option<String>,
+        path: S2,
+        is_pattern: bool,
         content: Option<String>,
     ) -> Self {
-        Rule::RawRule(RawRule::new(name.into(), score, path, content))
+        Rule::RawRule(RawRule::new(name.into(), score, path.into(), is_pattern, content))
     }
 
     pub fn raw_with_path<S1: Into<String>, S2: Into<String>>(
         name: S1,
         severity: Severity,
         path: S2,
+        is_pattern: bool,
     ) -> Self {
-        Rule::RawRule(RawRule::with_path(name, severity, path))
-    }
-
-    #[deprecated(since = "0.3.3", note = "Rules without a path should be avoided for performance reason")]
-    pub fn raw_with_content<S1: Into<String>, S2: Into<String>>(
-        name: S1,
-        severity: Severity,
-        content: S2,
-    ) -> Self {
-        #[allow(deprecated)]
-            Rule::RawRule(RawRule::with_content(name, severity, content))
+        Rule::RawRule(RawRule::with_path(name, severity, path, is_pattern))
     }
 
     pub fn raw_with_path_and_content<S1: Into<String>, S2: Into<String>, S3: Into<String>>(
         name: S1,
         severity: Severity,
         path: S2,
+        is_pattern: bool,
         content: S3,
     ) -> Self {
         Rule::RawRule(RawRule::with_path_and_content(
-            name, severity, path, content,
+            name, severity, path, is_pattern, content,
         ))
     }
 }
 
 impl RuleTrait<RulePath> for Rule {
-    fn name(&self) -> &String {
+    fn name(&self) -> &str {
         Rule::name(self)
     }
 
-    fn path(&self) -> Option<RulePath> {
+    fn path(&self) -> RulePath {
         Rule::path(self)
     }
 

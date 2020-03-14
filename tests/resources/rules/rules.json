@@ -2,12 +2,14 @@
     {
         "name": "some rule",
         "path": "some/path",
+        "is_regex_path": false,
         "content": "some bad content",
         "severity": "CRITICAL"
     },
     {
         "name": "some whitelist rule",
         "path": "\\.php",
+        "is_regex_path": true,
         "content": "love",
         "severity": "WHITELIST"
     }

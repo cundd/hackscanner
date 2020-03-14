@@ -55,11 +55,7 @@ fn classify_entry_with_rule<D: DirEntryTrait>(
     entry: &D,
     rule: &PatternRule,
 ) -> Classification {
-    if !rule.has_path() && !rule.has_content() {
-        return Classification::Empty;
-    }
-
-    if rule.has_path() && rule.has_content() {
+    if rule.has_content() {
         let path_classification = ClassifierTrait::classify(path_classifier, entry, rule);
         match path_classification {
             Classification::Match(_) => { /* Path does match. Now check the content */ }
@@ -74,7 +70,7 @@ fn classify_entry_with_rule<D: DirEntryTrait>(
         }
 
         let content_classification = ClassifierTrait::classify(content_classifier, entry, rule);
-        return match content_classification {
+        match content_classification {
             Classification::NotApplicable => {
                 unreachable!("Classification::NotApplicable not possible")
             }
@@ -82,35 +78,18 @@ fn classify_entry_with_rule<D: DirEntryTrait>(
             Classification::NoMatch | Classification::Match(_) | Classification::Error(_) => {
                 content_classification
             }
-        };
-    }
-
-    if rule.has_path() {
+        }
+    } else {
         let path_classification = ClassifierTrait::classify(path_classifier, entry, rule);
-        return match path_classification {
+        match path_classification {
             Classification::NoMatch => path_classification,
             Classification::Match(_) => path_classification,
             Classification::Error(_) => {
                 panic!("Classification::Error is not implemented for `PathClassifier`")
             }
             _ => unreachable!("{:?} not possible", path_classification),
-        };
+        }
     }
-
-    if rule.has_content() {
-        let content_classification = ClassifierTrait::classify(content_classifier, entry, rule);
-        return match content_classification {
-            Classification::NotApplicable => {
-                unreachable!("{:?} not possible", content_classification)
-            }
-            Classification::Empty => panic_empty(),
-            Classification::NoMatch | Classification::Match(_) | Classification::Error(_) => {
-                content_classification
-            }
-        };
-    }
-
-    panic_empty();
 }
 
 fn panic_empty() -> ! {
@@ -145,7 +124,8 @@ mod test {
         let rule = Rule::new_raw(
             "Any PHP",
             Severity::MAJOR,
-            None,
+            "not-existing-file.php",
+            false,
             Some("does not matter".to_string()),
         );
         match test_classify_entry(&entry, &rule) {
@@ -163,7 +143,8 @@ mod test {
         let rule = Rule::new_raw(
             "Any PHP",
             Severity::MAJOR,
-            None,
+            "not-existing-file.php",
+            false,
             Some("does not matter".to_string()),
         );
         match test_classify_entry(&entry, &rule) {

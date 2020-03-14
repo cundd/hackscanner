@@ -123,7 +123,7 @@ mod test {
             "/tests/resources/files/",
             file
         ))
-        .unwrap()
+            .unwrap()
     }
 
     mod rate_entry {
@@ -135,7 +135,8 @@ mod test {
             let rules = vec![Rule::new_raw(
                 "1",
                 Severity::NOTICE,
-                Some("tx_mocfilemanager".to_owned()),
+                "tx_mocfilemanager",
+                false,
                 None,
             )];
 
@@ -152,13 +153,15 @@ mod test {
                 Rule::new_raw(
                     "2",
                     Severity::MINOR,
-                    Some("tx_mocfilemanager".to_owned()),
+                    "tx_mocfilemanager",
+                    false,
                     None,
                 ),
                 Rule::new_raw(
                     "3",
                     Severity::NOTICE,
-                    Some("\\.tx_mocfilemanager".to_owned()),
+                    "\\.tx_mocfilemanager",
+                    true,
                     None,
                 ),
             ];
@@ -176,13 +179,15 @@ mod test {
                 Rule::new_raw(
                     "4",
                     Severity::MINOR,
-                    Some("tx_mocfilemanager".to_owned()),
+                    "tx_mocfilemanager",
+                    false,
                     None,
                 ),
                 Rule::new_raw(
                     "5",
                     Severity::EASE,
-                    Some("tests/resources/files".to_owned()),
+                    "tests/resources/files",
+                    false,
                     None,
                 ),
             ];
@@ -200,7 +205,8 @@ mod test {
             let rules = vec![Rule::new_raw(
                 "6",
                 Severity::NOTICE,
-                Some("\\.php".to_owned()),
+                "\\.php",
+                true,
                 Some("dezmond".to_string()),
             )];
 
@@ -219,7 +225,8 @@ mod test {
             let rules = vec![Rule::new_raw(
                 "Any PHP",
                 Severity::MAJOR,
-                None,
+                "not-existing-file.php",
+                false,
                 Some("does not matter".to_string()),
             )];
 
@@ -244,13 +251,15 @@ mod test {
                 Rule::new_raw(
                     "Any PHP",
                     Severity::MAJOR,
-                    None,
+                    "\\.php",
+                    true,
                     Some("does not matter".to_string()),
                 ),
                 Rule::new_raw(
                     "Whitelisted PHP file",
                     Severity::WHITELIST,
-                    Some("not-existing-file.php".into()),
+                    "not-existing-file.php",
+                    false,
                     None,
                 ),
             ];
@@ -279,7 +288,8 @@ mod test {
             let rules = vec![Rule::new_raw(
                 "7",
                 Severity::NOTICE,
-                Some("tx_mocfilemanager".to_owned()),
+                "tx_mocfilemanager",
+                false,
                 None,
             )];
 
@@ -310,13 +320,15 @@ mod test {
                 Rule::new_raw(
                     "8",
                     Severity::MINOR,
-                    Some("tx_mocfilemanager".to_owned()),
+                    "tx_mocfilemanager",
+                    false,
                     None,
                 ),
                 Rule::new_raw(
                     "9",
                     Severity::NOTICE,
-                    Some("\\.tx_mocfilemanager".to_owned()),
+                    "\\.tx_mocfilemanager",
+                    true,
                     None,
                 ),
             ];
@@ -343,13 +355,15 @@ mod test {
                 Rule::new_raw(
                     "10",
                     Severity::MINOR,
-                    Some("tx_mocfilemanager".to_owned()),
+                    "tx_mocfilemanager",
+                    false,
                     None,
                 ),
                 Rule::new_raw(
                     "11",
                     Severity::EASE,
-                    Some("\\.tx_mocfilemanager".to_owned()),
+                    "\\.tx_mocfilemanager",
+                    true,
                     None,
                 ),
             ];
@@ -387,7 +401,8 @@ mod test {
             let rules = vec![Rule::new_raw(
                 "12",
                 Severity::MINOR,
-                Some("\\.php".to_owned()),
+                "\\.php",
+                true,
                 Some("dezmond".to_string()),
             )];
 

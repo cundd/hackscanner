@@ -54,7 +54,7 @@ fn build_file_type_error(path: &Path) -> Error {
         None => ErrorKind::ReaderError("Invalid file".to_string()),
         Some(f) => ErrorKind::ReaderError(format!("Could not detect the file type of '{}'", f)),
     }
-    .into()
+        .into()
 }
 
 fn build_deserialize_error(path: &Path, error: &dyn StdError) -> Error {
@@ -64,7 +64,7 @@ fn build_deserialize_error(path: &Path, error: &dyn StdError) -> Error {
             ErrorKind::ReaderError(format!("Could not deserialize the file '{}': {}", f, error))
         }
     }
-    .into()
+        .into()
 }
 
 fn get_file_reader(path: &Path) -> Result<BufReader<File>, Error> {
@@ -75,7 +75,7 @@ fn get_file_reader(path: &Path) -> Result<BufReader<File>, Error> {
                 "Could not open file {:?} for reading: {}",
                 path, e
             ))
-            .into());
+                .into());
         }
     };
     Ok(BufReader::new(file))
@@ -89,8 +89,8 @@ mod test {
 
     fn path(rule: &Rule) -> String {
         match rule {
-            &Rule::RawRule(ref rule) => rule.path().unwrap().to_string(),
-            &Rule::PatternRule(ref rule) => rule.path().unwrap().to_string(),
+            &Rule::RawRule(ref rule) => rule.path().to_string(),
+            &Rule::PatternRule(ref rule) => rule.path().to_string(),
         }
     }
 

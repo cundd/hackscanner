@@ -19,7 +19,8 @@ where
     let rules = vec![Rule::new_raw(
         "2",
         Severity::NOTICE,
-        Some("\\.tx_mocfilemanager".to_owned()),
+        "\\.tx_mocfilemanager",
+        true,
         None,
     )];
     b.iter(|| ff.find(get_test_dir(), &rules));
