@@ -1,12 +1,12 @@
 use self::regex_cache::RegexCache;
-use super::raw_rule::RawRule;
 use super::raw_rule::RawPath;
+use super::raw_rule::RawRule;
 use super::RuleTrait;
 use crate::errors::*;
+use crate::rule::rule_path::RulePath;
 use crate::severity::Severity;
 use regex::Regex;
 use std::convert::TryFrom;
-use crate::rule::rule_path::RulePath;
 
 mod regex_cache;
 
@@ -81,7 +81,7 @@ impl PatternRule {
         };
         let content = match content {
             Some(c) => Some(Self::build_regex(&c)?),
-            None => None
+            None => None,
         };
         Ok(Self {
             name: name.into(),
@@ -198,7 +198,7 @@ impl RuleTrait<Regex> for PatternRule {
     fn path(&self) -> RulePath {
         match &self.path_regex {
             Some(p) => RulePath::Regex(p.clone()),
-            None => RulePath::String(self.path.clone())
+            None => RulePath::String(self.path.clone()),
         }
     }
 
@@ -224,7 +224,6 @@ impl TryFrom<RawRule> for PatternRule {
     }
 }
 
-
 #[cfg(test)]
 mod test {
     use super::*;
@@ -232,25 +231,14 @@ mod test {
 
     #[test]
     fn from_rule_test() {
-        let pattern_rule = &PatternRule::new(
-            "1",
-            Severity::NOTICE,
-            RawPath::with_path("a-path"),
-            None,
-        )
-            .unwrap();
+        let pattern_rule =
+            &PatternRule::new("1", Severity::NOTICE, RawPath::with_path("a-path"), None).unwrap();
         assert!(!pattern_rule.is_regex_path());
         assert!(pattern_rule.content().is_none());
         assert_eq!(pattern_rule.severity(), Severity::NOTICE);
 
         let pattern_rule =
-            &PatternRule::new(
-                "2",
-                Severity::EASE,
-                RawPath::with_regex("a-path"),
-                None,
-            )
-                .unwrap();
+            &PatternRule::new("2", Severity::EASE, RawPath::with_regex("a-path"), None).unwrap();
         assert_eq!(&pattern_rule.path().to_string(), "(?i)a-path");
         assert!(pattern_rule.is_regex_path());
         assert!(pattern_rule.content().is_none());
@@ -262,7 +250,7 @@ mod test {
             RawPath::with_regex("^\\d{4}-\\d{2}-\\d{2}$"),
             None,
         )
-            .unwrap();
+        .unwrap();
         assert!(pattern_rule.path().regex().is_match("2014-01-01"));
 
         let pattern_rule = &PatternRule::new(
@@ -271,7 +259,7 @@ mod test {
             RawPath::with_path("a-path"),
             Some("^\\d{4}-\\d{2}-\\d{2}$".to_owned()),
         )
-            .unwrap();
+        .unwrap();
         assert!(pattern_rule.content().is_some());
         assert!(pattern_rule.content().unwrap().is_match("2014-01-01"));
     }

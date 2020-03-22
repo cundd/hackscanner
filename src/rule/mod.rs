@@ -11,27 +11,31 @@
 //!
 //! If only `content` is defined, a matching file content violates the [`Rule`].
 mod builtin;
-mod rule_trait;
 mod pattern_rule;
-mod raw_rule;
 mod raw_path;
+mod raw_rule;
 mod reader;
 mod rule_path;
+mod rule_trait;
 
-use crate::errors::*;
-use std::path::Path;
-pub use self::raw_path::RawPath;
-pub use self::rule_path::RulePath;
 pub use self::builtin::get_builtin_rules;
 pub use self::pattern_rule::PatternRule as Rule;
+pub use self::raw_path::RawPath;
+pub use self::rule_path::RulePath;
+use crate::errors::*;
 pub use rule_trait::RuleTrait;
+use std::path::Path;
 
 /// Read the `Rule`s from the given path and merge them with the builtin rules
 pub fn get_merged_rules<P: AsRef<Path>>(path: P) -> Result<Vec<Rule>, Error> {
     let path = path.as_ref();
 
     let mut collection = reader::Reader::read_rules_from_file(path)?;
-    info!("Read {} custom rule(s) from '{}'", collection.len(), path.display());
+    info!(
+        "Read {} custom rule(s) from '{}'",
+        collection.len(),
+        path.display()
+    );
     trace!("Custom rules: {:?}", collection);
     collection.append(&mut get_builtin_rules());
 

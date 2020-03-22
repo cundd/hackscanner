@@ -123,7 +123,7 @@ mod test {
             "/tests/resources/files/",
             file
         ))
-            .unwrap()
+        .unwrap()
     }
 
     mod rate_entry {
@@ -138,7 +138,8 @@ mod test {
                 Severity::NOTICE,
                 RawPath::with_path("tx_mocfilemanager"),
                 None,
-            ).unwrap()];
+            )
+            .unwrap()];
 
             let rating = rate_entry(&entry, &rules);
 
@@ -154,13 +155,15 @@ mod test {
                     Severity::MINOR,
                     RawPath::with_path("tx_mocfilemanager"),
                     None,
-                ).unwrap(),
+                )
+                .unwrap(),
                 Rule::new(
                     "3",
                     Severity::NOTICE,
                     RawPath::with_regex("\\.tx_mocfilemanager"),
                     None,
-                ).unwrap(),
+                )
+                .unwrap(),
             ];
 
             let rating = rate_entry(&entry, &rules);
@@ -177,13 +180,15 @@ mod test {
                     Severity::MINOR,
                     RawPath::with_path("tx_mocfilemanager"),
                     None,
-                ).unwrap(),
+                )
+                .unwrap(),
                 Rule::new(
                     "5",
                     Severity::EASE,
                     RawPath::with_path("tests/resources/files"),
                     None,
-                ).unwrap(),
+                )
+                .unwrap(),
             ];
 
             let rating = rate_entry(&entry, &rules);
@@ -200,7 +205,8 @@ mod test {
                 Severity::NOTICE,
                 RawPath::with_regex("\\.php"),
                 Some("dezmond".to_string()),
-            ).unwrap()];
+            )
+            .unwrap()];
 
             let rating = rate_entry(&entry, &rules);
 
@@ -218,7 +224,8 @@ mod test {
                 Severity::MAJOR,
                 RawPath::with_path("not-existing-file.php"),
                 Some("does not matter".to_string()),
-            ).unwrap()];
+            )
+            .unwrap()];
 
             let rating = rate_entry(&entry, &rules);
 
@@ -242,13 +249,15 @@ mod test {
                     Severity::MAJOR,
                     RawPath::with_regex("\\.php"),
                     Some("does not matter".to_string()),
-                ).unwrap(),
+                )
+                .unwrap(),
                 Rule::new(
                     "Whitelisted PHP file",
                     Severity::WHITELIST,
                     RawPath::with_path("not-existing-file.php"),
                     None,
-                ).unwrap(),
+                )
+                .unwrap(),
             ];
 
             let rating = rate_entry(&entry, &rules);
@@ -277,7 +286,8 @@ mod test {
                 Severity::NOTICE,
                 RawPath::with_path("tx_mocfilemanager"),
                 None,
-            ).unwrap()];
+            )
+            .unwrap()];
 
             let rating = rate_entries(&entries, &rules);
 
@@ -307,13 +317,15 @@ mod test {
                     Severity::MINOR,
                     RawPath::with_path("tx_mocfilemanager"),
                     None,
-                ).unwrap(),
+                )
+                .unwrap(),
                 Rule::new(
                     "9",
                     Severity::NOTICE,
                     RawPath::with_regex("\\.tx_mocfilemanager"),
                     None,
-                ).unwrap(),
+                )
+                .unwrap(),
             ];
 
             let rating = rate_entries(&entries, &rules);
@@ -339,13 +351,15 @@ mod test {
                     Severity::MINOR,
                     RawPath::with_path("tx_mocfilemanager"),
                     None,
-                ).unwrap(),
+                )
+                .unwrap(),
                 Rule::new(
                     "11",
                     Severity::EASE,
                     RawPath::with_regex("\\.tx_mocfilemanager"),
                     None,
-                ).unwrap(),
+                )
+                .unwrap(),
             ];
 
             let rating = rate_entries(&entries, &rules);
@@ -382,7 +396,8 @@ mod test {
                 Severity::MINOR,
                 RawPath::with_regex("\\.php"),
                 Some("dezmond".to_string()),
-            ).unwrap()];
+            )
+            .unwrap()];
 
             let rating = rate_entries(&entries, &rules);
 

@@ -1,7 +1,7 @@
-use crate::severity::Severity;
-use crate::rule::rule_path::RulePath;
 use super::raw_path::string_or_struct;
 pub(crate) use super::raw_path::RawPath;
+use crate::rule::rule_path::RulePath;
+use crate::severity::Severity;
 
 /// "raw" Rule
 #[derive(Debug, Clone, Deserialize, PartialOrd, PartialEq)]

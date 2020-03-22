@@ -1,10 +1,10 @@
 use crate::errors::*;
+use crate::rule::pattern_rule::PatternRule;
 use crate::rule::raw_rule::RawRule;
 use std::error::Error as StdError;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
-use crate::rule::pattern_rule::PatternRule;
 
 pub struct Reader {}
 
@@ -56,7 +56,7 @@ fn build_file_type_error(path: &Path) -> Error {
         "Could not detect the file type of '{}'",
         path.display()
     ))
-        .into()
+    .into()
 }
 
 fn build_deserialize_error(path: &Path, error: &dyn StdError) -> Error {
@@ -65,7 +65,7 @@ fn build_deserialize_error(path: &Path, error: &dyn StdError) -> Error {
         path.display(),
         error
     ))
-        .into()
+    .into()
 }
 
 fn get_file_reader(path: &Path) -> Result<BufReader<File>, Error> {
@@ -76,7 +76,7 @@ fn get_file_reader(path: &Path) -> Result<BufReader<File>, Error> {
             path.display(),
             e
         ))
-            .into()),
+        .into()),
     }
 }
 

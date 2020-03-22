@@ -1,5 +1,5 @@
-use crate::Severity;
 use crate::rule::RulePath;
+use crate::Severity;
 
 /// Generic trait for Rule functions
 pub trait RuleTrait<T> {

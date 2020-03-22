@@ -40,7 +40,10 @@ impl ContentClassifier {
         Ok(self.file_content_cache.as_str())
     }
 
-    fn read_file_content<D: DirEntryTrait>(&mut self, entry: &D) -> Result<(), ContentClassificationError> {
+    fn read_file_content<D: DirEntryTrait>(
+        &mut self,
+        entry: &D,
+    ) -> Result<(), ContentClassificationError> {
         let path = entry.path();
         let file = match File::open(path) {
             Ok(f) => f,

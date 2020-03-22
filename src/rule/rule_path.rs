@@ -35,9 +35,13 @@ impl RulePath {
 
 impl Display for RulePath {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "{}", match self {
-            RulePath::Regex(regex) => regex.to_string(),
-            RulePath::String(string) => string.to_string(),
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                RulePath::Regex(regex) => regex.to_string(),
+                RulePath::String(string) => string.to_string(),
+            }
+        )
     }
 }

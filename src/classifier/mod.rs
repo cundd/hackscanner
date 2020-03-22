@@ -32,15 +32,21 @@ pub fn classify_entry<'a, 'b, D: DirEntryTrait>(
 ) -> Vec<Violation> {
     let mut path_classifier = path_classifier::PathClassifier::new(entry);
     let mut content_classifier = content_classifier::ContentClassifier::new(entry);
-    rules.iter().filter_map(|rule|
-        match classify_entry_with_rule(&mut path_classifier, &mut content_classifier, entry, rule) {
-            // Classification::Empty => None,
-            // Classification::NotApplicable => panic!("Classification::NotApplicable must not be returned from `get_classification()`"),
-            Classification::NoMatch => None,
-            Classification::Match(violation) => Some(violation),
-            Classification::Error(violation) => Some(violation)
-        }
-    ).collect()
+    rules
+        .iter()
+        .filter_map(|rule| {
+            match classify_entry_with_rule(
+                &mut path_classifier,
+                &mut content_classifier,
+                entry,
+                rule,
+            ) {
+                Classification::NoMatch => None,
+                Classification::Match(violation) => Some(violation),
+                Classification::Error(violation) => Some(violation),
+            }
+        })
+        .collect()
 }
 
 trait ClassifierTrait<D: DirEntryTrait> {
@@ -91,12 +97,7 @@ mod test {
         let mut path_classifier = path_classifier::PathClassifier::new(entry);
         let mut content_classifier = content_classifier::ContentClassifier::new(entry);
 
-        classify_entry_with_rule(
-            &mut path_classifier,
-            &mut content_classifier,
-            entry,
-            rule,
-        )
+        classify_entry_with_rule(&mut path_classifier, &mut content_classifier, entry, rule)
     }
 
     #[test]
@@ -110,7 +111,8 @@ mod test {
             Severity::MAJOR,
             RawPath::with_path("not-existing-file.php"),
             Some("does not matter".to_string()),
-        ).unwrap();
+        )
+        .unwrap();
         match test_classify_entry(&entry, &rule) {
             Classification::NoMatch => {}
             _ => panic!("Classification must be Classification::NoMatch"),
@@ -128,7 +130,8 @@ mod test {
             Severity::MAJOR,
             RawPath::with_path("not-existing-file.php"),
             Some("does not matter".to_string()),
-        ).unwrap();
+        )
+        .unwrap();
         match test_classify_entry(&entry, &rule) {
             Classification::NoMatch => {}
             _ => panic!("Classification must be Classification::NoMatch"),

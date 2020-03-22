@@ -49,8 +49,8 @@ pub trait FileFinderTrait {
         root: P,
         filter: F,
     ) -> Vec<Self::DirEntry>
-        where
-            F: Fn(&Self::DirEntry) -> bool;
+    where
+        F: Fn(&Self::DirEntry) -> bool;
 }
 
 pub fn find_files<P: AsRef<Path> + Debug + Clone>(
