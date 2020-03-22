@@ -1,15 +1,21 @@
 use crate::errors::*;
 use crate::rule::raw_rule::RawRule;
-use crate::Rule;
 use std::error::Error as StdError;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
+use crate::rule::pattern_rule::PatternRule;
 
 pub struct Reader {}
 
 impl Reader {
-    pub fn read_rules_from_file(path: &Path) -> Result<Vec<Rule>, Error> {
+    pub fn read_rules_from_file(path: &Path) -> Result<Vec<PatternRule>> {
+        let raw_rules = Reader::read_raw_rules_from_file(path)?;
+
+        PatternRule::from_raw_rules(raw_rules)
+    }
+
+    fn read_raw_rules_from_file(path: &Path) -> Result<Vec<RawRule>> {
         match path.extension() {
             None => Err(build_file_type_error(path)),
             Some(os_str) => match os_str.to_str() {
@@ -27,81 +33,67 @@ impl Reader {
     }
 
     #[cfg(feature = "json")]
-    fn read_rules_from_json_file(path: &Path) -> Result<Vec<Rule>, Error> {
+    fn read_rules_from_json_file(path: &Path) -> Result<Vec<RawRule>> {
         let file: BufReader<File> = get_file_reader(path)?;
-        let raw = match serde_json::from_reader::<BufReader<File>, Vec<RawRule>>(file) {
-            Ok(r) => (r),
+        match serde_json::from_reader::<BufReader<File>, Vec<RawRule>>(file) {
+            Ok(r) => Ok(r),
             Err(e) => return Err(build_deserialize_error(path, &e)),
-        };
-
-        Ok(raw.into_iter().map(|r| Rule::RawRule(r)).collect())
+        }
     }
 
     #[cfg(feature = "yaml")]
-    fn read_rules_from_yaml_file(path: &Path) -> Result<Vec<Rule>, Error> {
+    fn read_rules_from_yaml_file(path: &Path) -> Result<Vec<RawRule>> {
         let file: BufReader<File> = get_file_reader(path)?;
-        let raw = match serde_yaml::from_reader::<BufReader<File>, Vec<RawRule>>(file) {
-            Ok(r) => (r),
+        match serde_yaml::from_reader::<BufReader<File>, Vec<RawRule>>(file) {
+            Ok(r) => Ok(r),
             Err(e) => return Err(build_deserialize_error(path, &e)),
-        };
-
-        Ok(raw.into_iter().map(|r| Rule::RawRule(r)).collect())
+        }
     }
 }
 
 fn build_file_type_error(path: &Path) -> Error {
-    match path.to_str() {
-        None => ErrorKind::ReaderError("Invalid file".to_string()),
-        Some(f) => ErrorKind::ReaderError(format!("Could not detect the file type of '{}'", f)),
-    }
+    ErrorKind::ReaderError(format!(
+        "Could not detect the file type of '{}'",
+        path.display()
+    ))
         .into()
 }
 
 fn build_deserialize_error(path: &Path, error: &dyn StdError) -> Error {
-    match path.to_str() {
-        None => ErrorKind::ReaderError(format!("Could not deserialize file: {}", error)),
-        Some(f) => {
-            ErrorKind::ReaderError(format!("Could not deserialize the file '{}': {}", f, error))
-        }
-    }
+    ErrorKind::ReaderError(format!(
+        "Could not deserialize the file '{}': {}",
+        path.display(),
+        error
+    ))
         .into()
 }
 
 fn get_file_reader(path: &Path) -> Result<BufReader<File>, Error> {
-    let file = match File::open(path) {
-        Ok(f) => f,
-        Err(e) => {
-            return Err(ErrorKind::ReaderError(format!(
-                "Could not open file {:?} for reading: {}",
-                path, e
-            ))
-                .into());
-        }
-    };
-    Ok(BufReader::new(file))
+    match File::open(path) {
+        Ok(f) => Ok(BufReader::new(f)),
+        Err(e) => Err(ErrorKind::ReaderError(format!(
+            "Could not open file '{}' for reading: {}",
+            path.display(),
+            e
+        ))
+            .into()),
+    }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::rule::RuleTrait;
     use crate::severity::Severity;
 
-    fn path(rule: &Rule) -> String {
-        match rule {
-            &Rule::RawRule(ref rule) => rule.path().to_string(),
-            &Rule::PatternRule(ref rule) => rule.path().to_string(),
-        }
+    fn path(rule: &RawRule) -> String {
+        format!("{}", rule.path())
     }
 
-    fn content(rule: &Rule) -> String {
-        match rule {
-            &Rule::RawRule(ref rule) => rule.content().unwrap().to_string(),
-            &Rule::PatternRule(ref rule) => rule.content().unwrap().to_string(),
-        }
+    fn content(rule: &RawRule) -> String {
+        format!("{}", rule.content().unwrap())
     }
 
-    fn test_loaded_rules(result: Result<Vec<Rule>, Error>) {
+    fn test_loaded_rules(result: Result<Vec<RawRule>, Error>) {
         assert!(result.is_ok(), "{}", result.unwrap_err());
         let rules = result.unwrap();
 
@@ -119,8 +111,8 @@ mod test {
     }
 
     #[test]
-    fn read_rules_from_file_invalid() {
-        let result = Reader::read_rules_from_file(&Path::new(&format!(
+    fn read_raw_rules_from_file_invalid() {
+        let result = Reader::read_raw_rules_from_file(&Path::new(&format!(
             "{}/tests",
             env!("CARGO_MANIFEST_DIR")
         )));
@@ -130,7 +122,7 @@ mod test {
             result.unwrap_err().description()
         );
 
-        let result = Reader::read_rules_from_file(&Path::new(&format!(
+        let result = Reader::read_raw_rules_from_file(&Path::new(&format!(
             "{}/tests.txt",
             env!("CARGO_MANIFEST_DIR")
         )));
@@ -143,8 +135,8 @@ mod test {
 
     #[test]
     #[cfg(feature = "json")]
-    fn read_rules_from_file_with_not_existing_json() {
-        let result = Reader::read_rules_from_file(&Path::new(&format!(
+    fn read_raw_rules_from_file_with_not_existing_json() {
+        let result = Reader::read_raw_rules_from_file(&Path::new(&format!(
             "{}/tests/resources/rules/not-a-file.json",
             env!("CARGO_MANIFEST_DIR")
         )));
@@ -157,8 +149,8 @@ mod test {
 
     #[test]
     #[cfg(feature = "json")]
-    fn read_rules_from_file_with_json() {
-        let result = Reader::read_rules_from_file(&Path::new(&format!(
+    fn read_raw_rules_from_file_with_json() {
+        let result = Reader::read_raw_rules_from_file(&Path::new(&format!(
             "{}/tests/resources/rules/rules.json",
             env!("CARGO_MANIFEST_DIR")
         )));
@@ -167,8 +159,8 @@ mod test {
 
     #[test]
     #[cfg(feature = "yaml")]
-    fn read_rules_from_file_with_not_existing_yaml() {
-        let result = Reader::read_rules_from_file(&Path::new(&format!(
+    fn read_raw_rules_from_file_with_not_existing_yaml() {
+        let result = Reader::read_raw_rules_from_file(&Path::new(&format!(
             "{}/tests/resources/rules/not-a-file.yaml",
             env!("CARGO_MANIFEST_DIR")
         )));
@@ -181,8 +173,8 @@ mod test {
 
     #[test]
     #[cfg(feature = "yaml")]
-    fn read_rules_from_file_with_yaml() {
-        let result = Reader::read_rules_from_file(&Path::new(&format!(
+    fn read_raw_rules_from_file_with_yaml() {
+        let result = Reader::read_raw_rules_from_file(&Path::new(&format!(
             "{}/tests/resources/rules/rules.yaml",
             env!("CARGO_MANIFEST_DIR")
         )));

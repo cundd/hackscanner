@@ -2,8 +2,8 @@ use super::Violation;
 use std::fmt::{Debug, Error, Formatter};
 
 pub enum Classification {
-    Empty,
-    NotApplicable,
+    // Empty,
+    // NotApplicable,
     NoMatch,
     Match(Violation),
     Error(Violation),
@@ -15,8 +15,8 @@ impl Debug for Classification {
             f,
             "{}",
             match self {
-                Classification::NotApplicable => "NotApplicable",
-                Classification::Empty => "Empty",
+                // Classification::NotApplicable => "NotApplicable",
+                // Classification::Empty => "Empty",
                 Classification::NoMatch => "NoMatch",
                 Classification::Match(_) => "Match",
                 Classification::Error(_) => "Error",

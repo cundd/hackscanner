@@ -72,18 +72,16 @@ fn run() -> Result<(), Error> {
     configure_logging(&matches).unwrap();
 
     #[cfg(not(any(feature = "json", feature = "yaml")))]
-        let rules = &get_merged_rules(None)?;
+        let rules = get_merged_rules(None)?;
     #[cfg(any(feature = "json", feature = "yaml"))]
-        let rules = &get_merged_rules(match matches.value_of("configuration") {
+        let rules = get_merged_rules(match matches.value_of("configuration") {
         Some(c) => Some(Path::new(c)),
         None => None,
     })?;
 
-    let pattern_rules = PatternRule::from_rules_filtered(rules);
-
     match matches.value_of("validate") {
-        Some(test_path) => validate(&matches, pattern_rules, test_path),
-        None => scan(&matches, rules, pattern_rules),
+        Some(test_path) => validate(&matches, rules, test_path),
+        None => scan(&matches, rules),
     }
 }
 
@@ -101,16 +99,15 @@ fn get_verbosity_help() -> &'static str {
 
 fn scan(
     matches: &ArgMatches,
-    rules: &Vec<Rule>,
-    pattern_rules: Vec<PatternRule>,
+    rules: Vec<Rule>,
 ) -> Result<(), Error> {
     let min_severity = get_minimum_severity(&matches);
     let root = get_root(&matches);
     let quiet = matches.is_present("quiet");
 
-    let files = file_finder::find_files(root, rules);
+    let files = file_finder::find_files(root, &rules);
 
-    let ratings = sort_ratings(&rating::rate_entries(&files, &pattern_rules));
+    let ratings = sort_ratings(&rating::rate_entries(&files, &rules));
     let summary = Summary::build(&ratings);
     if !quiet || 0 < summary.ratings_above(min_severity) {
         ui::print_summary(min_severity, &summary);
@@ -122,7 +119,7 @@ fn scan(
 
 fn validate(
     matches: &ArgMatches,
-    pattern_rules: Vec<PatternRule>,
+    rules: Vec<Rule>,
     test_path: &str,
 ) -> Result<(), Error> {
     let entry = ValidationDirEntry::from_path_str(test_path);
@@ -130,7 +127,7 @@ fn validate(
         bail!(format!("File {} does not exist", entry.path().display()))
     }
 
-    let rating = rate_entry(&entry, &pattern_rules);
+    let rating = rate_entry(&entry, &rules);
     ui::print_validation(&rating, matches.occurrences_of("v") > 0);
 
     Ok(())
@@ -155,6 +152,15 @@ fn get_minimum_severity(matches: &ArgMatches<'_>) -> Severity {
         "MINOR" => Severity::MINOR,
         "NOTICE" => Severity::NOTICE,
         _ => Severity::WHITELIST,
+    }
+}
+
+
+/// Read the `Rule`s from the given path and merge them with the builtin rules
+fn get_merged_rules(path: Option<&Path>) -> Result<Vec<Rule>, Error> {
+    match path {
+        Some(p) => hackscanner_lib::get_merged_rules(p),
+        None => Ok(hackscanner_lib::get_builtin_rules()),
     }
 }
 

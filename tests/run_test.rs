@@ -2,7 +2,6 @@ use simplelog;
 
 use hackscanner_lib::*;
 use simplelog::TerminalMode;
-use std::path::Path;
 
 /// Assert that the `ratings` contain a Rating with the path matching `path` and a rating equal to or bigger than `score`
 fn assert_contains_entry_with_score(ratings: &Vec<Rating<'_>>, score: isize, path: &str) {
@@ -55,7 +54,7 @@ fn configure_logging(log_level_filter: simplelog::LevelFilter) {
     config.time_format = Some("%H:%M:%S%.3f");
 
     if let Some(core_logger) =
-        simplelog::TermLogger::new(log_level_filter, config, TerminalMode::Mixed)
+    simplelog::TermLogger::new(log_level_filter, config, TerminalMode::Mixed)
     {
         loggers.push(core_logger);
     } else {
@@ -73,11 +72,10 @@ fn run_rules_with_configuration_test() {
         env!("CARGO_MANIFEST_DIR"),
         "/tests/resources/rules/rules.yaml"
     );
-    let rules = &get_merged_rules(Some(&Path::new(&configuration_file))).unwrap();
+    let rules = get_merged_rules(&configuration_file).unwrap();
 
-    let files = file_finder::find_files(format!("{}/tests", env!("CARGO_MANIFEST_DIR")), rules);
-    let pattern_rules = PatternRule::from_rules_filtered(rules);
-    let ratings = rate_entries(&files, &pattern_rules);
+    let files = file_finder::find_files(format!("{}/tests", env!("CARGO_MANIFEST_DIR")), &rules);
+    let ratings = rate_entries(&files, &rules);
 
     assert_not_contains_entry(&ratings, "/tests/resources/files/whitelist_me.php");
 }
@@ -85,11 +83,10 @@ fn run_rules_with_configuration_test() {
 #[test]
 fn run_builtin_rules_test() {
     configure_logging(simplelog::LevelFilter::Error);
-    let rules = &get_merged_rules(None).unwrap();
+    let rules = get_builtin_rules();
 
-    let files = file_finder::find_files(format!("{}/tests", env!("CARGO_MANIFEST_DIR")), rules);
-    let pattern_rules = PatternRule::from_rules_filtered(rules);
-    let ratings = rate_entries(&files, &pattern_rules);
+    let files = file_finder::find_files(format!("{}/tests", env!("CARGO_MANIFEST_DIR")), &rules);
+    let ratings = rate_entries(&files, &rules);
 
     assert_contains_entry_with_score(
         &ratings,

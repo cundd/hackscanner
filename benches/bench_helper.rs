@@ -16,7 +16,7 @@ where
     D: DirEntryTrait,
     F: FileFinderTrait<DirEntry = D>,
 {
-    let rules = vec![Rule::new_raw(
+    let rules = vec![Rule::new(
         "2",
         Severity::NOTICE,
         "\\.tx_mocfilemanager",

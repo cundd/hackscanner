@@ -1,7 +1,8 @@
+use crate::rule::raw_rule::RawPath;
 use crate::severity::Severity;
-use crate::Rule;
+use crate::Rule as PatternRule;
 
-pub fn get_builtin_rules() -> Vec<Rule> {
+pub fn get_builtin_rules() -> Vec<PatternRule> {
     let mut collection = vec![];
 
     collection.append(&mut get_builtin_rules_php());
@@ -10,209 +11,231 @@ pub fn get_builtin_rules() -> Vec<Rule> {
     collection
 }
 
-fn get_builtin_rules_php() -> Vec<Rule> {
+fn get_builtin_rules_php() -> Vec<PatternRule> {
     vec![
-        Rule::raw_with_path_and_content(
+        PatternRule::with_path_and_content(
             "php::content::error_reporting",
             Severity::NOTICE,
-            ".php",
-            false,
-            "error_reporting\\(",
-        ),
-        Rule::raw_with_path_and_content(
+            RawPath::with_path(".php"),
+            r"error_reporting\(",
+        )
+            .unwrap(),
+        PatternRule::with_path_and_content(
             "php::content::preg_",
             Severity::NOTICE,
-            ".php",
-            false,
+            RawPath::with_path(".php"),
             "='preg_",
-        ),
-        Rule::raw_with_path_and_content(
+        )
+            .unwrap(),
+        PatternRule::with_path_and_content(
             "php::content::preg_",
             Severity::NOTICE,
-            ".php",
-            false,
-            "=\"preg_",
-        ),
-        Rule::raw_with_path_and_content(
+            RawPath::with_path(".php"),
+            r#"="preg_"#,
+        )
+            .unwrap(),
+        PatternRule::with_path_and_content(
             "php::content::eval",
             Severity::NOTICE,
-            ".php",
-            false,
-            "\\beval\\(",
-        ),
-        Rule::raw_with_path_and_content(
+            RawPath::with_path(".php"),
+            r"\beval\(",
+        )
+            .unwrap(),
+        PatternRule::with_path_and_content(
             "php::content::gzinflate",
             Severity::NOTICE,
-            ".php",
-            false,
-            "\\bgzinflate\\(",
-        ),
-        Rule::raw_with_path_and_content(
+            RawPath::with_path(".php"),
+            r"\bgzinflate\(",
+        )
+            .unwrap(),
+        PatternRule::with_path_and_content(
             "php::content::@gzinflate",
             Severity::MINOR,
-            ".php",
-            false,
-            "\\b@gzinflate\\(",
-        ),
-        Rule::raw_with_path_and_content(
+            RawPath::with_path(".php"),
+            r"\b@gzinflate\(",
+        )
+            .unwrap(),
+        PatternRule::with_path_and_content(
             "php::content::substr(MD5(strrev",
             Severity::MINOR,
-            ".php",
-            false,
-            "substr\\(MD5\\(strrev",
-        ),
-        Rule::raw_with_path_and_content(
+            RawPath::with_path(".php"),
+            r"substr\(MD5\(strrev",
+        )
+            .unwrap(),
+        PatternRule::with_path_and_content(
             "php::content::system",
             Severity::NOTICE,
-            ".php",
-            false,
-            "\\bsystem\\(",
-        ),
-        Rule::raw_with_path_and_content(
+            RawPath::with_path(".php"),
+            r"\bsystem\(",
+        )
+            .unwrap(),
+        PatternRule::with_path_and_content(
             "php::content::exec",
             Severity::NOTICE,
-            ".php",
-            false,
-            "\\bexec\\(",
-        ),
-        Rule::raw_with_path_and_content(
+            RawPath::with_path(".php"),
+            r"\bexec\(",
+        )
+            .unwrap(),
+        PatternRule::with_path_and_content(
             "php::content::create_function",
             Severity::NOTICE,
-            ".php",
-            false,
-            "\\bcreate_function\\(",
-        ),
-        Rule::raw_with_path_and_content(
+            RawPath::with_path(".php"),
+            r"\bcreate_function\(",
+        )
+            .unwrap(),
+        PatternRule::with_path_and_content(
             "php::content::return",
             Severity::MAJOR,
-            ".php",
-            false,
-            "\",\"\\.\");return;?>",
-        ),
-        Rule::raw_with_path_and_content(
+            RawPath::with_path(".php"),
+            r#"","\."\);return;?>"#,
+        )
+            .unwrap(),
+        PatternRule::with_path_and_content(
             "php::content::base64_decode",
             Severity::MAJOR,
-            ".php",
-            false,
-            "eval\\(base64_decode\\(",
-        ),
-        Rule::raw_with_path_and_content(
+            RawPath::with_path(".php"),
+            r"eval\(base64_decode\(",
+        )
+            .unwrap(),
+        PatternRule::with_path_and_content(
             "php::content::6fbcb8b698317491a5fd7926f2c3b7de",
             Severity::CRITICAL,
-            ".php",
-            false,
+            RawPath::with_path(".php"),
             "6fbcb8b698317491a5fd7926f2c3b7de",
-        ),
-        Rule::raw_with_path_and_content(
+        )
+            .unwrap(),
+        PatternRule::with_path_and_content(
             "php::content::4ngel",
             Severity::CRITICAL,
-            ".php",
-            false,
-            "Codz by angel\\(4ngel\\)",
-        ),
-        Rule::raw_with_path_and_content(
+            RawPath::with_path(".php"),
+            r"Codz by angel\(4ngel\)",
+        )
+            .unwrap(),
+        PatternRule::with_path_and_content(
             "php::content::dezmond",
             Severity::CRITICAL,
-            ".php",
-            false,
+            RawPath::with_path(".php"),
             "dezmond",
-        ),
-        Rule::raw_with_path_and_content(
+        )
+            .unwrap(),
+        PatternRule::with_path_and_content(
             "php::content::FilesMan",
             Severity::CRITICAL,
-            ".php",
-            false,
+            RawPath::with_path(".php"),
             "FilesMan",
-        ),
-        Rule::raw_with_path_and_content(
+        )
+            .unwrap(),
+        PatternRule::with_path_and_content(
             "php::content::raprap1",
             Severity::CRITICAL,
-            ".php",
-            false,
+            RawPath::with_path(".php"),
             "raprap1",
-        ),
-        Rule::raw_with_path(
+        )
+            .unwrap(),
+        PatternRule::with_path(
             "php::file::tx_mocfilemanager",
             Severity::CRITICAL,
-            "tx_mocfilemanager.php",
-            false,
-        ),
-        Rule::raw_with_path("php::file::cache", Severity::CRITICAL, "//cache\\.dat", true),
-        Rule::raw_with_path("php::file::cache", Severity::CRITICAL, "//\\.cache\\.php", true),
-        Rule::raw_with_path("php::file::ext_fpdf", Severity::CRITICAL, "ext_fpdf.php", true),
-        Rule::raw_with_path("php::file::ixwstat", Severity::CRITICAL, "ixwstat.php", true),
-        Rule::raw_with_path_and_content(
+            RawPath::with_path("tx_mocfilemanager.php"),
+        )
+            .unwrap(),
+        PatternRule::with_path(
+            "php::file::cache",
+            Severity::CRITICAL,
+            RawPath::with_regex(r"/cache\.dat"),
+        )
+            .unwrap(),
+        PatternRule::with_path(
+            "php::file::cache",
+            Severity::CRITICAL,
+            RawPath::with_regex(r"/\.cache\.php"),
+        )
+            .unwrap(),
+        PatternRule::with_path(
+            "php::file::ext_fpdf",
+            Severity::CRITICAL,
+            RawPath::with_regex("ext_fpdf.php"),
+        )
+            .unwrap(),
+        PatternRule::with_path(
+            "php::file::ixwstat",
+            Severity::CRITICAL,
+            RawPath::with_regex("ixwstat.php"),
+        )
+            .unwrap(),
+        PatternRule::with_path_and_content(
             "php::content::cialis",
             Severity::NOTICE,
-            ".php",
-            false,
+            RawPath::with_path(".php"),
             "='preg_",
-        ),
+        )
+            .unwrap(),
     ]
 }
 
-fn get_builtin_rules_typo3() -> Vec<Rule> {
+fn get_builtin_rules_typo3() -> Vec<PatternRule> {
     vec![
-        Rule::raw_with_path_and_content(
+        PatternRule::with_path_and_content(
             "typo3::file::php-in-typo3conf-wordpress",
             Severity::NOTICE,
-            "typo3conf/.*\\.php",
-            true,
+            RawPath::with_regex("typo3conf/.*\\.php"),
             "wordpress",
-        ),
-        Rule::raw_with_path(
+        )
+            .unwrap(),
+        PatternRule::with_path(
             "typo3::file::php-in-typo3conf-static_info_tables",
             Severity::MAJOR,
-            "typo3conf/ext/static_info_tables/Classes/static_info_tables.php",
-            false,
-        ),
-        Rule::raw_with_path(
+            RawPath::with_path("typo3conf/ext/static_info_tables/Classes/static_info_tables.php"),
+        )
+            .unwrap(),
+        PatternRule::with_path(
             "typo3::file::php-in-fileadmin",
             Severity::MINOR,
-            "fileadmin/.*\\.php",
-            true,
-        ),
-        Rule::raw_with_path(
+            RawPath::with_regex(r"fileadmin/.*\.php"),
+        )
+            .unwrap(),
+        PatternRule::with_path(
             "typo3::file::php-in-l10n",
             Severity::MAJOR,
-            "typo3conf/l10n/.*\\.php",
-            true,
-        ),
-        Rule::raw_with_path(
+            RawPath::with_regex(r"typo3conf/l10n/.*\.php"),
+        )
+            .unwrap(),
+        PatternRule::with_path(
             "typo3::file::php-in-typo3temp",
             Severity::MINOR,
-            "typo3temp/.*\\.php$",
-            true,
-        ),
-        Rule::raw_with_path(
+            RawPath::with_regex(r"typo3temp/.*\.php$"),
+        )
+            .unwrap(),
+        PatternRule::with_path(
             "typo3::file::php-in-typo3temp-Cache",
             Severity::WHITELIST,
-            "typo3temp/(var/)?Cache/.*\\.php",
-            true,
-        ),
-        Rule::raw_with_path(
+            RawPath::with_regex(r"typo3temp/(var/)?Cache/.*\.php"),
+        )
+            .unwrap(),
+        PatternRule::with_path(
             "typo3::file::php-in-typo3temp-autoload",
             Severity::WHITELIST,
-            "typo3temp/autoload/autoload_[^/]*\\.php",
-            true,
-        ),
-        Rule::raw_with_path(
+            RawPath::with_regex(r"typo3temp/autoload/autoload_[^/]*\.php"),
+        )
+            .unwrap(),
+        PatternRule::with_path(
             "typo3::file::php-in-typo3temp-autoload-test",
             Severity::WHITELIST,
-            "typo3temp/autoload-tests/autoload_[^/]*\\.php",
-            true,
-        ),
-        Rule::raw_with_path(
+            RawPath::with_regex(r"typo3temp/autoload-tests/autoload_[^/]*\.php"),
+        )
+            .unwrap(),
+        PatternRule::with_path(
             "typo3::file::php-in-typo3temp-extupdate",
             Severity::WHITELIST,
-            "typo3temp/ExtensionManager/UpdateScripts/ext_update[a-z0-9]*\\.php",
-            true,
-        ),
-        Rule::raw_with_path(
+            RawPath::with_regex(
+                r"typo3temp/ExtensionManager/UpdateScripts/ext_update[a-z0-9]*\.php",
+            ),
+        )
+            .unwrap(),
+        PatternRule::with_path(
             "typo3::file::php-in-typo3temp-extupdate",
             Severity::WHITELIST,
-            "typo3temp/var/transient/ext_update[a-z0-9]*\\.php",
-            true,
-        ),
+            RawPath::with_regex(r"typo3temp/var/transient/ext_update[a-z0-9]*\.php"),
+        )
+            .unwrap(),
     ]
 }

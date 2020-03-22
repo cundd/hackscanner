@@ -11,23 +11,21 @@ pub fn get_test_dir() -> String {
 }
 
 pub fn get_rules_multiple_results() -> Vec<Rule> {
-    vec![Rule::new_raw(
+    vec![Rule::new(
         "1",
         Severity::NOTICE,
-        "tx_mocfilemanager",
-        false,
+        RawPath::with_path("tx_mocfilemanager"),
         None,
-    )]
+    ).unwrap()]
 }
 
 pub fn get_rules_single_result() -> Vec<Rule> {
-    vec![Rule::new_raw(
+    vec![Rule::new(
         "2",
         Severity::NOTICE,
-        "\\.tx_mocfilemanager",
-        true,
+        RawPath::with_regex(r"\.tx_mocfilemanager"),
         None,
-    )]
+    ).unwrap()]
 }
 
 pub fn assert_multiple_paths<D: DirEntryTrait>(matches: Vec<D>) {

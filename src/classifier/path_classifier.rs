@@ -12,8 +12,7 @@ impl<'a, D: DirEntryTrait> ClassifierTrait<D> for PathClassifier {
         PathClassifier {}
     }
 
-    #[allow(deprecated)]
-    fn classify(&mut self, entry: &D, rule: &PatternRule) -> Classification {
+    fn classify(&mut self, entry: &D, rule: &Rule) -> Classification {
         if Matcher::match_entry_path(rule, entry) {
             trace!("Rule's path does match");
 

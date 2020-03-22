@@ -73,7 +73,7 @@ impl<'a, D: DirEntryTrait> ClassifierTrait<D> for ContentClassifier {
         }
     }
 
-    fn classify(&mut self, entry: &D, rule: &PatternRule) -> Classification {
+    fn classify(&mut self, entry: &D, rule: &Rule) -> Classification {
         match self.get_file_content(entry) {
             Ok(s) => {
                 if Matcher::match_entry_content(rule, s) {
@@ -88,7 +88,7 @@ impl<'a, D: DirEntryTrait> ClassifierTrait<D> for ContentClassifier {
             }
             // If the file content could not be read build a Violation from the error
             Err(e) => {
-                let violation_option = Violation::with_rule_and_file_io_error(Rule::from(rule), &e);
+                let violation_option = Violation::with_rule_and_file_io_error(rule.clone(), &e);
                 match violation_option {
                     Some(v) => Classification::Error(v),
                     None => Classification::NoMatch,
