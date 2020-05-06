@@ -15,14 +15,11 @@ pub trait FileFinderTrait {
     type DirEntry: DirEntryTrait;
 
     /// Return all [`DirEntry`s] that match at least one of the [`Rule`s] starting at `root`
-    #[allow(deprecated)]
     fn find<P: AsRef<Path> + Debug + Clone>(
         &self,
         root: P,
         rules: &Vec<Rule>,
     ) -> Vec<Self::DirEntry> {
-        let pattern_rules = PatternRule::from_rules_filtered(rules);
-
         self.walk_dir(root, |entry: &Self::DirEntry| {
             if entry.file_type().is_dir() {
                 return false;
@@ -30,11 +27,9 @@ pub trait FileFinderTrait {
             let path_as_string = entry.path().to_string_lossy();
 
             let mut store_entry = false;
-            for rule in &pattern_rules {
-                // Check if a path-match is required for this `Rule`
-                if !rule.has_path() {
-                    store_entry = true;
-                } else if Matcher::match_path_str(&rule, &path_as_string) { // Check if the `Rule`'s path matches the current entry
+            for rule in rules {
+                // Check if the `Rule`'s path matches the current entry
+                if Matcher::match_path_str(rule, &path_as_string) {
                     // If the `Rule`'s path matches and the `Rule` is a whitelist-rule exit the loop
                     // and ignore the entry
                     if rule.severity() == Severity::WHITELIST {
@@ -54,8 +49,8 @@ pub trait FileFinderTrait {
         root: P,
         filter: F,
     ) -> Vec<Self::DirEntry>
-        where
-            F: Fn(&Self::DirEntry) -> bool;
+    where
+        F: Fn(&Self::DirEntry) -> bool;
 }
 
 pub fn find_files<P: AsRef<Path> + Debug + Clone>(

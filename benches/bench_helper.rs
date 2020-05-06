@@ -16,10 +16,11 @@ where
     D: DirEntryTrait,
     F: FileFinderTrait<DirEntry = D>,
 {
-    let rules = vec![Rule::new_raw(
+    let rules = vec![Rule::new(
         "2",
         Severity::NOTICE,
-        Some("\\.tx_mocfilemanager".to_owned()),
+        "\\.tx_mocfilemanager",
+        true,
         None,
     )];
     b.iter(|| ff.find(get_test_dir(), &rules));

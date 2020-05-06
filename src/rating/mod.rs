@@ -5,12 +5,12 @@ use crate::classifier::{classify_entry, Violation};
 use crate::dir_entry::DirEntryTrait;
 use crate::join::join_violations;
 use crate::severity::Severity;
-use crate::PatternRule;
+use crate::Rule;
 use std::fmt;
 
 pub fn rate_entries<'a, D: DirEntryTrait>(
     entries: &'a Vec<D>,
-    rules: &'a Vec<PatternRule>,
+    rules: &'a Vec<Rule>,
 ) -> Vec<Rating<'a>> {
     debug!("Will rate entries");
     let result = entries
@@ -22,7 +22,7 @@ pub fn rate_entries<'a, D: DirEntryTrait>(
     result
 }
 
-pub fn rate_entry<'a, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<PatternRule>) -> Rating<'a> {
+pub fn rate_entry<'a, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<Rule>) -> Rating<'a> {
     info!("Will rate entry {:?}", entry);
     let violations: Vec<Violation> = classify_entry(entry, rules);
 
@@ -128,19 +128,20 @@ mod test {
 
     mod rate_entry {
         use super::*;
+        use crate::RawPath;
 
         #[test]
         fn rate_entry_test() {
             let entry = get_test_dir_entry("something.tx_mocfilemanager.php");
-            let rules = vec![Rule::new_raw(
+            let rules = vec![Rule::new(
                 "1",
                 Severity::NOTICE,
-                Some("tx_mocfilemanager".to_owned()),
+                RawPath::with_path("tx_mocfilemanager"),
                 None,
-            )];
+            )
+            .unwrap()];
 
-            let pattern_rules = PatternRule::from_rules_filtered(&rules);
-            let rating = rate_entry(&entry, &pattern_rules);
+            let rating = rate_entry(&entry, &rules);
 
             assert_eq!(Severity::NOTICE as isize, rating.rating());
         }
@@ -149,22 +150,23 @@ mod test {
         fn rate_entry_multiple_matches_test() {
             let entry = get_test_dir_entry("something.tx_mocfilemanager.php");
             let rules = vec![
-                Rule::new_raw(
+                Rule::new(
                     "2",
                     Severity::MINOR,
-                    Some("tx_mocfilemanager".to_owned()),
+                    RawPath::with_path("tx_mocfilemanager"),
                     None,
-                ),
-                Rule::new_raw(
+                )
+                .unwrap(),
+                Rule::new(
                     "3",
                     Severity::NOTICE,
-                    Some("\\.tx_mocfilemanager".to_owned()),
+                    RawPath::with_regex("\\.tx_mocfilemanager"),
                     None,
-                ),
+                )
+                .unwrap(),
             ];
 
-            let pattern_rules = PatternRule::from_rules_filtered(&rules);
-            let rating = rate_entry(&entry, &pattern_rules);
+            let rating = rate_entry(&entry, &rules);
 
             assert_eq!(60, rating.rating());
         }
@@ -173,22 +175,23 @@ mod test {
         fn rate_entry_multiple_matches_subtract_test() {
             let entry = get_test_dir_entry("something.tx_mocfilemanager.php");
             let rules = vec![
-                Rule::new_raw(
+                Rule::new(
                     "4",
                     Severity::MINOR,
-                    Some("tx_mocfilemanager".to_owned()),
+                    RawPath::with_path("tx_mocfilemanager"),
                     None,
-                ),
-                Rule::new_raw(
+                )
+                .unwrap(),
+                Rule::new(
                     "5",
                     Severity::EASE,
-                    Some("tests/resources/files".to_owned()),
+                    RawPath::with_path("tests/resources/files"),
                     None,
-                ),
+                )
+                .unwrap(),
             ];
 
-            let pattern_rules = PatternRule::from_rules_filtered(&rules);
-            let rating = rate_entry(&entry, &pattern_rules);
+            let rating = rate_entry(&entry, &rules);
 
             assert_eq!(20, rating.rating());
             assert_eq!(Severity::NOTICE as isize, rating.rating());
@@ -197,15 +200,15 @@ mod test {
         #[test]
         fn rate_entry_with_content_test() {
             let entry = get_test_dir_entry("dezmond.php");
-            let rules = vec![Rule::new_raw(
+            let rules = vec![Rule::new(
                 "6",
                 Severity::NOTICE,
-                Some("\\.php".to_owned()),
+                RawPath::with_regex("\\.php"),
                 Some("dezmond".to_string()),
-            )];
+            )
+            .unwrap()];
 
-            let pattern_rules = PatternRule::from_rules_filtered(&rules);
-            let rating = rate_entry(&entry, &pattern_rules);
+            let rating = rate_entry(&entry, &rules);
 
             assert_eq!(Severity::NOTICE as isize, rating.rating());
         }
@@ -216,15 +219,15 @@ mod test {
                 "not-existing-file.php",
                 StandaloneFileType::File,
             );
-            let rules = vec![Rule::new_raw(
+            let rules = vec![Rule::new(
                 "Any PHP",
                 Severity::MAJOR,
-                None,
+                RawPath::with_path("not-existing-file.php"),
                 Some("does not matter".to_string()),
-            )];
+            )
+            .unwrap()];
 
-            let pattern_rules = PatternRule::from_rules_filtered(&rules);
-            let rating = rate_entry(&entry, &pattern_rules);
+            let rating = rate_entry(&entry, &rules);
 
             assert_eq!(
                 Severity::NONE as isize,
@@ -241,22 +244,23 @@ mod test {
                 StandaloneFileType::File,
             );
             let rules = vec![
-                Rule::new_raw(
+                Rule::new(
                     "Any PHP",
                     Severity::MAJOR,
-                    None,
+                    RawPath::with_regex("\\.php"),
                     Some("does not matter".to_string()),
-                ),
-                Rule::new_raw(
+                )
+                .unwrap(),
+                Rule::new(
                     "Whitelisted PHP file",
                     Severity::WHITELIST,
-                    Some("not-existing-file.php".into()),
+                    RawPath::with_path("not-existing-file.php"),
                     None,
-                ),
+                )
+                .unwrap(),
             ];
 
-            let pattern_rules = PatternRule::from_rules_filtered(&rules);
-            let rating = rate_entry(&entry, &pattern_rules);
+            let rating = rate_entry(&entry, &rules);
 
             assert!(
                 rating.rating() < 0,
@@ -269,6 +273,7 @@ mod test {
 
     mod rate_entries {
         use super::*;
+        use crate::rule::RawPath;
 
         #[test]
         fn rate_entries_test() {
@@ -276,15 +281,15 @@ mod test {
                 get_test_dir_entry("something.tx_mocfilemanager.php"),
                 get_test_dir_entry("tx_mocfilemanager.php"),
             ];
-            let rules = vec![Rule::new_raw(
+            let rules = vec![Rule::new(
                 "7",
                 Severity::NOTICE,
-                Some("tx_mocfilemanager".to_owned()),
+                RawPath::with_path("tx_mocfilemanager"),
                 None,
-            )];
+            )
+            .unwrap()];
 
-            let pattern_rules = PatternRule::from_rules_filtered(&rules);
-            let rating = rate_entries(&entries, &pattern_rules);
+            let rating = rate_entries(&entries, &rules);
 
             assert_eq!(
                 Severity::NOTICE as isize,
@@ -307,22 +312,23 @@ mod test {
                 get_test_dir_entry("tx_mocfilemanager.php"),
             ];
             let rules = vec![
-                Rule::new_raw(
+                Rule::new(
                     "8",
                     Severity::MINOR,
-                    Some("tx_mocfilemanager".to_owned()),
+                    RawPath::with_path("tx_mocfilemanager"),
                     None,
-                ),
-                Rule::new_raw(
+                )
+                .unwrap(),
+                Rule::new(
                     "9",
                     Severity::NOTICE,
-                    Some("\\.tx_mocfilemanager".to_owned()),
+                    RawPath::with_regex("\\.tx_mocfilemanager"),
                     None,
-                ),
+                )
+                .unwrap(),
             ];
 
-            let pattern_rules = PatternRule::from_rules_filtered(&rules);
-            let rating = rate_entries(&entries, &pattern_rules);
+            let rating = rate_entries(&entries, &rules);
 
             assert_eq!(60, rating[0].rating());
             assert_eq!(
@@ -340,22 +346,23 @@ mod test {
                 get_test_dir_entry("tx_mocfilemanager.php"),
             ];
             let rules = vec![
-                Rule::new_raw(
+                Rule::new(
                     "10",
                     Severity::MINOR,
-                    Some("tx_mocfilemanager".to_owned()),
+                    RawPath::with_path("tx_mocfilemanager"),
                     None,
-                ),
-                Rule::new_raw(
+                )
+                .unwrap(),
+                Rule::new(
                     "11",
                     Severity::EASE,
-                    Some("\\.tx_mocfilemanager".to_owned()),
+                    RawPath::with_regex("\\.tx_mocfilemanager"),
                     None,
-                ),
+                )
+                .unwrap(),
             ];
 
-            let pattern_rules = PatternRule::from_rules_filtered(&rules);
-            let rating = rate_entries(&entries, &pattern_rules);
+            let rating = rate_entries(&entries, &rules);
 
             assert_eq!(
                 20,
@@ -384,15 +391,15 @@ mod test {
                 get_test_dir_entry("tx_mocfilemanager.php"),
                 get_test_dir_entry("dezmond.php"),
             ];
-            let rules = vec![Rule::new_raw(
+            let rules = vec![Rule::new(
                 "12",
                 Severity::MINOR,
-                Some("\\.php".to_owned()),
+                RawPath::with_regex("\\.php"),
                 Some("dezmond".to_string()),
-            )];
+            )
+            .unwrap()];
 
-            let pattern_rules = PatternRule::from_rules_filtered(&rules);
-            let rating = rate_entries(&entries, &pattern_rules);
+            let rating = rate_entries(&entries, &rules);
 
             assert_eq!(
                 0,

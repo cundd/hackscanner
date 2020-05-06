@@ -107,8 +107,8 @@ impl FileFinder {
 impl FileFinderTrait for FileFinder {
     type DirEntry = StandaloneDirEntry;
     fn walk_dir<P: AsRef<Path> + Debug + Clone, F>(&self, root: P, filter: F) -> Vec<Self::DirEntry>
-        where
-            F: FnMut(&Self::DirEntry) -> bool,
+    where
+        F: FnMut(&Self::DirEntry) -> bool,
     {
         let entries = collect_dir_entries(&root.as_ref().to_string_lossy().into_owned());
 

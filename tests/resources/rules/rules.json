@@ -7,7 +7,10 @@
     },
     {
         "name": "some whitelist rule",
-        "path": "\\.php",
+        "path": {
+            "pattern": "\\.php",
+            "is_regex": true
+        },
         "content": "love",
         "severity": "WHITELIST"
     }

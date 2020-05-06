@@ -11,21 +11,21 @@ pub fn get_test_dir() -> String {
 }
 
 pub fn get_rules_multiple_results() -> Vec<Rule> {
-    vec![Rule::new_raw(
+    vec![Rule::new(
         "1",
         Severity::NOTICE,
-        Some("tx_mocfilemanager".to_owned()),
+        RawPath::with_path("tx_mocfilemanager"),
         None,
-    )]
+    ).unwrap()]
 }
 
 pub fn get_rules_single_result() -> Vec<Rule> {
-    vec![Rule::new_raw(
+    vec![Rule::new(
         "2",
         Severity::NOTICE,
-        Some("\\.tx_mocfilemanager".to_owned()),
+        RawPath::with_regex(r"\.tx_mocfilemanager"),
         None,
-    )]
+    ).unwrap()]
 }
 
 pub fn assert_multiple_paths<D: DirEntryTrait>(matches: Vec<D>) {
@@ -91,9 +91,9 @@ pub fn assert_single_path<D: DirEntryTrait>(matches: Vec<D>) {
 }
 
 pub fn test_multi_threading<D, F>(file_finder: F)
-where
-    D: DirEntryTrait,
-    F: FileFinderTrait<DirEntry = D> + 'static + ::std::marker::Send + Clone,
+    where
+        D: DirEntryTrait,
+        F: FileFinderTrait<DirEntry=D> + 'static + ::std::marker::Send + Clone,
 {
     let mut threads = vec![];
     for _ in 0..4 {

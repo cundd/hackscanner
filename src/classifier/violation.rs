@@ -1,7 +1,7 @@
 use crate::classifier::content_classifier::*;
 use crate::errors::Error;
-use crate::PatternRule;
-use crate::{Rule, Severity};
+use crate::Rule;
+use crate::{RuleTrait, Severity};
 use std::error::Error as StdError;
 
 #[derive(Debug, Clone)]
@@ -70,14 +70,14 @@ impl From<&Error> for Violation {
     }
 }
 
-impl From<Rule> for Violation {
-    fn from(rule: Rule) -> Self {
-        Self::with_rule(rule)
-    }
-}
+// impl From<Rule> for Violation {
+//     fn from(rule: Rule) -> Self {
+//         Self::with_rule(rule)
+//     }
+// }
 
-impl From<&PatternRule> for Violation {
-    fn from(rule: &PatternRule) -> Self {
-        Self::with_rule(Rule::from(rule))
+impl From<&Rule> for Violation {
+    fn from(rule: &Rule) -> Self {
+        Self::with_rule(rule.clone())
     }
 }
