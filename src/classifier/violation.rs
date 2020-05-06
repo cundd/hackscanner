@@ -60,21 +60,15 @@ impl Violation {
 
 impl From<&dyn StdError> for Violation {
     fn from(error: &dyn StdError) -> Self {
-        Self::with_name_and_severity(error.description().to_owned(), Severity::NOTICE)
+        Self::with_name_and_severity(error.to_string(), Severity::NOTICE)
     }
 }
 
 impl From<&Error> for Violation {
     fn from(error: &Error) -> Self {
-        Self::with_name_and_severity(error.description().to_owned(), Severity::NOTICE)
+        Self::with_name_and_severity(error.to_string(), Severity::NOTICE)
     }
 }
-
-// impl From<Rule> for Violation {
-//     fn from(rule: Rule) -> Self {
-//         Self::with_rule(rule)
-//     }
-// }
 
 impl From<&Rule> for Violation {
     fn from(rule: &Rule) -> Self {
