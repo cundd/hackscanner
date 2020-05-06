@@ -17,6 +17,7 @@ backtrace = ["error-chain/backtrace"]
 json = ["serde_json"]
 yaml = ["serde_yaml"]
 fts = []
+jemalloc = ["jemallocator"]
 default = ["backtrace", "json", "yaml"]
 
 [dependencies]
@@ -35,6 +36,9 @@ serde_derive = "1.0.98"
 
 serde_yaml = { version = "0.8.9", optional = true }
 serde_json = { version = "1.0.40", optional = true }
+
+[target.'cfg(not(target_env = "msvc"))'.dependencies]
+jemallocator = { version="0.3.2", optional = true }
 
 [profile.release]
 debug = true
