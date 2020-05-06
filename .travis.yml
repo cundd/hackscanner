@@ -6,7 +6,16 @@ rust:
 
 cache: cargo
 
-matrix:
+env:
+  - FEATURES="default"
+  - FEATURES="backtrace, json, yaml, jemalloc"
+
+jobs:
   allow_failures:
     - rust: nightly
   fast_finish: true
+
+script:
+  - cargo build --features="$FEATURES" --verbose
+  - cargo test --features="$FEATURES" --verbose
+
