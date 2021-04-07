@@ -169,6 +169,13 @@ fn get_builtin_rules_php() -> Vec<PatternRule> {
             "='preg_",
         )
         .unwrap(),
+        PatternRule::with_path_and_content(
+            "php::content::next1.space",
+            Severity::CRITICAL,
+            RawPath::with_path(".php"),
+            "next1.space",
+        )
+        .unwrap(),
     ]
 }
 
