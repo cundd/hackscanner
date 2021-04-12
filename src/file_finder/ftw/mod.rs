@@ -127,8 +127,9 @@ fn clear_entries() {
 #[allow(unused)]
 fn collect_dir_entries_ftw(root: &str) -> Vec<StandaloneDirEntry> {
     clear_entries();
+    let path = CString::new(root).unwrap();
     unsafe {
-        ftw(CString::new(root).unwrap().as_ptr(), ftw_collector, 20);
+        ftw(path.as_ptr(), ftw_collector, 20);
     }
 
     FOUND_PATHS.with(|p| (*p.borrow()).clone())
@@ -136,13 +137,9 @@ fn collect_dir_entries_ftw(root: &str) -> Vec<StandaloneDirEntry> {
 
 fn collect_dir_entries_nftw(root: &str) -> Vec<StandaloneDirEntry> {
     clear_entries();
+    let path = CString::new(root).unwrap();
     unsafe {
-        nftw(
-            CString::new(root).unwrap().as_ptr(),
-            nftw_collector,
-            20,
-            FTW_PHYS,
-        );
+        nftw(path.as_ptr(), nftw_collector, 20, FTW_PHYS);
     }
 
     FOUND_PATHS.with(|p| (*p.borrow()).clone())
