@@ -204,4 +204,11 @@ fn run_builtin_rules_test() {
         "tests/resources/files/typo3/uploads/tx_extensionbuilder/backups/minor_severity.php",
         true,
     );
+
+    assert_contains_entry_with_score(
+        &ratings,
+        Severity::NONE as isize,
+        "tests/resources/files/typo3/typo3/sysext/impexp/Tests/Functional/ImportFromVersionFourDotFive/PagesAndTtContentUploads/ImportInEmptyDatabaseTest.php",
+        true,
+    );
 }
