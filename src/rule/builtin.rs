@@ -244,5 +244,17 @@ fn get_builtin_rules_typo3() -> Vec<PatternRule> {
             RawPath::with_regex(r"typo3temp/var/transient/ext_update[a-z0-9]*\.php"),
         )
         .unwrap(),
+        PatternRule::with_path(
+            "typo3::file::php-in-uploads",
+            Severity::MAJOR,
+            RawPath::with_regex(r"uploads/.*php"),
+        )
+        .unwrap(),
+        PatternRule::with_path(
+            "typo3::file::php-in-extension-builder-backups",
+            Severity::EASE, // Decrease ("ease") the rating form MAJOR to MINOR
+            RawPath::with_regex(r"uploads/tx_extensionbuilder/backups/.*php"),
+        )
+        .unwrap(),
     ]
 }
