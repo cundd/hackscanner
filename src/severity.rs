@@ -13,6 +13,7 @@ pub enum Severity {
     NONE = 0,
 
     EASE = -20,
+    EASE2X = -40,
     WHITELIST = -250,
 }
 
@@ -27,6 +28,7 @@ impl Severity {
             &Severity::NONE => "NONE",
 
             &Severity::EASE => "EASE",
+            &Severity::EASE2X => "EASE 2X",
             &Severity::WHITELIST => "WHITELIST",
         }
     }
@@ -48,6 +50,7 @@ impl FromStr for Severity {
             "MINOR" => Ok(Severity::MINOR),
             "NOTICE" => Ok(Severity::NOTICE),
             "EASE" => Ok(Severity::EASE),
+            "EASE2X" => Ok(Severity::EASE2X),
             "NONE" => Ok(Severity::NONE),
             "WHITELIST" => Ok(Severity::WHITELIST),
             _ => Err(s.into()),
@@ -67,6 +70,8 @@ impl From<isize> for Severity {
             Severity::NOTICE
         } else if rating == Severity::EASE as isize {
             Severity::EASE
+        } else if rating == Severity::EASE2X as isize {
+            Severity::EASE2X
         } else if rating == Severity::WHITELIST as isize {
             Severity::WHITELIST
         } else {
