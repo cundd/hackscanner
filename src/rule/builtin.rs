@@ -252,8 +252,8 @@ fn get_builtin_rules_typo3() -> Vec<PatternRule> {
         .unwrap(),
         PatternRule::with_path(
             "typo3::file::php-in-extension-builder-backups",
-            Severity::EASE, // Decrease ("ease") the rating form MAJOR to MINOR
-            RawPath::with_regex(r"\buploads/tx_extensionbuilder/backups/.*php"),
+            Severity::EASE2X, // Decrease ("ease") the rating form MAJOR to NOTICE
+            RawPath::with_regex(r"/uploads/tx_extensionbuilder/backups/.*\.php"),
         )
         .unwrap(),
     ]

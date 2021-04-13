@@ -200,8 +200,8 @@ fn run_builtin_rules_test() {
 
     assert_contains_entry_with_score(
         &ratings,
-        Severity::MINOR as isize,
-        "tests/resources/files/typo3/uploads/tx_extensionbuilder/backups/minor_severity.php",
+        Severity::NOTICE as isize,
+        "tests/resources/files/typo3/uploads/tx_extensionbuilder/backups/notice_severity.php",
         true,
     );
 
