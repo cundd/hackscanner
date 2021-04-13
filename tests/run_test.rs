@@ -211,4 +211,8 @@ fn run_builtin_rules_test() {
         "tests/resources/files/typo3/typo3/sysext/impexp/Tests/Functional/ImportFromVersionFourDotFive/PagesAndTtContentUploads/ImportInEmptyDatabaseTest.php",
         true,
     );
+    assert_not_contains_entry(
+        &ratings,
+        "tests/resources/files/typo3/uploads/tx_ext_with_php_in_name/index.html",
+    );
 }

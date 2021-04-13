@@ -247,7 +247,7 @@ fn get_builtin_rules_typo3() -> Vec<PatternRule> {
         PatternRule::with_path(
             "typo3::file::php-in-uploads",
             Severity::MAJOR,
-            RawPath::with_regex(r"\buploads/.*php"),
+            RawPath::with_regex(r"/uploads/.*\.php"),
         )
         .unwrap(),
         PatternRule::with_path(
