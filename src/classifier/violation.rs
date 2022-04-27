@@ -6,6 +6,7 @@ use std::error::Error as StdError;
 
 #[derive(Debug, Clone)]
 pub struct Violation {
+    #[allow(unused)]
     rule: Option<Rule>,
     name: String,
     severity: Severity,
