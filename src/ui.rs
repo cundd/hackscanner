@@ -1,6 +1,5 @@
 use ansi_term::Colour;
 use hackscanner_lib::*;
-use term;
 
 pub fn print_summary(min_severity: Severity, summary: &Summary) {
     println!("[SUMMARY]");
@@ -15,18 +14,18 @@ pub fn print_summary(min_severity: Severity, summary: &Summary) {
     };
 
     if supports_color {
-        print_summary_colored(&summary);
+        print_summary_colored(summary);
     } else {
-        print_summary_simple(&summary);
+        print_summary_simple(summary);
     }
 
     println!()
 }
 
-pub fn print_ratings(min_severity: Severity, ratings: &Vec<Rating<'_>>) {
+pub fn print_ratings(min_severity: Severity, ratings: &[Rating<'_>]) {
     for rating in ratings {
         if rating.rating() >= min_severity as isize {
-            print_rating(&rating);
+            print_rating(rating);
         }
     }
 }

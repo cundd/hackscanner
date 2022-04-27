@@ -30,7 +30,7 @@ impl RegexCache {
         }
     }
 
-    fn set(pattern: &str, regex: Regex) -> () {
+    fn set(pattern: &str, regex: Regex) {
         if let Ok(mut write_handle) = REGEX_CACHE.try_write() {
             (*write_handle).insert(pattern.to_owned(), regex);
         }

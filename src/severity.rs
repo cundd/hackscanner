@@ -1,4 +1,5 @@
 use crate::errors::Error;
+use serde::Deserialize;
 use std::fmt;
 use std::fmt::Display;
 use std::str::FromStr;
@@ -19,17 +20,17 @@ pub enum Severity {
 
 impl Severity {
     pub fn description(&self) -> &str {
-        match self {
-            &Severity::CRITICAL => "CRITICAL",
-            &Severity::MAJOR => "MAJOR",
-            &Severity::MINOR => "MINOR",
-            &Severity::NOTICE => "NOTICE",
+        match *self {
+            Severity::CRITICAL => "CRITICAL",
+            Severity::MAJOR => "MAJOR",
+            Severity::MINOR => "MINOR",
+            Severity::NOTICE => "NOTICE",
 
-            &Severity::NONE => "NONE",
+            Severity::NONE => "NONE",
 
-            &Severity::EASE => "EASE",
-            &Severity::EASE2X => "EASE 2X",
-            &Severity::WHITELIST => "WHITELIST",
+            Severity::EASE => "EASE",
+            Severity::EASE2X => "EASE 2X",
+            Severity::WHITELIST => "WHITELIST",
         }
     }
 }

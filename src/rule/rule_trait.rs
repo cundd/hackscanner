@@ -22,10 +22,6 @@ pub trait RuleTrait<T> {
 
     /// Return if the `Rule`'s path is a regular expression
     fn is_regex_path(&self) -> bool {
-        if let RulePath::Regex(_) = self.path() {
-            true
-        } else {
-            false
-        }
+        matches!(self.path(), RulePath::Regex(_))
     }
 }

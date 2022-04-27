@@ -5,6 +5,7 @@ extern crate test;
 
 use hackscanner_lib::file_finder::FileFinderTrait;
 use hackscanner_lib::*;
+use std::str::FromStr;
 use test::Bencher;
 
 fn get_test_dir() -> String {
@@ -19,10 +20,10 @@ where
     let rules = vec![Rule::new(
         "2",
         Severity::NOTICE,
-        "\\.tx_mocfilemanager",
-        true,
+        RawPath::from_str("\\.tx_mocfilemanager").unwrap(),
         None,
-    )];
+    )
+    .unwrap()];
     b.iter(|| ff.find(get_test_dir(), &rules));
 }
 
@@ -31,5 +32,5 @@ where
     D: DirEntryTrait,
     F: FileFinderTrait<DirEntry = D>,
 {
-    b.iter(|| ff.find(get_test_dir(), &vec![]));
+    b.iter(|| ff.find(get_test_dir(), &[]));
 }

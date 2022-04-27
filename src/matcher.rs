@@ -10,7 +10,7 @@ impl Matcher {
     pub fn match_entry_path<C, P: RuleTrait<C>, D: DirEntryTrait>(rule: &P, entry: &D) -> bool {
         let path_as_string = entry.path().to_string_lossy();
 
-        Matcher::match_path_str(rule, &path_as_string)
+        Matcher::match_path_str(rule, path_as_string.as_ref())
     }
 
     /// Check if the given path matches the given rule
@@ -36,7 +36,7 @@ impl Matcher {
                     r,
                     path_as_string
                 );
-                r.is_match(&path_as_string)
+                r.is_match(path_as_string)
             }
         }
     }

@@ -9,7 +9,7 @@ use clap::App;
 use clap::Arg;
 use clap::ArgMatches;
 use hackscanner_lib::*;
-use simplelog;
+
 use simplelog::TerminalMode;
 use std::env;
 use std::path::Path;
@@ -59,7 +59,7 @@ fn run() -> Result<(), Error> {
         ;
 
     #[cfg(any(feature = "json", feature = "yaml"))]
-        let app = app.arg(
+    let app = app.arg(
         Arg::with_name("configuration")
             .help("File with additional rules")
             .short("c")
@@ -72,9 +72,9 @@ fn run() -> Result<(), Error> {
     configure_logging(&matches).unwrap();
 
     #[cfg(not(any(feature = "json", feature = "yaml")))]
-        let rules = get_merged_rules(None)?;
+    let rules = get_merged_rules(None)?;
     #[cfg(any(feature = "json", feature = "yaml"))]
-        let rules = get_merged_rules(match matches.value_of("configuration") {
+    let rules = get_merged_rules(match matches.value_of("configuration") {
         Some(c) => Some(Path::new(c)),
         None => None,
     })?;
@@ -84,7 +84,6 @@ fn run() -> Result<(), Error> {
         None => scan(&matches, rules),
     }
 }
-
 
 // Trace is only supported on debug-builds
 #[cfg(debug_assertions)]
@@ -97,12 +96,9 @@ fn get_verbosity_help() -> &'static str {
     "Sets the level of verbosity (-v = Info, -vv = Debug)"
 }
 
-fn scan(
-    matches: &ArgMatches,
-    rules: Vec<Rule>,
-) -> Result<(), Error> {
-    let min_severity = get_minimum_severity(&matches);
-    let root = get_root(&matches);
+fn scan(matches: &ArgMatches, rules: Vec<Rule>) -> Result<(), Error> {
+    let min_severity = get_minimum_severity(matches);
+    let root = get_root(matches);
     let quiet = matches.is_present("quiet");
 
     let files = file_finder::find_files(root, &rules);
@@ -117,11 +113,7 @@ fn scan(
     Ok(())
 }
 
-fn validate(
-    matches: &ArgMatches,
-    rules: Vec<Rule>,
-    test_path: &str,
-) -> Result<(), Error> {
+fn validate(matches: &ArgMatches, rules: Vec<Rule>, test_path: &str) -> Result<(), Error> {
     let entry = ValidationDirEntry::from_path_str(test_path);
     if !entry.path().exists() {
         bail!(format!("File {} does not exist", entry.path().display()))
@@ -155,7 +147,6 @@ fn get_minimum_severity(matches: &ArgMatches<'_>) -> Severity {
     }
 }
 
-
 /// Read the `Rule`s from the given path and merge them with the builtin rules
 fn get_merged_rules(path: Option<&Path>) -> Result<Vec<Rule>, Error> {
     match path {
@@ -173,11 +164,15 @@ fn configure_logging(matches: &ArgMatches<'_>) -> Result<(), Error> {
     };
 
     let mut loggers: Vec<Box<dyn simplelog::SharedLogger>> = vec![];
-    let mut config = simplelog::Config::default();
-    config.time_format = Some("%H:%M:%S%.3f");
+    // let mut config = simplelog::Config::default();
+    // config.time_format = Some("%H:%M:%S%.3f");
+    let config = simplelog::Config {
+        time_format: Some("%H:%M:%S%.3f"),
+        ..Default::default()
+    };
 
     if let Some(core_logger) =
-    simplelog::TermLogger::new(log_level_filter, config, TerminalMode::Mixed)
+        simplelog::TermLogger::new(log_level_filter, config, TerminalMode::Mixed)
     {
         loggers.push(core_logger);
     } else {

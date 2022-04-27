@@ -12,10 +12,7 @@ use self::content_classifier::ContentClassifier;
 use self::path_classifier::PathClassifier;
 pub use self::violation::Violation;
 
-pub fn classify_entries<'a, 'b, D: DirEntryTrait>(
-    entries: &'a Vec<D>,
-    rules: &'a Vec<Rule>,
-) -> Vec<Vec<Violation>> {
+pub fn classify_entries<D: DirEntryTrait>(entries: &[D], rules: &[Rule]) -> Vec<Vec<Violation>> {
     debug!("Will classify entries");
     let result = entries
         .iter()
@@ -26,10 +23,7 @@ pub fn classify_entries<'a, 'b, D: DirEntryTrait>(
     result
 }
 
-pub fn classify_entry<'a, 'b, D: DirEntryTrait>(
-    entry: &'a D,
-    rules: &'a Vec<Rule>,
-) -> Vec<Violation> {
+pub fn classify_entry<D: DirEntryTrait>(entry: &D, rules: &[Rule]) -> Vec<Violation> {
     let mut path_classifier = path_classifier::PathClassifier::new(entry);
     let mut content_classifier = content_classifier::ContentClassifier::new(entry);
     rules

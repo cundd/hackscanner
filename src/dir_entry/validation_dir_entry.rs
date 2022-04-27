@@ -24,8 +24,8 @@ impl DirEntry {
         }
     }
 
-    fn detect_file_type(path_buf: &PathBuf) -> StandaloneFileType {
-        if let Ok(metadata) = path_buf.metadata() {
+    fn detect_file_type(path: &Path) -> StandaloneFileType {
+        if let Ok(metadata) = path.metadata() {
             let file_type = metadata.file_type();
 
             StandaloneFileType::from_file_type(&file_type)

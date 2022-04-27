@@ -17,7 +17,7 @@ use crate::dir_entry::StandaloneDirEntry;
 use crate::fs::StandaloneFileType;
 
 #[repr(C)]
-struct FTW {
+struct Ftw {
     base: c_int,
     level: c_int,
 }
@@ -30,7 +30,7 @@ type NftwFn = extern "C" fn(
     fpath: *const c_char,
     sb: *const stat,
     typeflag: c_int,
-    ftwbuf: *const FTW,
+    ftwbuf: *const Ftw,
 ) -> c_int;
 
 extern "C" {
@@ -80,7 +80,7 @@ extern "C" fn nftw_collector(
     fpath: *const c_char,
     _sb: *const stat,
     typeflag: c_int,
-    _ftwbuf: *const FTW,
+    _ftwbuf: *const Ftw,
 ) -> c_int {
     unsafe {
         let path_string = CStr::from_ptr(fpath);

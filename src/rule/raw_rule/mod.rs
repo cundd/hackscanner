@@ -2,6 +2,7 @@ use super::raw_path::string_or_struct;
 pub(crate) use super::raw_path::RawPath;
 use crate::rule::rule_path::RulePath;
 use crate::severity::Severity;
+use serde::Deserialize;
 
 /// "raw" Rule
 #[derive(Debug, Clone, Deserialize, PartialOrd, PartialEq)]
@@ -17,6 +18,7 @@ impl RawRule {
     pub fn is_regex_path(&self) -> bool {
         self.path.is_regex()
     }
+
     pub fn path_ref(&self) -> &str {
         self.path.as_str()
     }

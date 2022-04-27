@@ -37,7 +37,7 @@ impl Reader {
         let file: BufReader<File> = get_file_reader(path)?;
         match serde_json::from_reader::<BufReader<File>, Vec<RawRule>>(file) {
             Ok(r) => Ok(r),
-            Err(e) => return Err(build_deserialize_error(path, &e)),
+            Err(e) => Err(build_deserialize_error(path, &e)),
         }
     }
 
@@ -46,7 +46,7 @@ impl Reader {
         let file: BufReader<File> = get_file_reader(path)?;
         match serde_yaml::from_reader::<BufReader<File>, Vec<RawRule>>(file) {
             Ok(r) => Ok(r),
-            Err(e) => return Err(build_deserialize_error(path, &e)),
+            Err(e) => Err(build_deserialize_error(path, &e)),
         }
     }
 }
@@ -90,7 +90,7 @@ mod test {
     }
 
     fn content(rule: &RawRule) -> String {
-        format!("{}", rule.content().unwrap())
+        rule.content().unwrap()
     }
 
     fn test_loaded_rules(result: Result<Vec<RawRule>, Error>) {
@@ -99,12 +99,12 @@ mod test {
 
         assert_eq!(2, rules.len());
 
-        assert_eq!("some rule", rules[0].name().clone());
+        assert_eq!("some rule", rules[0].name());
         assert_eq!("some/path", path(&rules[0]));
         assert_eq!("some bad content", content(&rules[0]));
         assert_eq!(Severity::CRITICAL, rules[0].severity());
 
-        assert_eq!("some whitelist rule", rules[1].name().clone());
+        assert_eq!("some whitelist rule", rules[1].name());
         assert_eq!("\\.php", path(&rules[1]));
         assert_eq!("love", content(&rules[1]));
         assert_eq!(Severity::WHITELIST, rules[1].severity());
@@ -112,7 +112,7 @@ mod test {
 
     #[test]
     fn read_raw_rules_from_file_invalid() {
-        let result = Reader::read_raw_rules_from_file(&Path::new(&format!(
+        let result = Reader::read_raw_rules_from_file(Path::new(&format!(
             "{}/tests",
             env!("CARGO_MANIFEST_DIR")
         )));
@@ -122,7 +122,7 @@ mod test {
             result.unwrap_err().description()
         );
 
-        let result = Reader::read_raw_rules_from_file(&Path::new(&format!(
+        let result = Reader::read_raw_rules_from_file(Path::new(&format!(
             "{}/tests.txt",
             env!("CARGO_MANIFEST_DIR")
         )));
@@ -136,7 +136,7 @@ mod test {
     #[test]
     #[cfg(feature = "json")]
     fn read_raw_rules_from_file_with_not_existing_json() {
-        let result = Reader::read_raw_rules_from_file(&Path::new(&format!(
+        let result = Reader::read_raw_rules_from_file(Path::new(&format!(
             "{}/tests/resources/rules/not-a-file.json",
             env!("CARGO_MANIFEST_DIR")
         )));
@@ -150,7 +150,7 @@ mod test {
     #[test]
     #[cfg(feature = "json")]
     fn read_raw_rules_from_file_with_json() {
-        let result = Reader::read_raw_rules_from_file(&Path::new(&format!(
+        let result = Reader::read_raw_rules_from_file(Path::new(&format!(
             "{}/tests/resources/rules/rules.json",
             env!("CARGO_MANIFEST_DIR")
         )));
@@ -160,7 +160,7 @@ mod test {
     #[test]
     #[cfg(feature = "yaml")]
     fn read_raw_rules_from_file_with_not_existing_yaml() {
-        let result = Reader::read_raw_rules_from_file(&Path::new(&format!(
+        let result = Reader::read_raw_rules_from_file(Path::new(&format!(
             "{}/tests/resources/rules/not-a-file.yaml",
             env!("CARGO_MANIFEST_DIR")
         )));
@@ -174,7 +174,7 @@ mod test {
     #[test]
     #[cfg(feature = "yaml")]
     fn read_raw_rules_from_file_with_yaml() {
-        let result = Reader::read_raw_rules_from_file(&Path::new(&format!(
+        let result = Reader::read_raw_rules_from_file(Path::new(&format!(
             "{}/tests/resources/rules/rules.yaml",
             env!("CARGO_MANIFEST_DIR")
         )));

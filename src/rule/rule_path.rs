@@ -15,7 +15,7 @@ impl RulePath {
     /// Panics if this variant is not a `RulePath::Regex`
     pub fn regex(&self) -> &Regex {
         match self {
-            Self::Regex(r) => &r,
+            Self::Regex(r) => r,
             Self::String(_) => panic!("Not a Regex Rule Path"),
         }
     }
@@ -27,7 +27,7 @@ impl RulePath {
     /// Panics if this variant is not a `RulePath::String`
     pub fn path_str(&self) -> &str {
         match self {
-            Self::String(s) => &s,
+            Self::String(s) => s,
             Self::Regex(_) => panic!("Not a String Rule Path"),
         }
     }

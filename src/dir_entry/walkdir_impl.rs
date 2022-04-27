@@ -30,7 +30,7 @@ impl DirEntryTrait for DirEntry {
     ///
     /// See [`walkdir::DirEntry::path`] for more details
     fn path(&self) -> &Path {
-        &self.raw.path()
+        self.raw.path()
     }
 
     /// Return `true` if and only if this entry was created from a symbolic

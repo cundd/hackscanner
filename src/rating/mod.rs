@@ -6,12 +6,10 @@ use crate::dir_entry::DirEntryTrait;
 use crate::join::join_violations;
 use crate::severity::Severity;
 use crate::Rule;
+use std::cmp::Reverse;
 use std::fmt;
 
-pub fn rate_entries<'a, D: DirEntryTrait>(
-    entries: &'a Vec<D>,
-    rules: &'a Vec<Rule>,
-) -> Vec<Rating<'a>> {
+pub fn rate_entries<'a, D: DirEntryTrait>(entries: &'a [D], rules: &'a [Rule]) -> Vec<Rating<'a>> {
     debug!("Will rate entries");
     let result = entries
         .iter()
@@ -22,7 +20,7 @@ pub fn rate_entries<'a, D: DirEntryTrait>(
     result
 }
 
-pub fn rate_entry<'a, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<Rule>) -> Rating<'a> {
+pub fn rate_entry<'a, D: DirEntryTrait>(entry: &'a D, rules: &[Rule]) -> Rating<'a> {
     info!("Will rate entry {:?}", entry);
     let violations: Vec<Violation> = classify_entry(entry, rules);
 
@@ -43,7 +41,7 @@ pub fn rate_entry<'a, D: DirEntryTrait>(entry: &'a D, rules: &'a Vec<Rule>) -> R
 pub fn sort_ratings<'a>(ratings: &[Rating<'a>]) -> Vec<Rating<'a>> {
     let mut copy = ratings.to_vec();
 
-    copy.sort_unstable_by(|a, b| b.rating().cmp(&a.rating()));
+    copy.sort_unstable_by_key(|b| Reverse(b.rating()));
 
     copy
 }

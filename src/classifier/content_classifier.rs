@@ -22,11 +22,11 @@ pub struct ContentClassifier {
 }
 
 impl ContentClassifier {
-    fn get_file_content<'f, D: DirEntryTrait>(
+    fn get_file_content<D: DirEntryTrait>(
         &mut self,
         entry: &D,
     ) -> Result<&str, ContentClassificationError> {
-        if !(entry.path() == self.path.as_path()) {
+        if entry.path() != self.path.as_path() {
             unreachable!(
                 "Entry path does not match path stored in struct ContentClassifier. \n{:?} != \n{:?}",
                 entry.path(),

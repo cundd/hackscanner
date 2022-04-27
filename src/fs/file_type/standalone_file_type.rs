@@ -40,29 +40,29 @@ impl FileType {
 
 impl FileTypeTrait for FileType {
     fn is_dir(&self) -> bool {
-        match self {
-            &FileType::File => false,
-            &FileType::Directory => true,
-            &FileType::Symlink => false,
-            &FileType::Unknown => false,
+        match *self {
+            FileType::File => false,
+            FileType::Directory => true,
+            FileType::Symlink => false,
+            FileType::Unknown => false,
         }
     }
 
     fn is_file(&self) -> bool {
-        match self {
-            &FileType::File => true,
-            &FileType::Directory => false,
-            &FileType::Symlink => false,
-            &FileType::Unknown => false,
+        match *self {
+            FileType::File => true,
+            FileType::Directory => false,
+            FileType::Symlink => false,
+            FileType::Unknown => false,
         }
     }
 
     fn is_symlink(&self) -> bool {
-        match self {
-            &FileType::File => false,
-            &FileType::Directory => false,
-            &FileType::Symlink => true,
-            &FileType::Unknown => false,
+        match *self {
+            FileType::File => false,
+            FileType::Directory => false,
+            FileType::Symlink => true,
+            FileType::Unknown => false,
         }
     }
 }

@@ -1,5 +1,3 @@
-use simplelog;
-
 use hackscanner_lib::*;
 use simplelog::TerminalMode;
 
@@ -7,7 +5,7 @@ use simplelog::TerminalMode;
 ///
 /// If `equals_score` is `true` the rating has to exactly equal `score`, otherwise it can also be bigger
 fn assert_contains_entry_with_score(
-    ratings: &Vec<Rating<'_>>,
+    ratings: &[Rating<'_>],
     score: isize,
     path: &str,
     equals_score: bool,
@@ -38,12 +36,12 @@ fn assert_contains_entry_with_score(
 }
 
 /// Assert that none of the Ratings contain a path matching `path` and a rating bigger than 0
-fn assert_not_contains_entry(ratings: &Vec<Rating<'_>>, path: &str) {
+fn assert_not_contains_entry(ratings: &[Rating<'_>], path: &str) {
     assert_not_contains_entry_with_score(ratings, 1, path)
 }
 
 /// Assert that none of the Ratings contain a path matching `path` and a rating equal to or bigger than `score`
-fn assert_not_contains_entry_with_score(ratings: &Vec<Rating<'_>>, score: isize, path: &str) {
+fn assert_not_contains_entry_with_score(ratings: &[Rating<'_>], score: isize, path: &str) {
     for rating in ratings {
         let path_as_string = rating.entry().path().to_string_lossy().into_owned();
         if path_as_string.contains(path) {
