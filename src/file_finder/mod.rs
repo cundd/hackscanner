@@ -20,6 +20,9 @@ pub trait FileFinderTrait {
             if entry.file_type().is_dir() {
                 return false;
             }
+            if entry.file_type().is_symlink() {
+                return false;
+            }
             let path_as_string = entry.path().to_string_lossy();
 
             let mut store_entry = false;
