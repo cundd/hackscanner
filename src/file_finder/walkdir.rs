@@ -27,7 +27,10 @@ impl FileFinderTrait for FileFinder {
             .into_iter()
             .filter_map(|entry| match entry {
                 Ok(entry) => Some(WalkdirDirEntry::from_dir_entry(entry)),
-                Err(_) => None,
+                Err(e) => {
+                    error!("{}",e);
+                    None
+                }
             })
             .filter(filter)
             .collect();
