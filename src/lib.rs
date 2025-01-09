@@ -28,10 +28,3 @@ pub use crate::join::join_violations;
 pub use crate::rating::*;
 pub use crate::rule::*;
 pub use crate::severity::Severity;
-
-#[cfg(all(not(target_env = "msvc"), feature = "jemalloc"))]
-use jemallocator::Jemalloc;
-
-#[cfg(all(not(target_env = "msvc"), feature = "jemalloc"))]
-#[global_allocator]
-static GLOBAL: Jemalloc = Jemalloc;
