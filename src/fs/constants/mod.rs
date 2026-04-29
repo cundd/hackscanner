@@ -10,8 +10,8 @@ mod constants_linux;
 #[cfg(target_os = "linux")]
 pub use self::constants_linux::*;
 
-#[cfg(any(target_os = "freebsd", target_os = "openbsd", target_os = "netbsed"))]
+#[cfg(any(target_os = "freebsd", target_os = "openbsd", target_os = "netbsd"))]
 mod constants_unix;
 
-#[cfg(any(target_os = "freebsd", target_os = "openbsd", target_os = "netbsed"))]
+#[cfg(any(target_os = "freebsd", target_os = "openbsd", target_os = "netbsd"))]
 pub use self::constants_unix::*;
