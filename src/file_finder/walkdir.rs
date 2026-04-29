@@ -21,20 +21,20 @@ impl FileFinderTrait for FileFinder {
         F: Fn(&Self::DirEntry) -> bool,
     {
         info!("Search files in directory {:?}", root);
-        debug!("Start searching files in root {:?}", root);
 
         let result = WalkDir::new(root.clone())
             .into_iter()
             .filter_map(|entry| match entry {
                 Ok(entry) => Some(WalkdirDirEntry::from_dir_entry(entry)),
                 Err(e) => {
-                    error!("{}",e);
+                    error!("{}", e);
                     None
                 }
             })
             .filter(filter)
             .collect();
-        debug!("End searching files in root {:?}", root);
+
+        debug!("Finished searching files in directory {:?}", root);
 
         result
     }
