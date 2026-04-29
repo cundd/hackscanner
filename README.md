@@ -41,7 +41,10 @@ The configuration file can be a JSON or YAML file.
   },
   {
     "name": "some whitelist rule",
-    "path": "\\.php",
+    "path": {
+      "pattern": "\\.php",
+      "is_regex": true
+    },
     "content": "love",
     "severity": "WHITELIST"
   }
@@ -57,7 +60,9 @@ The configuration file can be a JSON or YAML file.
   severity: CRITICAL
 
 - name: some whitelist rule
-  path: "\\.php"
+  path:
+    pattern: "\\.php"
+    is_regex: true
   content: love
   severity: WHITELIST
 ```
