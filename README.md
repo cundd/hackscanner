@@ -70,5 +70,5 @@ The configuration file can be a JSON or YAML file.
 ## Build
 
 ```bash
-docker run --rm --user "$(id -u)":"$(id -g)" -v "$PWD":/usr/src/hackscanner -w /usr/src/hackscanner rust:1.23.0 cargo build --release
+docker run --rm --user "$(id -u)":"$(id -g)" -v "$PWD":/usr/src/hackscanner -w /usr/src/hackscanner rust:1.95 cargo build --release
 ```
