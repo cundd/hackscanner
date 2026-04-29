@@ -10,6 +10,8 @@ use clap::Arg;
 use clap::ArgMatches;
 use hackscanner_lib::*;
 
+use simplelog::ColorChoice;
+use simplelog::ConfigBuilder;
 use simplelog::TerminalMode;
 use std::env;
 use std::path::Path;
@@ -164,20 +166,17 @@ fn configure_logging(matches: &ArgMatches<'_>) -> Result<(), Error> {
     };
 
     let mut loggers: Vec<Box<dyn simplelog::SharedLogger>> = vec![];
-    // let mut config = simplelog::Config::default();
-    // config.time_format = Some("%H:%M:%S%.3f");
-    let config = simplelog::Config {
-        time_format: Some("%H:%M:%S%.3f"),
-        ..Default::default()
-    };
+    let config = ConfigBuilder::new()
+        // .set_time_format_custom(format_description!("[hour]:[minute]:[second].[subsecond]"))
+        .build();
 
-    if let Some(core_logger) =
-        simplelog::TermLogger::new(log_level_filter, config, TerminalMode::Mixed)
-    {
-        loggers.push(core_logger);
-    } else {
-        loggers.push(simplelog::SimpleLogger::new(log_level_filter, config));
-    }
+    let core_logger = simplelog::TermLogger::new(
+        log_level_filter,
+        config,
+        TerminalMode::Mixed,
+        ColorChoice::Auto,
+    );
+    loggers.push(core_logger);
 
     match simplelog::CombinedLogger::init(loggers) {
         Ok(_) => Ok(()),

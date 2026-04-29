@@ -1,5 +1,5 @@
 use hackscanner_lib::*;
-use simplelog::TerminalMode;
+use simplelog::{ColorChoice, ConfigBuilder, TerminalMode};
 
 /// Assert that the `ratings` contain a Rating with the path matching `path` and a rating matching `score`
 ///
@@ -58,16 +58,17 @@ fn assert_not_contains_entry_with_score(ratings: &[Rating<'_>], score: isize, pa
 
 fn configure_logging(log_level_filter: simplelog::LevelFilter) {
     let mut loggers: Vec<Box<dyn simplelog::SharedLogger>> = vec![];
-    let mut config = simplelog::Config::default();
-    config.time_format = Some("%H:%M:%S%.3f");
+    let config = ConfigBuilder::new()
+        // .set_time_format_custom(format_description!("[hour]:[minute]:[second].[subsecond]"))
+        .build();
 
-    if let Some(core_logger) =
-        simplelog::TermLogger::new(log_level_filter, config, TerminalMode::Mixed)
-    {
-        loggers.push(core_logger);
-    } else {
-        loggers.push(simplelog::SimpleLogger::new(log_level_filter, config));
-    }
+    let core_logger = simplelog::TermLogger::new(
+        log_level_filter,
+        config,
+        TerminalMode::Mixed,
+        ColorChoice::Auto,
+    );
+    loggers.push(core_logger);
 
     let _ = simplelog::CombinedLogger::init(loggers);
 }
